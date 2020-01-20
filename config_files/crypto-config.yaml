@@ -1,0 +1,20 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: jnu.com
+    Specs:
+      - Hostname: orderer
+PeerOrgs:
+  - Name: Manager
+    Domain: manager.jnu.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Student
+    Domain: student.jnu.com
+    EnableNodeOUs: true
+    Template:
+            Count: 1
+    Users:
+      Count: 1

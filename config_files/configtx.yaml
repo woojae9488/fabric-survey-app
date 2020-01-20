@@ -1,0 +1,137 @@
+Organizations:
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: ../crypto-config/ordererOrganizations/jnu.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    - &ManagerOrg
+        Name: ManagerMSP
+        ID: ManagerMSP
+        MSPDir: ../crypto-config/peerOrganizations/manager.jnu.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('ManagerMSP.admin', 'ManagerMSP.peer', 'ManagerMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('ManagerMSP.admin', 'ManagerMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('ManagerMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.manager.jnu.com
+              Port: 7051
+
+    - &StudentOrg
+        Name: StudentMSP
+        ID: StudentMSP
+        MSPDir: ../crypto-config/peerOrganizations/student.jnu.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('StudentMSP.admin', 'StudentMSP.peer', 'StudentMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('StudentMSP.admin', 'StudentMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('StudentMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.student.jnu.com
+              Port: 7051
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_3: true
+    Orderer: &OrdererCapabilities
+        V1_1: true
+    Application: &ApplicationCapabilities
+        V1_3: true
+        V1_2: false
+        V1_1: false
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+    OrdererType: solo
+    Addresses:
+        - orderer.jnu.com:7050
+    BatchTimeout: 3s
+    BatchSize:
+        MaxMessageCount: 15
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+    JNUOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            JNUConsortium:
+                Organizations:
+                    - *ManagerOrg
+                    - *StudentOrg
+    JNUChannel:
+        Consortium: JNUConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *ManagerOrg
+                - *StudentOrg
+            Capabilities:
+                <<: *ApplicationCapabilities

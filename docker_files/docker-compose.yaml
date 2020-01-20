@@ -1,0 +1,77 @@
+version: '2'
+
+volumes:
+  orderer.jnu.com:
+  peer0.manager.jnu.com:
+  peer0.student.jnu.com:
+
+networks:
+  jnu_blockchain_network:
+
+services:
+  orderer.jnu.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.jnu.com
+    container_name: orderer.jnu.com
+    networks:
+      - jnu_blockchain_network
+
+  peer0.manager.jnu.com:
+    container_name: peer0.manager.jnu.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.manager.jnu.com
+    networks:
+      - jnu_blockchain_network
+
+  peer0.student.jnu.com:
+    container_name: peer0.student.jnu.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.student.jnu.com
+    networks:
+      - jnu_blockchain_network
+
+  fabric-ca-server:
+    container_name: fabric-ca-server
+    image: hyperledger/fabric-ca:1.4
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    volumes:
+      - ../crypto-config:/etc/hyperledger/fabric-ca-server
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    ports:
+      - 7054:7054
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:1.4
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.manager.jnu.com:7051
+      - CORE_PEER_LOCALMSPID=ManagerMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/users/Admin@manager.jnu.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../chaincode/:/opt/gopath/src/github.com/chaincode
+        - ../crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.jnu.com
+      - peer0.manager.jnu.com
+      - peer0.student.jnu.com
+    networks:
+      - jnu_blockchain_network
