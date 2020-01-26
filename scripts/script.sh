@@ -7,7 +7,7 @@ echo "\___ \    | |     / _ \   | |_) |   | |  "
 echo " ___) |   | |    / ___ \  |  _ <    | |  "
 echo "|____/    |_|   /_/   \_\ |_| \_\   |_|  "
 echo
-echo "jnu_blockchain_network end-to-end test"
+echo "jnu_hlfn end-to-end test"
 echo
 CHANNEL_NAME="$1"
 DELAY="$2"

@@ -1,5 +1,5 @@
-export PATH=${PWD}/gentool:${PWD}:$PATH
-export FABRIC_CFG_PATH=${PWD}/config_files
+export PATH=${PWD}/artifacts/bin:${PWD}:$PATH
+export FABRIC_CFG_PATH=${PWD}/artifacts
 export VERBOSE=false
 
 # Print the usage message
@@ -114,13 +114,13 @@ function networkDown() {
   docker-compose -f $COMPOSE_FILE down --volumes --remove-orphans
 
   if [ "$MODE" != "restart" ]; then
-    docker run -v $PWD:/tmp/jnu_network --rm hyperledger/fabric-tools:$IMAGETAG rm -Rf /tmp/jnu_network/ledgers-backup
+    docker run -v $PWD:/tmp/jnu_hlfn --rm hyperledger/fabric-tools:$IMAGETAG rm -Rf /tmp/jnu_hlfn/ledgers-backup
     #Cleanup the chaincode containers
     clearContainers
     #Cleanup images
     removeUnwantedImages
     # remove orderer block and other channel configuration transactions and certs
-    rm -rf channel-artifacts/*.block channel-artifacts/*.tx crypto-config 
+    rm -rf artifacts/network/*.block artifacts/network/*.tx artifacts/network/crypto-config 
   fi
 }
 
@@ -137,10 +137,10 @@ function generateCerts() {
   echo "##########################################################"
 
   if [ -d "crypto-config" ]; then
-    rm -Rf crypto-config
+    rm -Rf artifacts/network/crypto-config
   fi
   set -x
-  cryptogen generate --config=./config_files/crypto-config.yaml
+  cryptogen generate --config=./artifacts/crypto-config.yaml --output=./artifacts/network/crypto-config
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -163,7 +163,7 @@ function generateChannelArtifacts() {
   echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
   set -x
   if [ "$CONSENSUS_TYPE" == "solo" ]; then
-    configtxgen -profile JNUOrdererGenesis -channelID jnu-sys-channel -outputBlock ./channel-artifacts/genesis.block
+    configtxgen -profile JNUOrdererGenesis -channelID jnu-sys-channel -outputBlock ./artifacts/network/genesis.block
   else
     set +x
     echo "unrecognized CONSESUS_TYPE='$CONSENSUS_TYPE'. exiting"
@@ -180,7 +180,7 @@ function generateChannelArtifacts() {
   echo "### Generating channel configuration transaction 'channel.tx' ###"
   echo "#################################################################"
   set -x
-  configtxgen -profile JNUChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $CHANNEL_NAME
+  configtxgen -profile JNUChannel -outputCreateChannelTx ./artifacts/network/channel.tx -channelID $CHANNEL_NAME
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -193,7 +193,7 @@ function generateChannelArtifacts() {
   echo "#######    Generating anchor peer update for ManagerMSP   ##########"
   echo "####################################################################"
   set -x
-  configtxgen -profile JNUChannel -outputAnchorPeersUpdate ./channel-artifacts/ManagerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ManagerMSP
+  configtxgen -profile JNUChannel -outputAnchorPeersUpdate ./artifacts/network/ManagerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ManagerMSP
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -207,7 +207,7 @@ function generateChannelArtifacts() {
   echo "####################################################################"
   set -x
   configtxgen -profile JNUChannel -outputAnchorPeersUpdate \
-    ./channel-artifacts/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
+    ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -222,7 +222,7 @@ OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/wi
 CLI_TIMEOUT=10
 CLI_DELAY=3
 CHANNEL_NAME="surveychannel"
-COMPOSE_FILE=./docker_files/docker-compose.yaml
+COMPOSE_FILE=./artifacts/docker-compose.yaml
 LANGUAGE=golang
 IMAGETAG="1.4"
 CONSENSUS_TYPE="solo"

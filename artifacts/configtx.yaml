@@ -2,7 +2,7 @@ Organizations:
     - &OrdererOrg
         Name: OrdererOrg
         ID: OrdererMSP
-        MSPDir: ../crypto-config/ordererOrganizations/jnu.com/msp
+        MSPDir: ./network/crypto-config/ordererOrganizations/jnu.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -17,7 +17,7 @@ Organizations:
     - &ManagerOrg
         Name: ManagerMSP
         ID: ManagerMSP
-        MSPDir: ../crypto-config/peerOrganizations/manager.jnu.com/msp
+        MSPDir: ./network/crypto-config/peerOrganizations/manager.jnu.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -35,7 +35,7 @@ Organizations:
     - &StudentOrg
         Name: StudentMSP
         ID: StudentMSP
-        MSPDir: ../crypto-config/peerOrganizations/student.jnu.com/msp
+        MSPDir: ./network/crypto-config/peerOrganizations/student.jnu.com/msp
         Policies:
             Readers:
                 Type: Signature

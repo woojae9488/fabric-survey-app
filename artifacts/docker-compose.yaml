@@ -6,7 +6,7 @@ volumes:
   peer0.student.jnu.com:
 
 networks:
-  jnu_blockchain_network:
+  jnu_hlfn:
 
 services:
   orderer.jnu.com:
@@ -15,7 +15,7 @@ services:
       service: orderer.jnu.com
     container_name: orderer.jnu.com
     networks:
-      - jnu_blockchain_network
+      - jnu_hlfn
 
   peer0.manager.jnu.com:
     container_name: peer0.manager.jnu.com
@@ -23,7 +23,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.manager.jnu.com
     networks:
-      - jnu_blockchain_network
+      - jnu_hlfn
 
   peer0.student.jnu.com:
     container_name: peer0.student.jnu.com
@@ -31,7 +31,7 @@ services:
       file:  base/docker-compose-base.yaml
       service: peer0.student.jnu.com
     networks:
-      - jnu_blockchain_network
+      - jnu_hlfn
 
   fabric-ca-server:
     container_name: fabric-ca-server
@@ -39,10 +39,12 @@ services:
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
     volumes:
-      - ../crypto-config:/etc/hyperledger/fabric-ca-server
+      - ./network/crypto-config:/etc/hyperledger/fabric-ca-server
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
     ports:
       - 7054:7054
+    networks:
+      - jnu_hlfn
 
   cli:
     container_name: cli
@@ -65,13 +67,13 @@ services:
     command: /bin/bash
     volumes:
         - /var/run/:/host/var/run/
-        - ../chaincode/:/opt/gopath/src/github.com/chaincode
-        - ../crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./network/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
         - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-        - ../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+        - ./network:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
     depends_on:
       - orderer.jnu.com
       - peer0.manager.jnu.com
       - peer0.student.jnu.com
     networks:
-      - jnu_blockchain_network
+      - jnu_hlfn
