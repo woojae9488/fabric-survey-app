@@ -20,15 +20,27 @@ class QuestionList extends StateList {
         return this.getState(questionKey);
     }
 
-    async getQuestionsBySurveyKey(surveyKey){
+    async getQuestionsBySurveyKey(surveyKey) {
         return this.getStatesByPartialKey(surveyKey);
+    }
+
+    async getQuestionsBySurveyKeyWithPagination(surveyKey, pageSize, questionBookmark) {
+        return this.getStatesByPartialKeyWithPagination(surveyKey, pageSize, questionBookmark);
+    }
+
+    async getQuestionsByRange(questionStart, questionEnd) {
+        return this.getStatesByRange(questionStart, questionEnd);
+    }
+
+    async getQuestionsByRangeWithPagination(questionStart, questionEnd, pageSize, questionBookmark) {
+        return this.getStatesByRangeWithPagination(questionStart, questionEnd, pageSize, questionBookmark);
     }
 
     async updateQuestion(question) {
         return this.updateState(question);
     }
 
-    async deleteQuestion(questionKey){
+    async deleteQuestion(questionKey) {
         return this.deleteState(questionKey);
     }
 }

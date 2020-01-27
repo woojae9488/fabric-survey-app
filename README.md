@@ -26,4 +26,11 @@ cp ~/fabric-samples/bin/* ./gentool/
 ```
 
 ### 참조
-* [hyperledger/fabric-samples/balance-transfer](https://github.com/hyperledger/fabric-samples/tree/release-1.1/balance-transfer)
+* [hyperledger-fabricdocs (release-1.4)](https://hyperledger-fabric.readthedocs.io/en/release-1.4/)
+* [hyperledger/fabric-samples/first-network](https://github.com/hyperledger/fabric-samples/tree/release-1.4/first-network)
+* [hyperledger/fabric-samples/balance-transfer](https://github.com/hyperledger/fabric-samples/tree/release-1.4/balance-transfer)
+* [hyperledger/fabric-samples/commercial-paper](https://github.com/hyperledger/fabric-samples/tree/release-1.4/commercial-paper)
+* [IBM/evote](https://github.com/IBM/evote)
+
+#### TODO
+* chaincode 폴더 위치 변경에 따른 artifacts, scripts 파일들 내용 갱신

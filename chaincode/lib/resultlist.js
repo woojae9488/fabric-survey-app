@@ -20,15 +20,27 @@ class ResultList extends StateList {
         return this.getState(resultKey);
     }
 
-    async getResultsByReplyKey(replyKey){
+    async getResultsByReplyKey(replyKey) {
         return this.getStatesByPartialKey(replyKey);
+    }
+
+    async getResultsByReplyKeyWithPagination(replyKey, pageSize, resultBookmark) {
+        return this.getStatesByPartialKeyWithPagination(replyKey, pageSize, resultBookmark);
+    }
+
+    async getResultsByRange(resultStart, resultEnd) {
+        return this.getStatesByRange(resultStart, resultEnd);
+    }
+
+    async getResultsByRangeWithPagination(resultStart, resultEnd, pageSize, resultBookmark) {
+        return this.getStatesByRangeWithPagination(resultStart, resultEnd, pageSize, resultBookmark);
     }
 
     async updateResult(result) {
         return this.updateState(result);
     }
 
-    async deleteResult(resultKey){
+    async deleteResult(resultKey) {
         return this.deleteState(resultKey);
     }
 }

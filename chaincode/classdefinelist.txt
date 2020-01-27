@@ -1,0 +1,113 @@
+
+/**
+ * Survey class extends State class
+ * Class will be used by application and smart contract to define a survey
+ * Element : department, createdAt, updatedAt, managerID, title, startDate, finishDate, currentState
+ * Class Name Marked by DNS : org.jnu.survey
+ */
+    getCurrentState();
+    getManagerID();
+    getCreatedAt();
+    getUpdatedAt();
+    setCreatedAt(newTime);
+    setUpdatedAt(newTime);
+    setTitle(newTitle);
+    setStartDate(newStartDate);
+    setFinishDate(newFinishDate);
+    setRegistered();
+    setSurveying();
+    setFinished();
+    setRemoved();
+    isRegistered();
+    isSurveying();
+    isFinished();
+    isRemoved();
+    static fromBuffer(buffer);
+    toBuffer();
+    static deserialize(data);
+    static createInstance(department, createdAt, managerID, title, startDate, finishDate);
+    static getClass();
+
+
+/**
+ * SurveyQuestion class extends State class
+ * Class will be used by application and smart contract to define a survey question
+ * Element : surveyKey, questionNum, title, type, contents
+ * Class Name Marked by DNS : org.jnu.surveyquestion
+ */
+    static fromBuffer(buffer);
+    toBuffer();
+    static deserialize(data);
+    static createInstance(surveyKey, questionNum, title, type, contents);
+    static getClass();
+
+
+/**
+ * SurveyReply class extends State class
+ * Class will be used by application and smart contract to define a survey reply
+ * Element : surveyKey, studentID, createdAt, updatedAt
+ * Class Name Marked by DNS : org.jnu.surveyreply
+ */
+    setCreatedAt(newTime);
+    getCreatedAt();
+    setUpdatedAt(newTime);
+    getUpdatedAt();
+    static fromBuffer(buffer);
+    toBuffer();
+    static deserialize(data);
+    static createInstance(surveyKey, studentID, createdAt);
+    static getClass();
+
+
+/**
+ * SurveyReplyResult class extends State class
+ * Class will be used by application and smart contract to define a survey reply result
+ * Element : replyKey, resultNum, answers
+ * Class Name Marked by DNS : org.jnu.surveyreplyresult
+ */
+    static fromBuffer(buffer);
+    toBuffer();
+    static deserialize(data);
+    static createInstance(replyKey, resultNum, answers);
+    static getClass();
+
+
+SurveyList
+    async addSurvey(survey);
+    async getSurvey(surveyKey);
+    async getSurveysByDepartment(department);
+    async getSurveysByDepartmentWithPagination(department, pageSize, surveyBookmark);
+    async getSurveysByRange(surveyStart, surveyEnd);
+    async getSurveysByRangeWithPagination(surveyStart, surveyEnd, pageSize, surveyBookmark);
+    async updateSurvey(survey);
+    async deleteSurvey(surveyKey);
+
+QuestionList
+    async addQuestion(question);
+    async getQuestion(questionKey);
+    async getQuestionsBySurveyKey(surveyKey);
+    async getQuestionsBySurveyKeyWithPagination(surveyKey, pageSize, questionBookmark);
+    async getQuestionsByRange(questionStart, questionEnd);
+    async getQuestionsByRangeWithPagination(questionStart, questionEnd, pageSize, questionBookmark);
+    async updateQuestion(question);
+    async deleteQuestion(questionKey);
+
+ReplyList
+    async addReply(reply);
+    async getReply(replyKey);
+    async getRepliesBySurveyKey(surveyKey);
+    async getRepliesBySurveyKeyWithPagination(surveyKey, pageSize, replyBookmark);
+    async getRepliesByRange(replyStart, replyEnd);
+    async getRepliesByRangeWithPagination(replyStart, replyEnd, pageSize, replyBookmark);
+    async updateReply(reply);
+    async deleteReply(replyKey);
+
+ResultList
+    async addResult(result);
+    async getResult(resultKey);
+    async getResultsByReplyKey(replyKey);
+    async getResultsByReplyKeyWithPagination(replyKey, pageSize, resultBookmark);
+    async getResultsByRange(resultStart, resultEnd);
+    async getResultsByRangeWithPagination(resultStart, resultEnd, pageSize, resultBookmark);
+    async updateResult(result);
+    async deleteResult(resultKey);

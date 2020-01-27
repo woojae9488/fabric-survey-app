@@ -20,8 +20,20 @@ class ReplyList extends StateList {
         return this.getState(replyKey);
     }
 
-    async getRepliesBySurveyKey(surveyKey){
+    async getRepliesBySurveyKey(surveyKey) {
         return this.getStatesByPartialKey(surveyKey);
+    }
+
+    async getRepliesBySurveyKeyWithPagination(surveyKey, pageSize, replyBookmark) {
+        return this.getStatesByPartialKeyWithPagination(surveyKey, pageSize, replyBookmark);
+    }
+
+    async getRepliesByRange(replyStart, replyEnd) {
+        return this.getStatesByRange(replyStart, replyEnd);
+    }
+
+    async getRepliesByRangeWithPagination(replyStart, replyEnd, pageSize, replyBookmark) {
+        return this.getStatesByRangeWithPagination(replyStart, replyEnd, pageSize, replyBookmark);
     }
 
     async updateReply(reply) {

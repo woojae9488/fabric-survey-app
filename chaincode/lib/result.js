@@ -3,6 +3,12 @@
 
 const State = require('../ledger-api/state.js');
 
+/**
+ * SurveyReplyResult class extends State class
+ * Class will be used by application and smart contract to define a survey reply result
+ * Element : replyKey, resultNum, answers
+ * Class Name Marked by DNS : org.jnu.surveyreplyresult
+ */
 class SurveyReplyResult extends State {
 
     constructor(obj) {

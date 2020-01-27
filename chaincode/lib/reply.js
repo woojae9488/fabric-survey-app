@@ -3,6 +3,12 @@
 
 const State = require('../ledger-api/state.js');
 
+/**
+ * SurveyReply class extends State class
+ * Class will be used by application and smart contract to define a survey reply
+ * Element : surveyKey, studentID, createdAt, updatedAt
+ * Class Name Marked by DNS : org.jnu.surveyreply
+ */
 class SurveyReply extends State {
 
     constructor(obj) {
@@ -38,8 +44,8 @@ class SurveyReply extends State {
         return State.deserializeClass(data, SurveyReply);
     }
 
-    static createInstance(surveyKey, studentID, resultKeys) {
-        return new SurveyReply({ surveyKey, studentID, resultKeys });
+    static createInstance(surveyKey, studentID, createdAt) {
+        return new SurveyReply({ surveyKey, studentID, createdAt });
     }
 
     static getClass() {

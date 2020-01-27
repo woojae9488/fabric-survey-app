@@ -10,32 +10,56 @@ const surveyState = {
     REMOVED: 4
 };
 
+/**
+ * Survey class extends State class
+ * Class will be used by application and smart contract to define a survey
+ * Element : department, createdAt, updatedAt, managerID, title, startDate, finishDate, currentState
+ * Class Name Marked by DNS : org.jnu.survey
+ */
 class Survey extends State {
 
     constructor(obj) {
-        super(Survey.getClass(), [obj.department, obj.surveyNum]);
+        super(Survey.getClass(), [obj.department, obj.createdAt]);
         Object.assign(this, obj);
+        this.currentState = null;
     }
 
-    getManager() {
-        return this.manager;
+    getCurrentState(){
+        return this.currentState;
     }
 
-    setCreatedAt(newTime) {
-        this.createdAt = newTime;
+    getManagerID() {
+        return this.managerID;
     }
 
     getCreatedAt() {
         return this.createdAt;
     }
 
+    getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    setCreatedAt(newTime) {
+        this.createdAt = newTime;
+    }
+
     setUpdatedAt(newTime) {
         this.updatedAt = newTime;
     }
 
-    getUpdatedAt() {
-        return this.updatedAt;
+    setTitle(newTitle){
+        this.title = newTitle;
     }
+
+    setStartDate(newStartDate){
+        this.startDate = newStartDate;
+    }
+
+    setFinishDate(newFinishDate){
+        this.finishDate = newFinishDate;
+    }
+
 
     setRegistered() {
         this.currentState = surveyState.REGISTERED;
@@ -81,8 +105,8 @@ class Survey extends State {
         return State.deserializeClass(data, Survey);
     }
 
-    static createInstance(department, surveyNum, managerID, title, questionKeys, startDate, finishDate) {
-        return new Survey({ department, surveyNum, managerID, title, questionKeys, startDate, finishDate });
+    static createInstance(department, createdAt, managerID, title, startDate, finishDate) {
+        return new Survey({ department, createdAt, managerID, title, startDate, finishDate });
     }
 
     static getClass() {

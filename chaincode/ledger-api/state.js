@@ -17,7 +17,6 @@ class State {
     constructor(stateClass, keyParts) {
         this.class = stateClass;
         this.key = State.makeKey(keyParts);
-        this.currentState = null;
     }
 
     getClass() {
@@ -30,10 +29,6 @@ class State {
 
     getSplitKey(){
         return State.splitKey(this.key);
-    }
-
-    getCurrentState(){
-        return this.currentState;
     }
 
     serialize() {

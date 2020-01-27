@@ -49,28 +49,43 @@ class StateList {
         }
     }
 
-    /**
-     * Get a states from the list using supplied partial keys. Form composite
-     * keys to retrieve state from world state. State data is deserialized
-     * into JSON object before being returned.
-     */
     async getStatesByPartialKey(partialKey) {
         let datasIterator = await this.ctx.stub.getStateByPartialCompositeKey(this.name, partialKey);
-        let states = [];
+        let states = await this.getAllResults(datasIterator);
+        return states;
+    }
 
-        while (true) {
-            let result = await datasIterator.next();
-            if (result.value.value) {
-                let data = result.value.value;
-                let state = State.deserialize(data, this.supportedClasses);
-                states.push(state);
-            }
-
-            if (result.done){
-                await datasIterator.close();
-                return states;
-            }
+    async getStatesByPartialKeyWithPagination(partialKey, pageSize, bookmark) {
+        let ledgerBookmark = '';
+        if (bookmark !== '') {
+            ledgerBookmark = this.ctx.stub.createCompositeKey(this.name, State.splitKey(bookmark));
         }
+
+        const { iterator } = await this.ctx.stub.getStateByPartialCompositeKeyWithPagination(this.name, partialKey, pageSize, ledgerBookmark);
+        let states = await this.getAllResults(iterator);
+        return states;
+    }
+
+    async getStatesByRange(startKey, endKey) {
+        let ledgerStartKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(startKey));
+        let ledgerEndKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(endKey));
+
+        let datasIterator = await this.ctx.stub.getStateByRange(ledgerStartKey, ledgerEndKey);
+        let states = await this.getAllResults(datasIterator);
+        return states;
+    }
+
+    async getStatesByRangeWithPagination(startKey, endKey, pageSize, bookmark) {
+        let ledgerStartKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(startKey));
+        let ledgerEndKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(endKey));
+        let ledgerBookmark = '';
+        if (bookmark !== '') {
+            ledgerBookmark = this.ctx.stub.createCompositeKey(this.name, State.splitKey(bookmark));
+        }
+
+        const { iterator } = await this.ctx.stub.getStateByRangeWithPagination(ledgerStartKey, ledgerEndKey, pageSize, ledgerBookmark);
+        let states = await this.getAllResults(iterator);
+        return states;
     }
 
     /**
@@ -85,10 +100,28 @@ class StateList {
         await this.ctx.stub.putState(key, data);
     }
 
-    /** Delete a state in the list using supplied keys */
     async deleteState(key) {
         let ledgerKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(key));
         await this.ctx.stub.deleteState(ledgerKey);
+    }
+
+    async getAllResults(iterator) {
+        let results = [];
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            let data = await iterator.next();
+            if (data.value.value) {
+                let state = data.value.value;
+                let result = State.deserialize(state, this.supportedClasses);
+                results.push(result);
+            }
+
+            if (data.done) {
+                await iterator.close();
+                return results;
+            }
+        }
     }
 
     /** Stores the class for future deserialization */

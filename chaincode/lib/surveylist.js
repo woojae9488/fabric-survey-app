@@ -20,15 +20,27 @@ class SurveyList extends StateList {
         return this.getState(surveyKey);
     }
 
-    async getSurveysByDepartment(department){
+    async getSurveysByDepartment(department) {
         return this.getStatesByPartialKey(department);
+    }
+
+    async getSurveysByDepartmentWithPagination(department, pageSize, surveyBookmark) {
+        return this.getStatesByPartialKeyWithPagination(department, pageSize, surveyBookmark);
+    }
+
+    async getSurveysByRange(surveyStart, surveyEnd) {
+        return this.getStatesByRange(surveyStart, surveyEnd);
+    }
+
+    async getSurveysByRangeWithPagination(surveyStart, surveyEnd, pageSize, surveyBookmark) {
+        return this.getStatesByRangeWithPagination(surveyStart, surveyEnd, pageSize, surveyBookmark);
     }
 
     async updateSurvey(survey) {
         return this.updateState(survey);
     }
 
-    async deleteSurvey(surveyKey){
+    async deleteSurvey(surveyKey) {
         return this.deleteState(surveyKey);
     }
 }
