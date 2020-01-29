@@ -16,6 +16,7 @@ class State {
      */
     constructor(stateClass, keyParts) {
         this.class = stateClass;
+        keyParts.unshift(this.class);
         this.key = State.makeKey(keyParts);
     }
 
@@ -27,7 +28,7 @@ class State {
         return this.key;
     }
 
-    getSplitKey(){
+    getSplitKey() {
         return State.splitKey(this.key);
     }
 
@@ -84,7 +85,7 @@ class State {
         return keyParts.map(part => JSON.stringify(part)).join(':');
     }
 
-    static splitKey(key){
+    static splitKey(key) {
         return key.split(':');
     }
 

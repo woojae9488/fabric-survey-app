@@ -2,55 +2,76 @@
 'use strict';
 
 const State = require('../ledger-api/state.js');
+const ReplyInfo = require('./replyinfo.js');
+const ReplyResult = require('./replyresult.js');
 
-/**
- * SurveyReply class extends State class
- * Class will be used by application and smart contract to define a survey reply
- * Element : surveyKey, studentID, createdAt, updatedAt
- * Class Name Marked by DNS : org.jnu.surveyreply
- */
-class SurveyReply extends State {
+class Reply {
 
     constructor(obj) {
-        super(SurveyReply.getClass(), [obj.surveyKey, obj.studentID]);
         Object.assign(this, obj);
+        let replyInfoKey = this.replyInfo.getKey();
+        this.replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
     }
 
-    setCreatedAt(newTime) {
-        this.createdAt = newTime;
+    setReplyInfo(newReplyInfo) {
+        this.replyInfo = newReplyInfo;
     }
 
-    getCreatedAt() {
-        return this.createdAt;
+    getReplyInfo() {
+        return this.replyInfo;
     }
 
-    setUpdatedAt(newTime) {
-        this.updatedAt = newTime;
+    setResults(newResults) {
+        this.results = newResults;
     }
 
-    getUpdatedAt() {
-        return this.updatedAt;
+    getResults() {
+        return this.results;
     }
 
     static fromBuffer(buffer) {
-        return SurveyReply.deserialize(buffer);
+        let json = JSON.parse(buffer.toString());
+        let replyInfo = new ReplyInfo(json.replyInfo);
+
+        let results = [];
+        let jsonResults = json.results;
+        for (let i = 0; i < jsonResults.length; i++) {
+            results.push(new ReplyResult(jsonResults[i]));
+        }
+
+        return new Reply({ replyInfo, results });
     }
 
-    toBuffer() {
+    toString() {
         return Buffer.from(JSON.stringify(this));
     }
 
-    static deserialize(data) {
-        return State.deserializeClass(data, SurveyReply);
+    static makeReplyKey(surveyKey, studentID) {
+        return [surveyKey, studentID].join('.');
+    }
+
+    static makeReplyKeyByInfoKey(replyInfoKey) {
+        let keyParts = State.splitKey(replyInfoKey);
+        keyParts.shift();
+        return keyParts.join('.');
+    }
+
+    static makeInfoKeyByReplyKey(replyKey){
+        let keyParts = replyKey.split('.');
+        return ReplyInfo.makeKey(keyParts);
     }
 
     static createInstance(surveyKey, studentID, createdAt) {
-        return new SurveyReply({ surveyKey, studentID, createdAt });
+        let replyInfo = ReplyInfo.createInstance(surveyKey, studentID, createdAt);
+        let results = [];
+        return new Reply({ replyInfo, results });
     }
 
-    static getClass() {
-        return 'org.jnu.surveyreply';
+    addResults(resultNum, answers) {
+        let result = ReplyResult.createInstance(this.replyKey, resultNum, answers);
+        this.results.push(result);
     }
+
 }
 
-module.exports = SurveyReply;
+module.exports = Reply;

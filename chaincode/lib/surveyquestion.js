@@ -28,6 +28,11 @@ class SurveyQuestion extends State {
         return State.deserializeClass(data, SurveyQuestion);
     }
 
+    static makeKey(keyParts){
+        keyParts.unshift(SurveyQuestion.getClass());
+        return State.makeKey(keyParts);
+    }
+
     static createInstance(surveyKey, questionNum, title, type, contents) {
         return new SurveyQuestion({ surveyKey, questionNum, title, type, contents });
     }

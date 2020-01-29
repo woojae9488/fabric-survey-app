@@ -2,116 +2,76 @@
 'use strict';
 
 const State = require('../ledger-api/state.js');
+const SurveyInfo = require('./surveyinfo.js');
+const SurveyQuestion = require('./surveyquestion.js');
 
-const surveyState = {
-    REGISTERED: 1,
-    SURVEYING: 2,
-    FINISHED: 3,
-    REMOVED: 4
-};
-
-/**
- * Survey class extends State class
- * Class will be used by application and smart contract to define a survey
- * Element : department, createdAt, updatedAt, managerID, title, startDate, finishDate, currentState
- * Class Name Marked by DNS : org.jnu.survey
- */
-class Survey extends State {
+class Survey {
 
     constructor(obj) {
-        super(Survey.getClass(), [obj.department, obj.createdAt]);
         Object.assign(this, obj);
-        this.currentState = null;
+        let surveyInfoKey = this.surveyInfo.getKey();
+        this.surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
     }
 
-    getCurrentState(){
-        return this.currentState;
+    setSurveyInfo(newSurveyInfo) {
+        this.surveyInfo = newSurveyInfo;
     }
 
-    getManagerID() {
-        return this.managerID;
+    getSurveyInfo() {
+        return this.surveyInfo;
     }
 
-    getCreatedAt() {
-        return this.createdAt;
+    setQuestions(newQuestions) {
+        this.questions = newQuestions;
     }
 
-    getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    setCreatedAt(newTime) {
-        this.createdAt = newTime;
-    }
-
-    setUpdatedAt(newTime) {
-        this.updatedAt = newTime;
-    }
-
-    setTitle(newTitle){
-        this.title = newTitle;
-    }
-
-    setStartDate(newStartDate){
-        this.startDate = newStartDate;
-    }
-
-    setFinishDate(newFinishDate){
-        this.finishDate = newFinishDate;
-    }
-
-
-    setRegistered() {
-        this.currentState = surveyState.REGISTERED;
-    }
-
-    setSurveying() {
-        this.currentState = surveyState.SURVEYING;
-    }
-
-    setFinished() {
-        this.currentState = surveyState.FINISHED;
-    }
-
-    setRemoved() {
-        this.currentState = surveyState.REMOVED;
-    }
-
-    isRegistered() {
-        return this.currentState === surveyState.REGISTERED;
-    }
-
-    isSurveying() {
-        return this.currentState === surveyState.SURVEYING;
-    }
-
-    isFinished() {
-        return this.currentState === surveyState.FINISHED;
-    }
-
-    isRemoved() {
-        return this.currentState === surveyState.REMOVED;
+    getQuestions() {
+        return this.questions;
     }
 
     static fromBuffer(buffer) {
-        return Survey.deserialize(buffer);
+        let json = JSON.parse(buffer.toString());
+        let surveyInfo = new SurveyInfo(json.surveyInfo);
+
+        let questions = [];
+        let jsonQuestions = json.questions;
+        for (let i = 0; i < jsonQuestions.length; i++) {
+            questions.push(new SurveyQuestion(jsonQuestions[i]));
+        }
+
+        return new Survey({ surveyInfo, questions });
     }
 
     toBuffer() {
         return Buffer.from(JSON.stringify(this));
     }
 
-    static deserialize(data) {
-        return State.deserializeClass(data, Survey);
+    static makeSurveyKey(department, createdAt) {
+        return [department, createdAt].join('.');
+    }
+
+    static makeSurveyKeyByInfoKey(surveyInfoKey) {
+        let keyParts = State.splitKey(surveyInfoKey);
+        keyParts.shift();
+        return keyParts.join('.');
+    }
+
+    static makeInfoKeyBySurveyKey(surveyKey){
+        let keyParts = surveyKey.split('.');
+        return SurveyInfo.makeKey(keyParts);
     }
 
     static createInstance(department, createdAt, managerID, title, startDate, finishDate) {
-        return new Survey({ department, createdAt, managerID, title, startDate, finishDate });
+        let surveyInfo = SurveyInfo.createInstance(department, createdAt, managerID, title, startDate, finishDate);
+        let questions = [];
+        return new Survey({ surveyInfo, questions });
     }
 
-    static getClass() {
-        return 'org.jnu.survey';
+    addQuestion(questionNum, title, type, contents) {
+        let question = SurveyQuestion.createInstance(this.surveyKey, questionNum, title, type, contents);
+        this.questions.push(question);
     }
+
 }
 
 module.exports = Survey;
