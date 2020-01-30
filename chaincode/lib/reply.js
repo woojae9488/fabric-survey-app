@@ -13,6 +13,10 @@ class Reply {
         this.replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
     }
 
+    getReplyKey() {
+        return this.replyKey;
+    }
+
     setReplyInfo(newReplyInfo) {
         this.replyInfo = newReplyInfo;
     }
@@ -56,7 +60,7 @@ class Reply {
         return keyParts.join('.');
     }
 
-    static makeInfoKeyByReplyKey(replyKey){
+    static makeInfoKeyByReplyKey(replyKey) {
         let keyParts = replyKey.split('.');
         return ReplyInfo.makeKey(keyParts);
     }

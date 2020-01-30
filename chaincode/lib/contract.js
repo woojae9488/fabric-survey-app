@@ -66,6 +66,7 @@ class SurveyContract extends Contract {
         surveyInfo.setUpdatedAt(surveyInfo.getCreatedAt());
         surveyInfo.setRegistered();
         await ctx.surveyList.addSurvey(survey);
+        await ctx.surveyList.setSurveyEvent('Register', surveyInfo);
 
         return survey;
     }
@@ -88,6 +89,7 @@ class SurveyContract extends Contract {
 
         newSurveyInfo.setUpdatedAt(Date.now());
         await ctx.surveyList.updateSurvey(newSurvey);
+        await ctx.surveyList.setSurveyEvent('Update', newSurveyInfo);
 
         return newSurvey;
     }

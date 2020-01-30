@@ -24,12 +24,8 @@ class SurveyInfo extends State {
         this.currentState = null;
     }
 
-    getCurrentState() {
-        return this.currentState;
-    }
-
-    getManagerID() {
-        return this.managerID;
+    getDepartment() {
+        return this.department;
     }
 
     getCreatedAt() {
@@ -40,24 +36,28 @@ class SurveyInfo extends State {
         return this.updatedAt;
     }
 
+    getManagerID() {
+        return this.managerID;
+    }
+
+    getStartDate() {
+        return this.startDate;
+    }
+
+    getFinishDate() {
+        return this.finishDate;
+    }
+
+    getCurrentState() {
+        return this.currentState;
+    }
+
     setCreatedAt(newTime) {
         this.createdAt = newTime;
     }
 
     setUpdatedAt(newTime) {
         this.updatedAt = newTime;
-    }
-
-    setTitle(newTitle) {
-        this.title = newTitle;
-    }
-
-    setStartDate(newStartDate) {
-        this.startDate = newStartDate;
-    }
-
-    setFinishDate(newFinishDate) {
-        this.finishDate = newFinishDate;
     }
 
 

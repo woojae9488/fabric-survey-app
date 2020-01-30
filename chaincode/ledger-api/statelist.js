@@ -21,10 +21,6 @@ class StateList {
         this.supportedClasses = {};
     }
 
-    makeBookmark(key){
-        return this.ctx.stub.createCompositeKey('', State.splitKey(key));
-    }
-
     /**
      * Add a state to the list. Creates a new state in worldstate with
      * appropriate composite key.  Note that state defines its own key.
@@ -130,6 +126,15 @@ class StateList {
     /** Stores the class for future deserialization */
     use(stateClass) {
         this.supportedClasses[stateClass.getClass()] = stateClass;
+    }
+
+    makeBookmark(key) {
+        return this.ctx.stub.createCompositeKey('', State.splitKey(key));
+    }
+
+    async setEvent(name, object) {
+        let data = State.serialize(object);
+        await this.ctx.stub.setEvent(name, data);
     }
 
 }

@@ -13,6 +13,10 @@ class Survey {
         this.surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
     }
 
+    getSurveyKey() {
+        return this.surveyKey;
+    }
+
     setSurveyInfo(newSurveyInfo) {
         this.surveyInfo = newSurveyInfo;
     }
@@ -56,7 +60,7 @@ class Survey {
         return keyParts.join('.');
     }
 
-    static makeInfoKeyBySurveyKey(surveyKey){
+    static makeInfoKeyBySurveyKey(surveyKey) {
         let keyParts = surveyKey.split('.');
         return SurveyInfo.makeKey(keyParts);
     }

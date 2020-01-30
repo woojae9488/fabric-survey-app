@@ -89,7 +89,7 @@ class ReplyList extends StateList {
     async updateReply(reply) {
         let replyInfo = reply.getReplyInfo();
         let results = reply.getResults();
-        let replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
+        let replyKey = reply.getReplyKey();
 
         await this.updateState(replyInfo);
         await this.deleteResults(replyKey);

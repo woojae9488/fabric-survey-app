@@ -66,7 +66,7 @@ class SurveyList extends StateList {
     async updateSurvey(survey) {
         let surveyInfo = survey.getSurveyInfo();
         let questions = survey.getQuestions();
-        let surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfo.getKey());
+        let surveyKey = survey.getSurveyKey();
 
         await this.updateState(surveyInfo);
         await this.deleteQuestions(surveyKey);
@@ -87,6 +87,11 @@ class SurveyList extends StateList {
     makeSurveyBookmark(department, createdAt) {
         let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
         return this.makeBookmark(surveyInfoKey);
+    }
+
+    async setSurveyEvent(action, surveyInfo) {
+        let eventName = 'survey' + action + 'Event';
+        await this.setEvent(eventName, surveyInfo);
     }
 }
 
