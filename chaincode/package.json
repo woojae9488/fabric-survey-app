@@ -1,7 +1,7 @@
 {
-    "name": "papercontract",
-    "version": "0.0.3",
-    "description": "Papernet Contract",
+    "name": "surveycontract",
+    "version": "1.0.0",
+    "description": "Surveynet Contract",
     "main": "index.js",
     "engines": {
         "node": ">=8",
@@ -15,7 +15,7 @@
         "mocha": "mocha test --recursive"
     },
     "engineStrict": true,
-    "author": "hyperledger",
+    "author": "Kim Woo Jae",
     "license": "Apache-2.0",
     "dependencies": {
         "fabric-contract-api": "~1.4.0",

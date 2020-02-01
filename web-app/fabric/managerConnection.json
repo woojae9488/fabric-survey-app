@@ -1,0 +1,91 @@
+{
+    "name": "surveynet",
+    "description": "Connection Profile for Survey Network on JNU",
+    "version": "1.0.0",
+    "client": {
+        "organization": "ManagerOrg",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300",
+                    "eventHub": "300",
+                    "eventReg": "300"
+                },
+                "orderer": "300"
+            }
+        }
+    },
+    "channels": {
+        "surveynet": {
+            "orderers": [
+                "orderer.jnu.com"
+            ],
+            "peers": {
+                "peer0.manager.jnu.com": {
+                    "endorsingPeer": true,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                },
+                "peer1.manager.jnu.com": {
+                    "endorsingPeer": false,
+                    "chaincodeQuery": true,
+                    "ledgerQuery": true,
+                    "eventSource": true
+                }
+            }
+        }
+    },
+    "organizations": {
+        "ManagerOrg": {
+            "mspid": "ManagerMSP",
+            "peers": [
+                "peer0.manager.jnu.com",
+                "peer1.manager.jnu.com"
+            ],
+            "certificateAuthorities": [
+                "ca.jnu.com"
+            ]
+        }
+    },
+    "orderers": {
+        "orderer.jnu.com": {
+            "url": "grpcs://localhost:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer.jnu.com"
+            },
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE----- <etc> "
+            }
+        }
+    },
+    "peers": {
+        "peer0.manager.jnu.com": {
+            "url": "grpc://localhost:7051",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.manager.jnu.com"
+            },
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+            }
+        },
+        "peer1.manager.jnu.com": {
+            "url": "grpc://localhost:7051",
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.manager.jnu.com"
+            },
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.jnu.com": {
+            "url": "https://localhost:7054",
+            "caName": "ca.jnu.com",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+            }
+        }
+    }
+}

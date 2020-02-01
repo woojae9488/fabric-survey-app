@@ -1,0 +1,15 @@
+{
+  "managerConnectionProfile": "./fabric/managerConnection.json",
+  "studentConnectionProfile": "./fabric/studentConnection.json",
+  "appAdmin": "app-admin",
+  "appAdminSecret": "app-adminpw",
+  "managerMSPID": "ManagerMSP",
+  "studentMSPID": "StudentMSP",
+  "caURL": "https://localhost:7054",
+  "gatewayDiscovery": {
+    "enabled": true,
+    "asLocalhost": true
+  },
+  "channelName": "surveynet",
+  "contractName": "surveycontract"
+}

@@ -1,5 +1,7 @@
 
 'use strict';
 
-const surveyContract = require('./lib/contract.js');
-module.exports.contracts = [surveyContract];
+const SurveyContract = require('./lib/survey-contract.js');
+
+module.exports.SurveyContract = SurveyContract;
+module.exports.contracts = [SurveyContract];

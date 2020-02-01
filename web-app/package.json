@@ -1,0 +1,11 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "hyperledger fabric web application",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "kim woo jae",
+  "license": "ISC"
+}

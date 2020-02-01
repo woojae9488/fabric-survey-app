@@ -3,17 +3,17 @@
 // Fabric smart contract classes
 const { Contract, Context } = require('fabric-contract-api');
 
-// surveyNet specifc state info classes
-const SurveyInfo = require('./surveyinfo.js');
-const ReplyInfo = require('./replyinfo.js');
-
 // surveyNet specifc state classes
 const Survey = require('./survey.js');
-const Reply = require('./reply.js');
-
-// surveyNet specifc statelist classes
+const SurveyInfo = require('./surveyinfo.js');
 const SurveyList = require('./surveylist.js');
+const Reply = require('./reply.js');
+const ReplyInfo = require('./replyinfo.js');
 const ReplyList = require('./replylist.js');
+
+// surveyNet specifc private data classes
+const User = require('./user.js');
+const UserList = require('./userlist.js');
 
 /**
  * A custom context provides easy access to list of all survey elements
@@ -24,6 +24,8 @@ class SurveyContext extends Context {
         super();
         this.surveyList = new SurveyList(this);
         this.replyList = new ReplyList(this);
+        this.studentList = new UserList(this, 'studentCollection');
+        this.managerList = new UserList(this, 'managerCollection');
     }
 
 }
@@ -193,7 +195,76 @@ class SurveyContract extends Contract {
         return surveyInfo;
     }
 
-    /********************* Survey Query Method *********************/
+    /********************* Survey User Method (User) *********************/
+
+    async registerStudent(ctx, id, password, name, department) {
+        let userKey = User.makeKey([id]);
+        let userExists = await ctx.studentList.getUser(userKey);
+        if (userExists) {
+            throw new Error('User ' + userKey + ' already exists');
+        }
+
+        let salt = User.makeSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let user = User.createInstance(id, hashedPw, name, department, salt, Date.now());
+        user.setUpdatedAt(user.getCreatedAt());
+
+        await ctx.studentList.addUser(user);
+        return user;
+    }
+
+    async registerManager(ctx, id, password, department) {
+        let userKey = User.makeKey([id]);
+        let userExists = await ctx.managerList.getUser(userKey);
+        if (userExists) {
+            throw new Error('User ' + userKey + ' already exists');
+        }
+
+        let salt = User.makeSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let user = User.createInstance(id, hashedPw, 'manager', department, salt, Date.now());
+        user.setUpdatedAt(user.getCreatedAt());
+
+        await ctx.managerList.addUser(user);
+        return user;
+    }
+
+    async updateStudent(ctx, id, password, name, department) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.studentList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        let salt = user.getSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        user.setHashedPw(hashedPw);
+        user.setName(name);
+        user.setDepartment(department);
+        user.setUpdatedAt(Date.now());
+
+        await ctx.studentList.updateUser(user);
+        return user;
+    }
+
+    async updateManager(ctx, id, password, department) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.managerList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        let salt = user.getSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        user.setHashedPw(hashedPw);
+        user.setDepartment(department);
+        user.setUpdatedAt(Date.now());
+
+        await ctx.managerList.updateUser(user);
+        return user;
+    }
+
+    /********************* Survey State Query Method *********************/
 
     async querySurvey(ctx, department, createdAt) {
         let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
@@ -257,6 +328,35 @@ class SurveyContract extends Contract {
         let replyBookmark = ctx.replyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
         return ctx.replyList.getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
     }
+
+    /********************* Survey User Query Method *********************/
+
+    async queryStudent(ctx, id, password) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.studentList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+        if (!user.authenticate(password)) {
+            throw new Error('user ' + userKey + ' password is not matched');
+        }
+
+        return user;
+    }
+
+    async queryManager(ctx, id, password) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.managerList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+        if (!user.authenticate(password)) {
+            throw new Error('user ' + userKey + ' password is not matched');
+        }
+
+        return user;
+    }
+
 }
 
 module.exports = SurveyContract;
