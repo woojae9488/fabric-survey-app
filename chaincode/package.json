@@ -1,7 +1,7 @@
 {
-    "name": "surveycontract",
+    "name": "surveycc",
     "version": "1.0.0",
-    "description": "Surveynet Contract",
+    "description": "Surveynet Chaincode(Smart Contract)",
     "main": "index.js",
     "engines": {
         "node": ">=8",
@@ -10,9 +10,7 @@
     "scripts": {
         "lint": "eslint .",
         "pretest": "npm run lint",
-        "test": "nyc mocha test --recursive",
-        "start": "fabric-chaincode-node start",
-        "mocha": "mocha test --recursive"
+        "start": "fabric-chaincode-node start"
     },
     "engineStrict": true,
     "author": "Kim Woo Jae",
@@ -22,28 +20,6 @@
         "fabric-shim": "~1.4.0"
     },
     "devDependencies": {
-        "chai": "^4.1.2",
-        "chai-as-promised": "^7.1.1",
-        "eslint": "^4.19.1",
-        "mocha": "^5.2.0",
-        "nyc": "^12.0.2",
-        "sinon": "^6.0.0",
-        "sinon-chai": "^3.2.0"
-    },
-    "nyc": {
-        "exclude": [
-            "coverage/**",
-            "test/**"
-        ],
-        "reporter": [
-            "text-summary",
-            "html"
-        ],
-        "all": true,
-        "check-coverage": true,
-        "statements": 100,
-        "branches": 100,
-        "functions": 100,
-        "lines": 100
+        "eslint": "^4.19.1"
     }
 }

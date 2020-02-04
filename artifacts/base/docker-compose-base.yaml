@@ -3,26 +3,13 @@ version: '2'
 services:
   orderer.jnu.com:
     container_name: orderer.jnu.com
-    image: hyperledger/fabric-orderer:1.4
-    environment:
-      - FABRIC_LOGGING_SPEC=INFO
-      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
-      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
-      - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
-      - ORDERER_KAFKA_VERBOSE=true
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
-    command: orderer
+    extends:
+      file: component-base.yaml
+      service: orderer-base
     volumes:
     - ../network/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
     - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp:/var/hyperledger/orderer/msp
-    - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/tls/:/var/hyperledger/orderer/tls
+    - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/tls:/var/hyperledger/orderer/tls
     - orderer.jnu.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
@@ -30,12 +17,15 @@ services:
   peer0.manager.jnu.com:
     container_name: peer0.manager.jnu.com
     extends:
-      file: peer-base.yaml
+      file: component-base.yaml
       service: peer-base
     environment:
       - CORE_PEER_ID=peer0.manager.jnu.com
       - CORE_PEER_ADDRESS=peer0.manager.jnu.com:7051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.manager.jnu.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.manager.jnu.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.manager.jnu.com:8051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.manager.jnu.com:7051
       - CORE_PEER_LOCALMSPID=ManagerMSP
     volumes:
@@ -47,16 +37,42 @@ services:
       - 7051:7051
       - 7053:7053
 
+  peer1.manager.jnu.com:
+    container_name: peer1.manager.jnu.com
+    extends:
+      file: component-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.manager.jnu.com
+      - CORE_PEER_ADDRESS=peer1.manager.jnu.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.manager.jnu.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.manager.jnu.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.manager.jnu.com:8051
+      - CORE_PEER_LOCALMSPID=ManagerMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp:/etc/hyperledger/fabric/msp
+        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.manager.jnu.com:/var/hyperledger/production
+    ports:
+      - 8051:8051
+      - 8053:8053
+
   peer0.student.jnu.com:
     container_name: peer0.student.jnu.com
     extends:
-      file: peer-base.yaml
+      file: component-base.yaml
       service: peer-base
     environment:
       - CORE_PEER_ID=peer0.student.jnu.com
-      - CORE_PEER_ADDRESS=peer0.student.jnu.com:7051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.student.jnu.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.student.jnu.com:7051
+      - CORE_PEER_ADDRESS=peer0.student.jnu.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.student.jnu.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.student.jnu.com:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.student.jnu.com:9051
       - CORE_PEER_LOCALMSPID=StudentMSP
     volumes:
         - /var/run/:/host/var/run/
@@ -64,6 +80,28 @@ services:
         - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/tls:/etc/hyperledger/fabric/tls
         - peer0.student.jnu.com:/var/hyperledger/production
     ports:
-      - 9051:7051
-      - 9053:7053
+      - 9051:9051
+      - 9053:9053
 
+  peer1.student.jnu.com:
+    container_name: peer1.student.jnu.com
+    extends:
+      file: component-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.student.jnu.com
+      - CORE_PEER_ADDRESS=peer1.student.jnu.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.student.jnu.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.student.jnu.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.student.jnu.com:10051
+      - CORE_PEER_LOCALMSPID=StudentMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp:/etc/hyperledger/fabric/msp
+        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.student.jnu.com:/var/hyperledger/production
+    ports:
+      - 10051:10051
+      - 10053:10053

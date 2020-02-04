@@ -16,7 +16,9 @@ curl -sSL http://bit.ly/2ysbOFE | bash -s 1.4.0
 
 ### 네트워크 구동
 ```bash
-cp ~/fabric-samples/bin/* ./gentool/
+cp ~/fabric-samples/bin/* ./artifacts/bin/
+cd chaincode/ ; npm install
+cd ../ ; chmod u+x operation.sh
 ./operation.sh up
 ```
 
@@ -34,6 +36,3 @@ cp ~/fabric-samples/bin/* ./gentool/
 * [hyperledger/fabric-samples/commercial-paper](https://github.com/hyperledger/fabric-samples/tree/release-1.4/commercial-paper)
 * [IBM/evote](https://github.com/IBM/evote)
 * [DappCampus/chaincode-tutorial](https://github.com/DappCampus/chaincode-tutorial)
-
-#### TODO
-* chaincode 폴더 위치 변경에 따른 artifacts, scripts 파일들 내용 갱신

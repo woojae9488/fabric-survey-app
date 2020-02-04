@@ -59,7 +59,7 @@ async function connect(connType, userID) {
         await gateway.connect(connection, { wallet, identity: userID, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
 
-        console.log('Connected to surveychannel. ');
+        console.log('Connected to surveynet. ');
         const contract = await network.getContract(config.contractName);
 
         let networkObj = {

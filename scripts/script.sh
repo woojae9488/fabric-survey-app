@@ -9,28 +9,23 @@ echo "|____/    |_|   /_/   \_\ |_| \_\   |_|  "
 echo
 echo "jnu_hlfn end-to-end test"
 echo
-CHANNEL_NAME="$1"
-DELAY="$2"
-LANGUAGE="$3"
-TIMEOUT="$4"
-VERBOSE="$5"
-: ${CHANNEL_NAME:="surveychannel"}
-: ${DELAY:="3"}
-: ${LANGUAGE:="golang"}
-: ${TIMEOUT:="10"}
-: ${VERBOSE:="false"}
+CHANNEL_NAME="surveynet"
+DELAY="5"
+LANGUAGE="node"
+VERBOSE="false"
 LANGUAGE=`echo "$LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=10
 
-CC_SRC_PATH="github.com/chaincode/go/"
+CC_NAME="surveycc"
+CC_SRC_PATH="/opt/gopath/src/github.com/chaincode/"
 echo "Channel name : "$CHANNEL_NAME
 
 # import utils
 . scripts/utils.sh
 
 createChannel() {
-        setGlobals 1
+        setGlobals 0 1
 
         if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
                 set -x
@@ -51,10 +46,12 @@ createChannel() {
 
 joinChannel () {
         for org in 1 2; do
-            joinChannelWithRetry $org
-            echo "===================== peer joined channel '$CHANNEL_NAME' ===================== "
-            sleep $DELAY
-            echo
+	    for peer in 0 1; do
+                joinChannelWithRetry $peer $org
+                echo "===================== peer joined channel '$CHANNEL_NAME' ===================== "
+                sleep $DELAY
+                echo
+	    done
         done
 }
 
@@ -68,31 +65,49 @@ joinChannel
 
 ## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for manager..."
-updateAnchorPeers 1
+updateAnchorPeers 0 1
 echo "Updating anchor peers for student..."
-updateAnchorPeers 2
+updateAnchorPeers 0 2
 
 ## Install chaincode on peer0.manager and peer0.student
-echo "Installing chaincode on peer0.manager..."
-installChaincode 1
+echo "Install chaincode on peer0.manager..."
+installChaincode 0 1
 echo "Install chaincode on peer0.student..."
-installChaincode 2
+installChaincode 0 2
 
-# Instantiate chaincode on peer0.student
-echo "Instantiating chaincode on peer0.student..."
-instantiateChaincode 2
+# Instantiate chaincode on peer0.manager
+echo "Instantiating chaincode on peer0.manager..."
+instantiateChaincode 0 1
 
-# Query chaincode on peer0.manager
-echo "Querying chaincode on peer0.manager..."
-chaincodeQuery 1 100
+# Invoke chaincode on peer0.manager
+echo "Sending invoke transaction on peer0.manager"
+chaincodeInvokeCreate 0 1
 
-# Invoke chaincode on peer0.manager and peer0.student
-echo "Sending invoke transaction on peer0.manager peer0.student..."
-chaincodeInvoke 1 2
+## Install chaincode on peer1.manager and peer1.student
+echo "Installing chaincode on peer1.manager..."
+installChaincode 1 1
+echo "Installing chaincode on peer1.student..."
+installChaincode 1 2
 
-# Query on chaincode on peer0.student, check if the result is 90
+# Query on chaincode on peer1.manager
+echo "Querying chaincode on peer1.manager..."
+chaincodeQueryUser 1 1
+
+# Invoke chaincode on peer1.manager
+echo "Sending invoke transaction on peer1.manager"
+chaincodeInvokeRegister 1 1
+
+# Query on chaincode on peer0.student
 echo "Querying chaincode on peer0.student..."
-chaincodeQuery 2 90
+chaincodeQueryInfo 0 2
+
+# Invoke chaincode on peer1.student
+echo "Sending invoke transaction on peer1.student"
+chaincodeInvokeRemove 1 2
+
+# Query on chaincode on peer1.student
+echo "Querying chaincode on peer1.student..."
+chaincodeQueryInfo 1 2
 
 echo
 echo "========= All GOOD, execution completed =========== "

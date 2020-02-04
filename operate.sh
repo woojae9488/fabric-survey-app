@@ -5,18 +5,18 @@ export VERBOSE=false
 # Print the usage message
 function printHelp() {
   echo "Usage: "
-  echo "  operation.sh <mode>"
+  echo "  operate.sh <mode>"
   echo "    <mode> - one of 'up', 'down', 'restart', 'generate' or 'upgrade'"
   echo "      - 'up' - bring up the network with docker-compose up"
   echo "      - 'down' - clear the network with docker-compose down"
   echo "      - 'restart' - restart the network"
   echo "      - 'generate' - generate required certificates and genesis block"
-  echo "  start.sh -h (print this message)"
+  echo "  operate.sh -h (print this message)"
 }
 
 # Ask user for confirmation to proceed
 function askProceed() {
-  read -p "Continue? [Y/n] " ans
+  read -p "Operate the JNU Survey Network. Continue? [Y/n] " ans
   case "$ans" in
   y | Y | "")
     echo "proceeding ..."
@@ -95,6 +95,9 @@ function networkUp() {
     generateCerts
     generateChannelArtifacts
   fi
+
+  export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
+  export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
   docker-compose -f $COMPOSE_FILE up -d 2>&1
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to start network"
@@ -102,7 +105,7 @@ function networkUp() {
   fi
 
   # now run the end to end script
-  docker exec cli scripts/script.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec cli scripts/script.sh
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Test failed"
     exit 1
@@ -111,6 +114,8 @@ function networkUp() {
 
 # Tear down running network
 function networkDown() {
+  export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
+  export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
   docker-compose -f $COMPOSE_FILE down --volumes --remove-orphans
 
   if [ "$MODE" != "restart" ]; then
@@ -221,9 +226,10 @@ function generateChannelArtifacts() {
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
 CLI_TIMEOUT=10
 CLI_DELAY=3
-CHANNEL_NAME="surveychannel"
+CHANNEL_NAME="surveynet"
+CC_NAME="surveycc"
 COMPOSE_FILE=./artifacts/docker-compose.yaml
-LANGUAGE=golang
+LANGUAGE=node
 IMAGETAG="1.4"
 CONSENSUS_TYPE="solo"
 # Parse commandline args

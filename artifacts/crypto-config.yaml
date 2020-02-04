@@ -8,13 +8,9 @@ PeerOrgs:
     Domain: manager.jnu.com
     EnableNodeOUs: true
     Template:
-      Count: 1
-    Users:
-      Count: 1
+      Count: 2
   - Name: Student
     Domain: student.jnu.com
     EnableNodeOUs: true
     Template:
-            Count: 1
-    Users:
-      Count: 1
+      Count: 2

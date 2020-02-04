@@ -3,7 +3,9 @@ version: '2'
 volumes:
   orderer.jnu.com:
   peer0.manager.jnu.com:
+  peer1.manager.jnu.com:
   peer0.student.jnu.com:
+  peer1.student.jnu.com:
 
 networks:
   jnu_hlfn:
@@ -25,6 +27,14 @@ services:
     networks:
       - jnu_hlfn
 
+  peer1.manager.jnu.com:
+    container_name: peer1.manager.jnu.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.manager.jnu.com
+    networks:
+      - jnu_hlfn
+
   peer0.student.jnu.com:
     container_name: peer0.student.jnu.com
     extends:
@@ -33,16 +43,47 @@ services:
     networks:
       - jnu_hlfn
 
-  fabric-ca-server:
-    container_name: fabric-ca-server
+  peer1.student.jnu.com:
+    container_name: peer1.student.jnu.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.student.jnu.com
+    networks:
+      - jnu_hlfn
+
+  ca.manager.jnu.com:
+    container_name: ca.manager.jnu.com
     image: hyperledger/fabric-ca:1.4
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.manager.jnu.com
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.manager.jnu.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${MANAGER_CA_PRIVATE_KEY}
+      - FABRIC_CA_SERVER_PORT=7054
     volumes:
-      - ./network/crypto-config:/etc/hyperledger/fabric-ca-server
-    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+      - ./network/crypto-config/peerOrganizations/manager.jnu.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.manager.jnu.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${MANAGER_CA_PRIVATE_KEY} -b admin:adminpw -d'
     ports:
       - 7054:7054
+    networks:
+      - jnu_hlfn
+
+  ca.student.jnu.com:
+    container_name: ca.student.jnu.com
+    image: hyperledger/fabric-ca:1.4
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.student.jnu.com
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.student.jnu.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${STUDENT_CA_PRIVATE_KEY}
+      - FABRIC_CA_SERVER_PORT=8054
+    volumes:
+      - ./network/crypto-config/peerOrganizations/student.jnu.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.student.jnu.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${STUDENT_CA_PRIVATE_KEY} -b admin:adminpw -d'
+    ports:
+      - 8054:8054
     networks:
       - jnu_hlfn
 
@@ -67,13 +108,15 @@ services:
     command: /bin/bash
     volumes:
         - /var/run/:/host/var/run/
-        - ./chaincode/:/opt/gopath/src/github.com/chaincode
-        - ./network/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
-        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-        - ./network:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+        - ../chaincode/:/opt/gopath/src/github.com/chaincode/
+        - ./network/crypto-config/:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ../scripts/:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./network/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/
     depends_on:
       - orderer.jnu.com
       - peer0.manager.jnu.com
+      - peer1.manager.jnu.com
       - peer0.student.jnu.com
+      - peer1.student.jnu.com
     networks:
       - jnu_hlfn

@@ -27,7 +27,8 @@ class StateList {
      * State object is serialized before writing.
      */
     async addState(state) {
-        let key = this.ctx.stub.createCompositeKey('', state.getSplitKey());
+        let { objectType, attributes } = this.getCompositeKeyMaterial(state.getSplitKey());
+        let key = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = State.serialize(state);
         await this.ctx.stub.putState(key, data);
     }
@@ -38,9 +39,10 @@ class StateList {
      * into JSON object before being returned.
      */
     async getState(key) {
-        let ledgerKey = this.ctx.stub.createCompositeKey('', State.splitKey(key));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(State.splitKey(key));
+        let ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = await this.ctx.stub.getState(ledgerKey);
-        if (data) {
+        if (data.toString()) {
             let state = State.deserialize(data, this.supportedClasses);
             return state;
         } else {
@@ -49,25 +51,24 @@ class StateList {
     }
 
     async getStatesByPartialKey(partialKey) {
-        let datasIterator = await this.ctx.stub.getStateByPartialCompositeKey('', State.splitKey(partialKey));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(State.splitKey(partialKey));
+        let datasIterator = await this.ctx.stub.getStateByPartialCompositeKey(objectType, attributes);
         let states = await this.getAllResults(datasIterator);
         return states;
     }
 
     async getStatesByPartialKeyWithPagination(partialKey, pageSize, bookmark) {
-        let ledgerBookmark = '';
-        if (bookmark !== '') {
-            ledgerBookmark = this.ctx.stub.createCompositeKey('', State.splitKey(bookmark));
-        }
-
-        const { iterator } = await this.ctx.stub.getStateByPartialCompositeKeyWithPagination('', State.splitKey(partialKey), pageSize, ledgerBookmark);
+        let { objectType, attributes } = this.getCompositeKeyMaterial(State.splitKey(partialKey));
+        const { iterator } = await this.ctx.stub.getStateByPartialCompositeKeyWithPagination(objectType, attributes, pageSize, bookmark);
         let states = await this.getAllResults(iterator);
         return states;
     }
 
     async getStatesByRange(startKey, endKey) {
-        let ledgerStartKey = this.ctx.stub.createCompositeKey('', State.splitKey(startKey));
-        let ledgerEndKey = this.ctx.stub.createCompositeKey('', State.splitKey(endKey));
+        let startMaterial = this.getCompositeKeyMaterial(State.splitKey(startKey));
+        let ledgerStartKey = this.ctx.stub.createCompositeKey(startMaterial.objectType, startMaterial.attributes);
+        let endMaterial = this.getCompositeKeyMaterial(State.splitKey(endKey));
+        let ledgerEndKey = this.ctx.stub.createCompositeKey(endMaterial.objectType, endMaterial.attributes);
 
         let datasIterator = await this.ctx.stub.getStateByRange(ledgerStartKey, ledgerEndKey);
         let states = await this.getAllResults(datasIterator);
@@ -75,14 +76,12 @@ class StateList {
     }
 
     async getStatesByRangeWithPagination(startKey, endKey, pageSize, bookmark) {
-        let ledgerStartKey = this.ctx.stub.createCompositeKey('', State.splitKey(startKey));
-        let ledgerEndKey = this.ctx.stub.createCompositeKey('', State.splitKey(endKey));
-        let ledgerBookmark = '';
-        if (bookmark !== '') {
-            ledgerBookmark = this.ctx.stub.createCompositeKey('', State.splitKey(bookmark));
-        }
+        let startMaterial = this.getCompositeKeyMaterial(State.splitKey(startKey));
+        let ledgerStartKey = this.ctx.stub.createCompositeKey(startMaterial.objectType, startMaterial.attributes);
+        let endMaterial = this.getCompositeKeyMaterial(State.splitKey(endKey));
+        let ledgerEndKey = this.ctx.stub.createCompositeKey(endMaterial.objectType, endMaterial.attributes);
 
-        const { iterator } = await this.ctx.stub.getStateByRangeWithPagination(ledgerStartKey, ledgerEndKey, pageSize, ledgerBookmark);
+        const { iterator } = await this.ctx.stub.getStateByRangeWithPagination(ledgerStartKey, ledgerEndKey, pageSize, bookmark);
         let states = await this.getAllResults(iterator);
         return states;
     }
@@ -94,13 +93,15 @@ class StateList {
      * addState() but kept separate becuase it is semantically distinct.
      */
     async updateState(state) {
-        let key = this.ctx.stub.createCompositeKey('', state.getSplitKey());
+        let { objectType, attributes } = this.getCompositeKeyMaterial(state.getSplitKey());
+        let key = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = State.serialize(state);
         await this.ctx.stub.putState(key, data);
     }
 
     async deleteState(key) {
-        let ledgerKey = this.ctx.stub.createCompositeKey('', State.splitKey(key));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(State.splitKey(key));
+        let ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
         await this.ctx.stub.deleteState(ledgerKey);
     }
 
@@ -110,8 +111,8 @@ class StateList {
         // eslint-disable-next-line no-constant-condition
         while (true) {
             let data = await iterator.next();
-            if (data.value.value) {
-                let state = data.value.value;
+            if (data.value) {
+                let state = data.value.value.toString('utf8');
                 let result = State.deserialize(state, this.supportedClasses);
                 results.push(result);
             }
@@ -123,18 +124,25 @@ class StateList {
         }
     }
 
+    async setEvent(name, object) {
+        let data = State.serialize(object);
+        await this.ctx.stub.setEvent(name, data);
+    }
+
     /** Stores the class for future deserialization */
     use(stateClass) {
         this.supportedClasses[stateClass.getClass()] = stateClass;
     }
 
     makeBookmark(key) {
-        return this.ctx.stub.createCompositeKey('', State.splitKey(key));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(State.splitKey(key));
+        return this.ctx.stub.createCompositeKey(objectType, attributes);
     }
 
-    async setEvent(name, object) {
-        let data = State.serialize(object);
-        await this.ctx.stub.setEvent(name, data);
+    getCompositeKeyMaterial(splitKey) {
+        let objectType = splitKey[0];
+        let attributes = splitKey.slice(1);
+        return { objectType, attributes };
     }
 
 }

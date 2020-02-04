@@ -11,15 +11,17 @@ class PrivateDataList {
     }
 
     async addPrivateData(privateData) {
-        let key = this.ctx.stub.createCompositeKey('', privateData.getSplitKey());
+        let { objectType, attributes } = this.getCompositeKeyMaterial(privateData.getSplitKey());
+        let key = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = PrivateData.serialize(privateData);
         await this.ctx.stub.putPrivateData(this.collection, key, data);
     }
 
     async getPrivateData(key) {
-        let ledgerKey = this.ctx.stub.createCompositeKey('', PrivateData.splitKey(key));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(PrivateData.splitKey(key));
+        let ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = await this.ctx.stub.getPrivateData(this.collection, ledgerKey);
-        if (data) {
+        if (data.toString()) {
             let privateData = PrivateData.deserialize(data, this.supportedClasses);
             return privateData;
         } else {
@@ -28,20 +30,27 @@ class PrivateDataList {
     }
 
     async updatePrivateData(privateData) {
-        let key = this.ctx.stub.createCompositeKey('', privateData.getSplitKey());
+        let { objectType, attributes } = this.getCompositeKeyMaterial(privateData.getSplitKey());
+        let key = this.ctx.stub.createCompositeKey(objectType, attributes);
         let data = PrivateData.serialize(privateData);
         await this.ctx.stub.putPrivateData(this.collection, key, data);
     }
 
     async deletePrivateData(key) {
-        let ledgerKey = this.ctx.stub.createCompositeKey('', PrivateData.splitKey(key));
+        let { objectType, attributes } = this.getCompositeKeyMaterial(PrivateData.splitKey(key));
+        let ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
         await this.ctx.stub.deletePrivateData(this.collection, ledgerKey);
     }
 
-    use(stateClass) {
-        this.supportedClasses[stateClass.getClass()] = stateClass;
+    use(privateDataClass) {
+        this.supportedClasses[privateDataClass.getClass()] = privateDataClass;
     }
 
+    getCompositeKeyMaterial(splitKey) {
+        let objectType = splitKey[0];
+        let attributes = splitKey.slice(1);
+        return { objectType, attributes };
+    }
 }
 
 module.exports = PrivateDataList;

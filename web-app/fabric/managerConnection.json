@@ -44,7 +44,7 @@
                 "peer1.manager.jnu.com"
             ],
             "certificateAuthorities": [
-                "ca.jnu.com"
+                "ca.manager.jnu.com"
             ]
         }
     },
@@ -70,7 +70,7 @@
             }
         },
         "peer1.manager.jnu.com": {
-            "url": "grpc://localhost:7051",
+            "url": "grpc://localhost:8051",
             "grpcOptions": {
                 "ssl-target-name-override": "peer1.manager.jnu.com"
             },
@@ -80,9 +80,9 @@
         }
     },
     "certificateAuthorities": {
-        "ca.jnu.com": {
+        "ca.manager.jnu.com": {
             "url": "https://localhost:7054",
-            "caName": "ca.jnu.com",
+            "caName": "ca.manager.jnu.com",
             "tlsCACerts": {
                 "pem": "-----BEGIN CERTIFICATE----- <etc>"
             }

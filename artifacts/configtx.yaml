@@ -48,7 +48,7 @@ Organizations:
                 Rule: "OR('StudentMSP.admin')"
         AnchorPeers:
             - Host: peer0.student.jnu.com
-              Port: 7051
+              Port: 9051
 
 Capabilities:
     Channel: &ChannelCapabilities

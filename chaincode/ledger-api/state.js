@@ -55,7 +55,7 @@ class State {
      * @return {json} json with the data to store
      */
     static deserialize(data, supportedClasses) {
-        let json = JSON.parse(data.toString());
+        let json = JSON.parse(data);
         let objClass = supportedClasses[json.class];
         if (!objClass) {
             throw new Error(`Unknown class of ${json.class}`);
@@ -72,7 +72,7 @@ class State {
      * @return {json} json with the data to store
      */
     static deserializeClass(data, objClass) {
-        let json = JSON.parse(data.toString());
+        let json = JSON.parse(data);
         let object = new (objClass)(json);
         return object;
     }
@@ -82,13 +82,12 @@ class State {
      * @param (String[]) keyParts
      */
     static makeKey(keyParts) {
-        return keyParts.map(part => JSON.stringify(part)).join(':');
+        return keyParts.map(part => part.toString()).join(':');
     }
 
     static splitKey(key) {
         return key.split(':');
     }
-
 }
 
 module.exports = State;

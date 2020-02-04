@@ -30,7 +30,7 @@ class PrivateData {
     }
 
     static deserialize(data, supportedClasses) {
-        let json = JSON.parse(data.toString());
+        let json = JSON.parse(data);
         let objClass = supportedClasses[json.class];
         if (!objClass) {
             throw new Error(`Unknown class of ${json.class}`);
@@ -41,13 +41,13 @@ class PrivateData {
     }
 
     static deserializeClass(data, objClass) {
-        let json = JSON.parse(data.toString());
+        let json = JSON.parse(data);
         let object = new (objClass)(json);
         return object;
     }
 
     static makeKey(keyParts) {
-        return keyParts.map(part => JSON.stringify(part)).join(':');
+        return keyParts.map(part => part.toString()).join(':');
     }
 
     static splitKey(key) {
