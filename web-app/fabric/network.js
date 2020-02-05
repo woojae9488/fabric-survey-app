@@ -1,21 +1,17 @@
-// check path of files
 
 'use strict';
 
-const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
+const FabricCAServices = require('fabric-ca-client');
+
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
-const connectionType = {
-    MANAGER: 1,
-    STUDENT: 2
-};
-
 const configPath = path.join(process.cwd(), './fabric/config.json');
 const configJSON = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configJSON);
+const connectionType = config.connectionType;
 
 const studentConnPath = path.join(process.cwd(), config.studentConnectionProfile);
 const studentConnJSON = fs.readFileSync(studentConnPath, 'utf8');
@@ -25,42 +21,51 @@ const managerConnPath = path.join(process.cwd(), config.managerConnectionProfile
 const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
 const managerConnection = JSON.parse(managerConnJSON);
 
-async function connect(connType, userID) {
-    const gateway = new Gateway();
+function getConnectionMaterial(connType) {
+    let walletPath, connection, orgMSPID, caURL, affiliationName;
 
+    if (connType == connectionType.MANAGER) {
+        walletPath = path.join(process.cwd(), config.managerWallet);
+        connection = managerConnection;
+        orgMSPID = config.managerMSPID;
+        caURL = config.managerCAAddress;
+        affiliationName = "ManagerOrg";
+    } else {
+        walletPath = path.join(process.cwd(), config.studentWallet);
+        connection = studentConnection;
+        orgMSPID = config.studentMSPID;
+        caURL = config.studentCAAddress;
+        affiliationName = "StudentOrg";
+    }
+
+    return { walletPath, connection, orgMSPID, caURL, affiliationName };
+}
+
+async function connect(connType, userID) {
     try {
-        let walletPath;
-        let connection;
-        if (connType == connectionType.MANAGER) {
-            walletPath = path.join(process.cwd(), './identity/manager/wallet');
-            connection = managerConnection;
-        } else {
-            walletPath = path.join(process.cwd(), './identity/student/wallet');
-            connection = studentConnection;
-        }
+        const { walletPath, connection } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
         console.log(`userID: ${userID}`);
         console.log(`wallet: ${util.inspect(wallet)}`);
         console.log(`connection: ${util.inspect(connection)}`);
 
         const userExists = await wallet.exists(userID);
         if (!userExists) {
-            console.log('An identity for the user ' + userID + ' does not exist in the wallet');
+            console.log(`An identity for the user ${userID} does not exist in the wallet`);
             console.log('Run the registerUser.js application before retrying');
 
             let response = {};
-            response.error = 'An identity for the user ' + userID + ' does not exist in the wallet. Register ' + userID + ' first';
+            response.error = `An identity for the user ${userID} does not exist in the wallet. Register ${userID} first`;
             return response;
         }
 
-        console.log('before gateway.connect: ');
+        const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: userID, discovery: config.gatewayDiscovery });
-        const network = await gateway.getNetwork(config.channelName);
 
-        console.log('Connected to surveynet. ');
+        const network = await gateway.getNetwork(config.channelName);
         const contract = await network.getContract(config.contractName);
+        console.log('Connected to surveynet. ');
 
         let networkObj = {
             gateway: gateway,
@@ -69,22 +74,18 @@ async function connect(connType, userID) {
         };
 
         return networkObj;
-    } catch (error) {
-        console.log(`Error processing transaction. ${error}`);
-        console.log(error.stack);
+    } catch (err) {
+        console.error(`Error processing transaction: ${err}`);
         let response = {};
-        response.error = error;
+        response.error = err;
 
         return response;
-    } finally {
-        console.log('Done connecting to network.');
     }
 }
 
 async function query(networkObj, ...funcAndArgs) {
     try {
-        console.log('inside query');
-        console.log(`parameter: ${funcAndArgs}`);
+        console.log(`Query parameter: ${funcAndArgs}`);
         console.log(util.inspect(networkObj));
 
         let contract = networkObj.contract;
@@ -93,10 +94,12 @@ async function query(networkObj, ...funcAndArgs) {
         console.log(`Transaction ${funcAndArgs} has been evaluated`);
 
         return response;
-    } catch (error) {
-        console.error(`Failed to evaluate transaction: ${error}`);
+    } catch (err) {
+        console.error(`Failed to evaluate transaction: ${err}`);
+        let response = {};
+        response.error = err;
 
-        return error;
+        return response;
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -104,8 +107,7 @@ async function query(networkObj, ...funcAndArgs) {
 
 async function invoke(networkObj, ...funcAndArgs) {
     try {
-        console.log('inside invoke');
-        console.log(`parameter: ${funcAndArgs}`);
+        console.log(`Invoke parameter: ${funcAndArgs}`);
         console.log(util.inspect(networkObj));
 
         let contract = networkObj.contract;
@@ -114,10 +116,12 @@ async function invoke(networkObj, ...funcAndArgs) {
         console.log(`Transaction ${funcAndArgs} has been submitted`);
 
         return response;
-    } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
+    } catch (err) {
+        console.error(`Failed to submit transaction: ${err}`);
+        let response = {};
+        response.error = err;
 
-        return error;
+        return response;
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -125,19 +129,11 @@ async function invoke(networkObj, ...funcAndArgs) {
 
 async function enrollAdmin(connType) {
     try {
-        let walletPath;
-        let orgMSPID;
-        if (connType == connectionType.MANAGER) {
-            walletPath = path.join(process.cwd(), './identity/manager/wallet');
-            orgMSPID = config.managerMSPID;
-        } else {
-            walletPath = path.join(process.cwd(), './identity/student/wallet');
-            orgMSPID = config.studentMSPID;
-        }
+        const { walletPath, orgMSPID, caURL } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
-        const ca = new FabricCAServices(config.caURL);
+        console.log(`wallet: ${util.inspect(wallet)}`);
+        const ca = new FabricCAServices(caURL);
 
         const adminExists = await wallet.exists(config.appAdmin);
         if (adminExists) {
@@ -145,44 +141,30 @@ async function enrollAdmin(connType) {
             return;
         }
 
+        // Does CA not need to register admin?
         const enrollment = await ca.enroll({ enrollmentID: config.appAdmin, enrollmentSecret: config.appAdminSecret });
         const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
         wallet.import(config.appAdmin, identity);
-        console.log('msg: Successfully enrolled admin user ' + config.appAdmin + ' and imported it into the wallet');
-    } catch (error) {
-        console.error(`Failed to enroll admin user ' + ${config.appAdmin} + : ${error}`);
+        console.log(`msg: Successfully enrolled admin user ${config.appAdmin} and imported it into the wallet`);
+    } catch (err) {
+        console.error(`Failed to enroll admin user ${config.appAdmin}: ${err}`);
         process.exit(1);
     }
 }
 
 async function registerUser(connType, userID) {
     try {
-        let walletPath;
-        let connection;
-        let affiliationName;
-        let orgMSPID;
-        if (connType == connectionType.MANAGER) {
-            walletPath = path.join(process.cwd(), './identity/manager/wallet');
-            connection = managerConnection;
-            affiliationName = "ManagerOrg";
-            orgMSPID = config.managerMSPID;
-        } else {
-            walletPath = path.join(process.cwd(), './identity/student/wallet');
-            connection = studentConnection;
-            affiliationName = "StudentOrg";
-            orgMSPID = config.studentMSPID;
-        }
+        const { walletPath, connection, affiliationName, orgMSPID } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
+        console.log(`wallet: ${util.inspect(wallet)}`);
         console.log(wallet);
 
         const userExists = await wallet.exists(userID);
         if (userExists) {
             let response = {};
             console.log(`An identity for the user ${userID} already exists in the wallet`);
-            response.error = `Error! An identity for the user ${userID} already exists in the wallet. Please enter
-      a different license number.`;
+            response.error = `Error! An identity for the user ${userID} already exists in the wallet.`;
             return response;
         }
 
@@ -209,10 +191,10 @@ async function registerUser(connType, userID) {
         let response = `Successfully registered user. Use userID ${userID} to login.`;
 
         return response;
-    } catch (error) {
-        console.error(`Failed to register user: ${userID}: ${error}`);
+    } catch (err) {
+        console.error(`Failed to register user ${userID}: ${err}`);
         let response = {};
-        response.error = error;
+        response.error = err;
 
         return response;
     } finally {
@@ -234,11 +216,11 @@ async function registerStudent(userID, password, name, department) {
         if (certResponse.error) {
             let response = {};
             response.error = certResponse.error;
+
             return response;
         }
 
         let networkObj = await connect(connectionType.STUDENT, userID);
-        console.log('util inspecting');
         console.log(util.inspect(networkObj));
 
         let response = await networkObj.contract.submitTransaction('registerStudent', userID, password, name, department);
@@ -246,16 +228,16 @@ async function registerStudent(userID, password, name, department) {
         console.log(`Register user ${userID} transaction has been submitted`);
 
         return response;
-    } catch (error) {
-        console.error(`Failed to register student: ${userID}: ${error}`);
+    } catch (err) {
+        console.error(`Failed to register student ${userID}: ${err}`);
         let response = {};
-        response.error = error;
+        response.error = err;
+
         return response;
     } finally {
         await networkObj.gateway.disconnect();
     }
 }
-
 
 async function registerManager(userID, password, department) {
     console.log(`manager id: ${userID}`);
@@ -271,11 +253,11 @@ async function registerManager(userID, password, department) {
         if (certResponse.error) {
             let response = {};
             response.error = certResponse.error;
+
             return response;
         }
 
         let networkObj = await connect(connectionType.MANAGER, userID);
-        console.log('util inspecting');
         console.log(util.inspect(networkObj));
 
         let response = await networkObj.contract.submitTransaction('registerManager', userID, password, department);
@@ -283,10 +265,10 @@ async function registerManager(userID, password, department) {
         console.log(`Register user ${userID} transaction has been submitted`);
 
         return response;
-    } catch (error) {
-        console.error(`Failed to register student: ${userID}: ${error}`);
+    } catch (err) {
+        console.error(`Failed to register manager ${userID}: ${err}`);
         let response = {};
-        response.error = error;
+        response.error = err;
 
         return response;
     } finally {
@@ -301,3 +283,6 @@ exports.enrollAdmin = enrollAdmin;
 exports.registerUser = registerUser;
 exports.registerStudent = registerStudent;
 exports.registerManager = registerManager;
+
+exports.config = config;
+exports.connectionType = connectionType;

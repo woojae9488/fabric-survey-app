@@ -111,6 +111,7 @@ class SurveyContract extends Contract {
 
         surveyInfo.setRemoved();
         await ctx.surveyList.updateSurveyInfo(surveyInfo);
+        await ctx.surveyList.setSurveyEvent('Remove', surveyInfo);
 
         return surveyInfo;
     }
@@ -309,7 +310,7 @@ class SurveyContract extends Contract {
         return reply;
     }
 
-    async queryReplis(ctx, department, surveyCreatedAt) {
+    async queryReplies(ctx, department, surveyCreatedAt) {
         let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
         return ctx.replyList.getRepliesBySurveyKey(surveyKey);
     }
@@ -321,7 +322,7 @@ class SurveyContract extends Contract {
         return ctx.replyList.getRepliesByRange(replyInfoStart, replyInfoEnd);
     }
 
-    async querySurveyRepliesByRangeWithPagination(ctx, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) {
+    async queryRepliesByRangeWithPagination(ctx, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) {
         let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
         let replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
         let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);

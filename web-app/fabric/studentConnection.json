@@ -55,7 +55,7 @@
                 "ssl-target-name-override": "orderer.jnu.com"
             },
             "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE----- <etc> "
+                "path": "../artifacts/network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
             }
         }
     },
@@ -66,7 +66,7 @@
                 "ssl-target-name-override": "peer0.student.jnu.com"
             },
             "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+                "path": "../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
             }
         },
         "peer1.student.jnu.com": {
@@ -75,7 +75,7 @@
                 "ssl-target-name-override": "peer1.student.jnu.com"
             },
             "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+                "path": "../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
             }
         }
     },
@@ -84,7 +84,7 @@
             "url": "https://localhost:8054",
             "caName": "ca.student.jnu.com",
             "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE----- <etc>"
+                "path": "../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca/ca.student.jnu.com-cert.pem"
             }
         }
     }

@@ -18,13 +18,13 @@ curl -sSL http://bit.ly/2ysbOFE | bash -s 1.4.0
 ```bash
 cp ~/fabric-samples/bin/* ./artifacts/bin/
 cd chaincode/ ; npm install
-cd ../ ; chmod u+x operation.sh
-./operation.sh up
+cd ../ ; chmod u+x operate.sh
+./operate.sh up
 ```
 
 ### 네트워크 종료
 ```bash
-./operation.sh down
+./operate.sh down
 ```
 
 ### 참조
@@ -35,4 +35,5 @@ cd ../ ; chmod u+x operation.sh
 * [hyperledger/fabric-samples/balance-transfer](https://github.com/hyperledger/fabric-samples/tree/release-1.4/balance-transfer)
 * [hyperledger/fabric-samples/commercial-paper](https://github.com/hyperledger/fabric-samples/tree/release-1.4/commercial-paper)
 * [IBM/evote](https://github.com/IBM/evote)
+* [IBM/auction-events](https://github.com/IBM/auction-events)
 * [DappCampus/chaincode-tutorial](https://github.com/DappCampus/chaincode-tutorial)

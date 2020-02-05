@@ -1,15 +1,29 @@
 {
   "managerConnectionProfile": "./fabric/managerConnection.json",
   "studentConnectionProfile": "./fabric/studentConnection.json",
-  "appAdmin": "app-admin",
-  "appAdminSecret": "app-adminpw",
+  "managerWallet": "./identity/manager/wallet",
+  "studentWallet": "./identity/student/wallet",
   "managerMSPID": "ManagerMSP",
   "studentMSPID": "StudentMSP",
-  "caURL": "https://localhost:7054",
+  "managerCAAddress": "https://localhost:7054",
+  "studentCAAddress": "https://localhost:8054",
+  "appAdmin": "app-admin",
+  "appAdminSecret": "app-adminpw",
   "gatewayDiscovery": {
     "enabled": true,
     "asLocalhost": true
   },
   "channelName": "surveynet",
-  "contractName": "surveycc"
+  "contractName": "surveycc",
+  "blockListener": "surveynetBlockListener",
+  "registerEvent": "surveyRegisterEvent",
+  "updateEvent": "surveyUpdateEvent",
+  "removeEvent": "surveyRemoveEvent",
+  "registerListener": "registerEventListener",
+  "updateListener": "updateEventListener",
+  "removeListener": "removeEventListener",
+  "connectionType": {
+    "MANAGER": 1,
+    "STUDENT": 2
+  }
 }
