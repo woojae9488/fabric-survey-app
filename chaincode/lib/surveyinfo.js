@@ -20,8 +20,8 @@ class SurveyInfo extends State {
 
     constructor(obj) {
         super(SurveyInfo.getClass(), [obj.department, obj.createdAt]);
-        Object.assign(this, obj);
         this.currentState = null;
+        Object.assign(this, obj);
     }
 
     getDepartment() {

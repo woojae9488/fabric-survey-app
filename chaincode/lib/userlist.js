@@ -23,6 +23,10 @@ class UserList extends PrivateDataList {
     async updateUser(user) {
         await this.updatePrivateData(user);
     }
+
+    async deleteUser(userKey) {
+        await this.deletePrivateData(userKey);
+    }
 }
 
 module.exports = UserList;

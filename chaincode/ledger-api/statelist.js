@@ -139,9 +139,9 @@ class StateList {
         return this.ctx.stub.createCompositeKey(objectType, attributes);
     }
 
-    getCompositeKeyMaterial(splitKey) {
-        let objectType = splitKey[0];
-        let attributes = splitKey.slice(1);
+    getCompositeKeyMaterial(splitKeys) {
+        let objectType = splitKeys.shift();
+        let attributes = splitKeys;
         return { objectType, attributes };
     }
 

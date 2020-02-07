@@ -16,9 +16,7 @@ curl -sSL http://bit.ly/2ysbOFE | bash -s 1.4.0
 
 ### 네트워크 구동
 ```bash
-cp ~/fabric-samples/bin/* ./artifacts/bin/
-cd chaincode/ ; npm install
-cd ../ ; chmod u+x operate.sh
+chmod 777 operate.sh
 ./operate.sh up
 ```
 

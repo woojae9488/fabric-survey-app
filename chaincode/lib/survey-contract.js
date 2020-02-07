@@ -56,7 +56,7 @@ class SurveyContract extends Contract {
     }
 
     async instantiate(_ctx) {
-        console.log('Instantiate the contract');
+        console.log('Instantiate the survey contract');
     }
 
     /********************* Survey State Change Method (User) *********************/
@@ -196,75 +196,6 @@ class SurveyContract extends Contract {
         return surveyInfo;
     }
 
-    /********************* Survey User Method (User) *********************/
-
-    async registerStudent(ctx, id, password, name, department) {
-        let userKey = User.makeKey([id]);
-        let userExists = await ctx.studentList.getUser(userKey);
-        if (userExists) {
-            throw new Error('User ' + userKey + ' already exists');
-        }
-
-        let salt = User.makeSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let user = User.createInstance(id, hashedPw, name, department, salt, Date.now());
-        user.setUpdatedAt(user.getCreatedAt());
-
-        await ctx.studentList.addUser(user);
-        return user;
-    }
-
-    async registerManager(ctx, id, password, department) {
-        let userKey = User.makeKey([id]);
-        let userExists = await ctx.managerList.getUser(userKey);
-        if (userExists) {
-            throw new Error('User ' + userKey + ' already exists');
-        }
-
-        let salt = User.makeSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let user = User.createInstance(id, hashedPw, 'manager', department, salt, Date.now());
-        user.setUpdatedAt(user.getCreatedAt());
-
-        await ctx.managerList.addUser(user);
-        return user;
-    }
-
-    async updateStudent(ctx, id, password, name, department) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.studentList.getUser(userKey);
-        if (!user) {
-            throw new Error('Can not found User = ' + userKey);
-        }
-
-        let salt = user.getSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        user.setHashedPw(hashedPw);
-        user.setName(name);
-        user.setDepartment(department);
-        user.setUpdatedAt(Date.now());
-
-        await ctx.studentList.updateUser(user);
-        return user;
-    }
-
-    async updateManager(ctx, id, password, department) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.managerList.getUser(userKey);
-        if (!user) {
-            throw new Error('Can not found User = ' + userKey);
-        }
-
-        let salt = user.getSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        user.setHashedPw(hashedPw);
-        user.setDepartment(department);
-        user.setUpdatedAt(Date.now());
-
-        await ctx.managerList.updateUser(user);
-        return user;
-    }
-
     /********************* Survey State Query Method *********************/
 
     async querySurvey(ctx, department, createdAt) {
@@ -328,6 +259,107 @@ class SurveyContract extends Contract {
         let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
         let replyBookmark = ctx.replyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
         return ctx.replyList.getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
+    }
+
+    /********************* Survey User Method (User) *********************/
+
+    async registerStudent(ctx, id, password, name, departmentsJSON) {
+        let userKey = User.makeKey([id]);
+        let userExists = await ctx.studentList.getUser(userKey);
+        if (userExists) {
+            throw new Error('User ' + userKey + ' already exists');
+        }
+
+        let salt = User.makeSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let departments = JSON.parse(departmentsJSON);
+        let user = User.createInstance(id, hashedPw, name, departments, salt, Date.now());
+        user.setUpdatedAt(user.getCreatedAt());
+
+        await ctx.studentList.addUser(user);
+        return user;
+    }
+
+    async registerManager(ctx, id, password, departmentsJSON) {
+        let userKey = User.makeKey([id]);
+        let userExists = await ctx.managerList.getUser(userKey);
+        if (userExists) {
+            throw new Error('User ' + userKey + ' already exists');
+        }
+
+        let salt = User.makeSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let departments = JSON.parse(departmentsJSON);
+        let user = User.createInstance(id, hashedPw, 'manager', departments, salt, Date.now());
+        user.setUpdatedAt(user.getCreatedAt());
+
+        await ctx.managerList.addUser(user);
+        return user;
+    }
+
+    async updateStudent(ctx, id, password, name, departmentsJSON) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.studentList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        let salt = user.getSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let departments = JSON.parse(departmentsJSON);
+        user.setHashedPw(hashedPw);
+        user.setName(name);
+        user.setDepartments(departments);
+        user.setUpdatedAt(Date.now());
+
+        await ctx.studentList.updateUser(user);
+        return user;
+    }
+
+    async updateManager(ctx, id, password, departmentsJSON) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.managerList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        let salt = user.getSalt();
+        let hashedPw = User.encryptPassword(password, salt);
+        let departments = JSON.parse(departmentsJSON);
+        user.setHashedPw(hashedPw);
+        user.setDepartments(departments);
+        user.setUpdatedAt(Date.now());
+
+        await ctx.managerList.updateUser(user);
+        return user;
+    }
+
+    async deleteStudent(ctx, id, password) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.studentList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+        if (!user.authenticate(password)) {
+            throw new Error('user ' + userKey + ' password is not matched');
+        }
+
+        await ctx.studentList.deleteUser(userKey);
+        return user;
+    }
+
+    async deleteManager(ctx, id, password) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.managerList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+        if (!user.authenticate(password)) {
+            throw new Error('user ' + userKey + ' password is not matched');
+        }
+
+        await ctx.managerList.deleteUser(userKey);
+        return user;
     }
 
     /********************* Survey User Query Method *********************/

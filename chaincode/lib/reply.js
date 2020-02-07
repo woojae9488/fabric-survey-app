@@ -8,9 +8,9 @@ const ReplyResult = require('./replyresult.js');
 class Reply {
 
     constructor(obj) {
-        Object.assign(this, obj);
-        let replyInfoKey = this.replyInfo.getKey();
+        let replyInfoKey = obj.replyInfo.getKey();
         this.replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
+        Object.assign(this, obj);
     }
 
     getReplyKey() {
@@ -51,17 +51,17 @@ class Reply {
     }
 
     static makeReplyKey(surveyKey, studentID) {
-        return [surveyKey, studentID].join('.');
+        return [surveyKey, studentID].join('_');
     }
 
     static makeReplyKeyByInfoKey(replyInfoKey) {
         let keyParts = State.splitKey(replyInfoKey);
         keyParts.shift();
-        return keyParts.join('.');
+        return keyParts.join('_');
     }
 
     static makeInfoKeyByReplyKey(replyKey) {
-        let keyParts = replyKey.split('.');
+        let keyParts = replyKey.split('_');
         return ReplyInfo.makeKey(keyParts);
     }
 

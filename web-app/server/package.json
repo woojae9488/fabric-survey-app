@@ -6,7 +6,7 @@
   "main": "app.js",
   "scripts": {
     "lint": "eslint .",
-    "start": "./node_modules/nodemon/bin/nodemon.js src/app.js",
+    "start": "./node_modules/nodemon/bin/nodemon.js app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

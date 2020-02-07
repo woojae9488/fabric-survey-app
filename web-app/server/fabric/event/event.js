@@ -1,16 +1,13 @@
 
 'use strict';
 
-const { FileSystemWallet, Gateway } = require('fabric-network');
-const schedule = require('./schedule.js');
-
-const path = require('path');
 const fs = require('fs');
-const util = require('util');
+const path = require('path');
+const { FileSystemWallet, Gateway } = require('fabric-network');
 
-const configPath = path.join(process.cwd(), './fabric/config.json');
-const configJSON = fs.readFileSync(configPath, 'utf8');
-const config = JSON.parse(configJSON);
+const schedule = require('./schedule.js');
+const config = require('../config.js').connection;
+const eventCfg = require('../config.js').event;
 
 const connectionPath = path.join(process.cwd(), config.managerConnectionProfile);
 const connectionJSON = fs.readFileSync(connectionPath, 'utf8');
@@ -19,20 +16,24 @@ const connection = JSON.parse(connectionJSON);
 const walletPath = path.join(process.cwd(), config.managerWallet);
 const wallet = new FileSystemWallet(walletPath);
 
+function handlingPastEvents() {
+    schedule.initSurveySchedule();
+}
+
 async function activateContractEvent() {
     try {
-        console.log(`connection: ${util.inspect(connection)}`);
+        console.log(`connection: ${connection}`);
 
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
         const contract = await network.getContract(config.contractName);
-        console.log('Connected to surveynet.');
+        console.log('Connected to surveynet successly.');
 
-        const registerListener = await contract.addContractListener(config.registerListener, config.registerEvent,
+        const registerListener = await contract.addContractListener(eventCfg.registerListener, eventCfg.registerEvent,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
-                    console.error(`Failed to add register listener: ${err}`);
+                    console.error(`Failed to listen register event: ${err}`);
                     return;
                 }
                 console.log(`Block Number: ${blockNumber}`);
@@ -43,10 +44,10 @@ async function activateContractEvent() {
             }
         );
 
-        const updateListener = await contract.addContractListener(config.updateListener, config.updateEvent,
+        const updateListener = await contract.addContractListener(eventCfg.updateListener, eventCfg.updateEvent,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
-                    console.error(`Failed to add update listener: ${err}`);
+                    console.error(`Failed to listen update event: ${err}`);
                     return;
                 }
                 console.log(`Block Number: ${blockNumber}`);
@@ -57,10 +58,10 @@ async function activateContractEvent() {
             }
         );
 
-        const removeListener = await contract.addContractListener(config.removeListener, config.removeEvent,
+        const removeListener = await contract.addContractListener(eventCfg.removeListener, eventCfg.removeEvent,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
-                    console.error(`Failed to add remove listener: ${err}`);
+                    console.error(`Failed to listen remove event: ${err}`);
                     return;
                 }
                 console.log(`Block Number: ${blockNumber}`);
@@ -74,26 +75,23 @@ async function activateContractEvent() {
         return { registerListener, updateListener, removeListener };
     } catch (err) {
         console.error(`Error activate contract event listener: ${err}`);
-        let response = {};
-        response.error = err;
-
-        return response;
+        return null;
     }
 }
 
 async function activateBlockEvent() {
     try {
-        console.log(`connection: ${util.inspect(connection)}`);
+        console.log(`connection: ${connection}`);
 
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
-        console.log('Connected to surveynet.');
+        console.log('Connected to surveynet successly.');
 
-        const listener = await network.addBlockListener(config.blockListener,
+        const listener = await network.addBlockListener(eventCfg.blockListener,
             (err, block) => {
                 if (err) {
-                    console.error(`Failed to add block listener: ${err}`);
+                    console.error(`Failed to listen block event: ${err}`);
                     return;
                 }
                 console.log(`Block: ${block}`);
@@ -103,36 +101,32 @@ async function activateBlockEvent() {
         return listener;
     } catch (err) {
         console.error(`Error activate block event listener: ${err}`);
-        let response = {};
-        response.error = err;
-
-        return response;
+        return null;
     }
 }
 
 async function activateCommitEvent(transactionName) {
     try {
-        console.log(`connection: ${util.inspect(connection)}`);
+        console.log(`connection: ${connection}`);
 
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
         const contract = await network.getContract(config.contractName);
-        console.log('Connected to surveynet.');
+        console.log('Connected to surveynet successly.');
 
         const transaction = contract.createTransaction(transactionName);
-
         const listener = await transaction.addCommitListener(
             (err, transactionID, status, blockHeight) => {
                 if (err) {
-                    console.error(`Failed to add commit listener: ${err}`);
+                    console.error(`Failed to listen commit event: ${err}`);
                     return;
                 }
-                if (status == 'VALID') {
+                if (status === 'VALID') {
                     console.log('transaction committed');
-                    console.log(util.inspect(transactionID, { showHidden: false, depth: 5 }))
-                    console.log(util.inspect(status, { showHidden: false, depth: 5 }))
-                    console.log(util.inspect(blockHeight, { showHidden: false, depth: 5 }))
+                    console.log(transactionID);
+                    console.log(status);
+                    console.log(blockHeight);
                     console.log('transaction committed end');
                 } else {
                     console.log(`err transaction failed: ${status}`);
@@ -143,13 +137,11 @@ async function activateCommitEvent(transactionName) {
         return listener;
     } catch (err) {
         console.error(`Error activate commit event listener: ${err}`);
-        let response = {};
-        response.error = err;
-
-        return response;
+        return null;
     }
 }
 
+exports.handlingPastEvents = handlingPastEvents;
 exports.activateContractEvent = activateContractEvent;
 exports.activateBlockEvent = activateBlockEvent;
 exports.activateCommitEvent = activateCommitEvent;

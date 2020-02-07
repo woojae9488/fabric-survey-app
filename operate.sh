@@ -16,7 +16,7 @@ function printHelp() {
 
 # Ask user for confirmation to proceed
 function askProceed() {
-  read -p "Operate the JNU Survey Network. Continue? [Y/n] " ans
+  read -p "Operate $1 the JNU Survey Network. Continue? [Y/n] " ans
   case "$ans" in
   y | Y | "")
     echo "proceeding ..."
@@ -53,13 +53,12 @@ function removeUnwantedImages() {
   fi
 }
 
-# Versions of fabric known not to work with this release of first-network
-BLACKLISTED_VERSIONS="^1\.0\. ^1\.1\.0-preview ^1\.1\.0-alpha"
-
 # Do some basic sanity checking to make sure that the appropriate versions of fabric
 # binaries/images are available.  In the future, additional checking for the presence
 # of go or other items could be added.
 function checkPrereqs() {
+  # Versions of fabric known not to work with this release of first-network
+  BLACKLISTED_VERSIONS="^1\.0\. ^1\.1\.0-preview ^1\.1\.0-alpha"
   LOCAL_VERSION=$(configtxlator version | sed -ne 's/ Version: //p')
   DOCKER_IMAGE_VERSION=$(docker run --rm hyperledger/fabric-tools:$IMAGETAG peer version | sed -ne 's/ Version: //p' | head -1)
 
@@ -90,8 +89,20 @@ function checkPrereqs() {
 
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp() {
+  if [ ! -d "./artifacts/bin" ]; then
+    mkdir ./artifacts/bin
+    cp ../fabric-samples/bin/* ./artifacts/bin/
+  fi
+  if [ ! -x "scripts/script.sh" -a ! -x "scripts/utils.sh" ]; then
+    chmod 777 scripts/*
+  fi
+  if [ ! -d "./web-app/identity" ]; then
+    mkdir -p ./web-app/identity/manager/wallet
+    mkdir -p ./web-app/identity/student/wallet
+  fi
+
   checkPrereqs
-  if [ ! -d "crypto-config" ]; then
+  if [ ! -d "./artifacts/network/crypto-config" ]; then
     generateCerts
     generateChannelArtifacts
   fi
@@ -137,12 +148,12 @@ function generateCerts() {
     exit 1
   fi
   echo
-  echo "##########################################################"
-  echo "##### Generate certificates using cryptogen tool #########"
-  echo "##########################################################"
+  echo "######################################################################"
+  echo "########### Generate certificates using cryptogen tool ###############"
+  echo "######################################################################"
 
-  if [ -d "crypto-config" ]; then
-    rm -Rf artifacts/network/crypto-config
+  if [ -d "./artifacts/network/crypto-config" ]; then
+    rm -Rf ./artifacts/network/crypto-config
   fi
   set -x
   cryptogen generate --config=./artifacts/crypto-config.yaml --output=./artifacts/network/crypto-config
@@ -162,9 +173,9 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
-  echo "##########################################################"
-  echo "#########  Generating Orderer Genesis block ##############"
-  echo "##########################################################"
+  echo "######################################################################"
+  echo "###############  Generating Orderer Genesis block ####################"
+  echo "######################################################################"
   echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
   set -x
   if [ "$CONSENSUS_TYPE" == "solo" ]; then
@@ -181,9 +192,9 @@ function generateChannelArtifacts() {
     exit 1
   fi
   echo
-  echo "#################################################################"
-  echo "### Generating channel configuration transaction 'channel.tx' ###"
-  echo "#################################################################"
+  echo "######################################################################"
+  echo "#####  Generating channel configuration transaction: channel.tx  #####"
+  echo "######################################################################"
   set -x
   configtxgen -profile JNUChannel -outputCreateChannelTx ./artifacts/network/channel.tx -channelID $CHANNEL_NAME
   res=$?
@@ -194,9 +205,9 @@ function generateChannelArtifacts() {
   fi
 
   echo
-  echo "####################################################################"
-  echo "#######    Generating anchor peer update for ManagerMSP   ##########"
-  echo "####################################################################"
+  echo "######################################################################"
+  echo "########    Generating anchor peer update for ManagerMSP   ###########"
+  echo "######################################################################"
   set -x
   configtxgen -profile JNUChannel -outputAnchorPeersUpdate ./artifacts/network/ManagerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ManagerMSP
   res=$?
@@ -207,9 +218,9 @@ function generateChannelArtifacts() {
   fi
 
   echo
-  echo "####################################################################"
-  echo "#######    Generating anchor peer update for StudentMSP   ##########"
-  echo "####################################################################"
+  echo "######################################################################"
+  echo "########    Generating anchor peer update for StudentMSP   ###########"
+  echo "######################################################################"
   set -x
   configtxgen -profile JNUChannel -outputAnchorPeersUpdate \
     ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
@@ -224,32 +235,20 @@ function generateChannelArtifacts() {
 
 # Obtain the OS and Architecture string that will be used to select the correct
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
-CLI_TIMEOUT=10
-CLI_DELAY=3
 CHANNEL_NAME="surveynet"
-CC_NAME="surveycc"
 COMPOSE_FILE=./artifacts/docker-compose.yaml
-LANGUAGE=node
 IMAGETAG="1.4"
 CONSENSUS_TYPE="solo"
 # Parse commandline args
 MODE=$1
 shift
 
-while getopts "h?v" opt; do
-  case "$opt" in
-  h | \?)
-    printHelp
-    exit 0
-    ;;
-  v)
-    VERBOSE=true
-    ;;
-  esac
-done
+if [ "${MODE}" == "help" ]; then
+  printHelp
+  exit 1
+fi
 
-# ask for confirmation to proceed
-askProceed
+askProceed $MODE
 
 #Create the network using docker compose
 if [ "${MODE}" == "up" ]; then

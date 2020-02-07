@@ -154,7 +154,7 @@ chaincodeQueryUser() {
   # we either get a successful response, or reach TIMEOUT
   echo "Attempting to Query peer ...$(($(date +%s) - starttime)) secs"
   set -x
-  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["org.jnu.survey:queryManager","manager","password"]}' >&log.txt
+  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["queryManager","manager","password"]}' >&log.txt
   res=$?
   set +x
   echo
@@ -174,48 +174,12 @@ chaincodeQueryInfo() {
   # we either get a successful response, or reach TIMEOUT
   echo "Attempting to Query peer ...$(($(date +%s) - starttime)) secs"
   set -x
-  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["org.jnu.survey:querySurveyInfos","software"]}' >&log.txt
+  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["querySurveyInfos","software"]}' >&log.txt
   res=$?
   set +x
   echo
   cat log.txt
   echo "===================== Query finish on peer on channel '$CHANNEL_NAME' ===================== "
-}
-
-# fetchChannelConfig <channel_id> <output_json>
-# Writes the current channel config for a given channel to a JSON file
-fetchChannelConfig() {
-  CHANNEL=$1
-  OUTPUT=$2
-
-  setOrdererGlobals
-
-  echo "Fetching the most recent configuration block for the channel"
-  if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
-    set -x
-    peer channel fetch config config_block.pb -o orderer.jnu.com:7050 -c $CHANNEL --cafile $ORDERER_CA
-    set +x
-  else
-    set -x
-    peer channel fetch config config_block.pb -o orderer.jnu.com:7050 -c $CHANNEL --tls --cafile $ORDERER_CA
-    set +x
-  fi
-
-  echo "Decoding config block to JSON and isolating config to ${OUTPUT}"
-  set -x
-  configtxlator proto_decode --input config_block.pb --type common.Block | jq .data.data[0].payload.data.config >"${OUTPUT}"
-  set +x
-}
-
-# signConfigtxAsPeerOrg <org> <configtx.pb>
-# Set the peerOrg admin of an org and signing the config update
-signConfigtxAsPeerOrg() {
-  PEERORG=$1
-  TX=$2
-  setGlobals $PEERORG
-  set -x
-  peer channel signconfigtx -f "${TX}"
-  set +x
 }
 
 # parsePeerConnectionParameters $@
@@ -262,12 +226,12 @@ chaincodeInvokeCreate() {
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:registerManager","manager","password","software"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["registerManager","manager","password","[\"jnu\",\"software\"]"]}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:registerManager","manager","password","software"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["registerManager","manager","password","[\"jnu\",\"software\"]"]}' >&log.txt
     res=$?
     set +x
   fi
@@ -285,12 +249,12 @@ chaincodeInvokeRegister() {
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:register","{\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:software:1580792727826\",\"department\":\"software\",\"createdAt\":1580792727826,\"managerID\":\"manager\",\"title\":\"notice\",\"startDate\":1580482800000,\"finishDate\":1612105200000,\"currentState\":null},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:software.1580792727826:1\",\"surveyKey\":\"software.1580792727826\",\"questionNum\":1,\"title\":\"question-1\",\"type\":\"radio\",\"contents\":[\"1\",\"2\",\"3\"]}],\"surveyKey\":\"software.1580792727826\"}"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["register","{\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:software:1580792727826\",\"department\":\"software\",\"createdAt\":1580792727826,\"managerID\":\"manager\",\"title\":\"notice\",\"startDate\":1580482800000,\"finishDate\":1612105200000,\"currentState\":null},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:software_1580792727826:1\",\"surveyKey\":\"software_1580792727826\",\"questionNum\":1,\"title\":\"question-1\",\"type\":\"radio\",\"contents\":[\"1\",\"2\",\"3\"]}],\"surveyKey\":\"software_1580792727826\"}"]}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:register","{\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:software:1580792727826\",\"department\":\"software\",\"createdAt\":1580792727826,\"managerID\":\"manager\",\"title\":\"notice\",\"startDate\":1580482800000,\"finishDate\":1612105200000,\"currentState\":null},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:software.1580792727826:1\",\"surveyKey\":\"software.1580792727826\",\"questionNum\":1,\"title\":\"question-1\",\"type\":\"radio\",\"contents\":[\"1\",\"2\",\"3\"]}],\"surveyKey\":\"software.1580792727826\"}"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["register","{\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:software:1580792727826\",\"department\":\"software\",\"createdAt\":1580792727826,\"managerID\":\"manager\",\"title\":\"notice\",\"startDate\":1580482800000,\"finishDate\":1612105200000,\"currentState\":null},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:software_1580792727826:1\",\"surveyKey\":\"software_1580792727826\",\"questionNum\":1,\"title\":\"question-1\",\"type\":\"radio\",\"contents\":[\"1\",\"2\",\"3\"]}],\"surveyKey\":\"software_1580792727826\"}"]}' >&log.txt
     res=$?
     set +x
   fi
@@ -308,12 +272,12 @@ chaincodeInvokeRemove() {
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:remove","software","1580792727826","manager"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["remove","software","1580792727826","manager"]}' >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["org.jnu.survey:remove","software","1580792727826","manager"]}' >&log.txt
+    peer chaincode invoke -o orderer.jnu.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CC_NAME $PEER_CONN_PARMS -c '{"Args":["remove","software","1580792727826","manager"]}' >&log.txt
     res=$?
     set +x
   fi

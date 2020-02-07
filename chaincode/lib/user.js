@@ -19,6 +19,14 @@ class User extends PrivateData {
         return this.hashedPw;
     }
 
+    getName() {
+        return this.name;
+    }
+
+    getDepartments() {
+        return this.departments;
+    }
+
     getSalt() {
         return this.salt;
     }
@@ -43,8 +51,8 @@ class User extends PrivateData {
         this.name = newName;
     }
 
-    setDepartment(newDepartment) {
-        this.department = newDepartment;
+    setDepartments(newDepartments) {
+        this.departments = newDepartments;
     }
 
     static makeSalt() {
@@ -77,8 +85,8 @@ class User extends PrivateData {
         return PrivateData.makeKey(keyParts);
     }
 
-    static createInstance(id, hashedPw, name, department, salt, createdAt) {
-        return new User({ id, hashedPw, name, department, salt, createdAt });
+    static createInstance(id, hashedPw, name, departments, salt, createdAt) {
+        return new User({ id, hashedPw, name, departments, salt, createdAt });
     }
 
     static getClass() {

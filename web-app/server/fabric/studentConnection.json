@@ -3,7 +3,7 @@
     "description": "Connection Profile for Survey Network on JNU",
     "version": "1.0.0",
     "client": {
-        "organization": "ManagerOrg",
+        "organization": "StudentOrg",
         "connection": {
             "timeout": {
                 "peer": {
@@ -21,13 +21,13 @@
                 "orderer.jnu.com"
             ],
             "peers": {
-                "peer0.manager.jnu.com": {
+                "peer0.student.jnu.com": {
                     "endorsingPeer": true,
                     "chaincodeQuery": true,
                     "ledgerQuery": true,
                     "eventSource": true
                 },
-                "peer1.manager.jnu.com": {
+                "peer1.student.jnu.com": {
                     "endorsingPeer": false,
                     "chaincodeQuery": true,
                     "ledgerQuery": true,
@@ -37,14 +37,14 @@
         }
     },
     "organizations": {
-        "ManagerOrg": {
-            "mspid": "ManagerMSP",
+        "StudentOrg": {
+            "mspid": "StudentMSP",
             "peers": [
-                "peer0.manager.jnu.com",
-                "peer1.manager.jnu.com"
+                "peer0.student.jnu.com",
+                "peer1.student.jnu.com"
             ],
             "certificateAuthorities": [
-                "ca.manager.jnu.com"
+                "ca.student.jnu.com"
             ]
         }
     },
@@ -55,36 +55,36 @@
                 "ssl-target-name-override": "orderer.jnu.com"
             },
             "tlsCACerts": {
-                "path": "../artifacts/network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
+                "path": "../../artifacts/network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
             }
         }
     },
     "peers": {
-        "peer0.manager.jnu.com": {
-            "url": "grpc://localhost:7051",
+        "peer0.student.jnu.com": {
+            "url": "grpc://localhost:9051",
             "grpcOptions": {
-                "ssl-target-name-override": "peer0.manager.jnu.com"
+                "ssl-target-name-override": "peer0.student.jnu.com"
             },
             "tlsCACerts": {
-                "path": "../artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
+                "path": "../../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
             }
         },
-        "peer1.manager.jnu.com": {
-            "url": "grpc://localhost:8051",
+        "peer1.student.jnu.com": {
+            "url": "grpc://localhost:10051",
             "grpcOptions": {
-                "ssl-target-name-override": "peer1.manager.jnu.com"
+                "ssl-target-name-override": "peer1.student.jnu.com"
             },
             "tlsCACerts": {
-                "path": "../artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
+                "path": "../../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
             }
         }
     },
     "certificateAuthorities": {
-        "ca.manager.jnu.com": {
-            "url": "https://localhost:7054",
-            "caName": "ca.manager.jnu.com",
+        "ca.student.jnu.com": {
+            "url": "https://localhost:8054",
+            "caName": "ca.student.jnu.com",
             "tlsCACerts": {
-                "path": "../artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca/ca.manager.jnu.com-cert.pem"
+                "path": "../../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca/ca.student.jnu.com-cert.pem"
             }
         }
     }

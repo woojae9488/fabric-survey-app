@@ -39,10 +39,6 @@ class SurveyList extends StateList {
         return this.getState(surveyInfoKey);
     }
 
-    async updateSurveyInfo(surveyInfoKey) {
-        return this.updateState(surveyInfoKey);
-    }
-
     async getSurveyInfosByDepartment(department) {
         let surveyInfosKey = SurveyInfo.makeKey([department]);
         let surveyInfos = await this.getStatesByPartialKey(surveyInfosKey);
@@ -73,6 +69,10 @@ class SurveyList extends StateList {
         for (let i = 0; i < questions.length; i++) {
             await this.addState(questions[i]);
         }
+    }
+
+    async updateSurveyInfo(surveyInfoKey) {
+        await this.updateState(surveyInfoKey);
     }
 
     async deleteQuestions(surveyKey) {

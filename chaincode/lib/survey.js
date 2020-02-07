@@ -8,9 +8,9 @@ const SurveyQuestion = require('./surveyquestion.js');
 class Survey {
 
     constructor(obj) {
-        Object.assign(this, obj);
-        let surveyInfoKey = this.surveyInfo.getKey();
+        let surveyInfoKey = obj.surveyInfo.getKey();
         this.surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
+        Object.assign(this, obj);
     }
 
     getSurveyKey() {
@@ -51,17 +51,17 @@ class Survey {
     }
 
     static makeSurveyKey(department, createdAt) {
-        return [department, createdAt].join('.');
+        return [department, createdAt].join('_');
     }
 
     static makeSurveyKeyByInfoKey(surveyInfoKey) {
         let keyParts = State.splitKey(surveyInfoKey);
         keyParts.shift();
-        return keyParts.join('.');
+        return keyParts.join('_');
     }
 
     static makeInfoKeyBySurveyKey(surveyKey) {
-        let keyParts = surveyKey.split('.');
+        let keyParts = surveyKey.split('_');
         return SurveyInfo.makeKey(keyParts);
     }
 
