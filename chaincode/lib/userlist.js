@@ -17,7 +17,7 @@ class UserList extends PrivateDataList {
     }
 
     async getUser(userKey) {
-        return this.getPrivateData(userKey);
+        return await this.getPrivateData(userKey);
     }
 
     async updateUser(user) {

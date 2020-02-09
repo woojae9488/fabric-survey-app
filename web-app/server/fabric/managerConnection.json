@@ -61,7 +61,7 @@
     },
     "peers": {
         "peer0.manager.jnu.com": {
-            "url": "grpc://localhost:7051",
+            "url": "grpcs://localhost:7051",
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.manager.jnu.com"
             },
@@ -70,7 +70,7 @@
             }
         },
         "peer1.manager.jnu.com": {
-            "url": "grpc://localhost:8051",
+            "url": "grpcs://localhost:8051",
             "grpcOptions": {
                 "ssl-target-name-override": "peer1.manager.jnu.com"
             },

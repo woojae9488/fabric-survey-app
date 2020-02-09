@@ -52,11 +52,11 @@ class SurveyList extends StateList {
     }
 
     async getSurveyInfosByRange(surveyInfoStart, surveyInfoEnd) {
-        return this.getStatesByRange(surveyInfoStart, surveyInfoEnd);
+        return await this.getStatesByRange(surveyInfoStart, surveyInfoEnd);
     }
 
     async getSurveyInfosByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark) {
-        return this.getStatesByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark);
+        return await this.getStatesByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark);
     }
 
     async updateSurvey(survey) {

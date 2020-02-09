@@ -7,8 +7,8 @@ exports.connection = {
   studentMSPID: "StudentMSP",
   managerCaAddress: "https://localhost:7054",
   studentCaAddress: "https://localhost:8054",
-  appAdmin: "app-admin",
-  appAdminSecret: "app-adminpw",
+  appAdmin: "admin",
+  appAdminSecret: "adminpw",
   gatewayDiscovery: {
     enabled: true,
     asLocalhost: true

@@ -154,7 +154,7 @@ chaincodeQueryUser() {
   # we either get a successful response, or reach TIMEOUT
   echo "Attempting to Query peer ...$(($(date +%s) - starttime)) secs"
   set -x
-  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["queryManager","manager","password"]}' >&log.txt
+  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["certifyManager","manager","password"]}' >&log.txt
   res=$?
   set +x
   echo

@@ -36,7 +36,7 @@ class ReplyList extends StateList {
     }
 
     async getReplyInfo(replyInfoKey) {
-        return this.getState(replyInfoKey);
+        return await this.getState(replyInfoKey);
     }
 
     async getRepliesBySurveyKey(surveyKey) {

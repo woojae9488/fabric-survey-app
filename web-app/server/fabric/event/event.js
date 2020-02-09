@@ -22,8 +22,6 @@ function handlingPastEvents() {
 
 async function activateContractEvent() {
     try {
-        console.log(`connection: ${connection}`);
-
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
@@ -75,14 +73,12 @@ async function activateContractEvent() {
         return { registerListener, updateListener, removeListener };
     } catch (err) {
         console.error(`Error activate contract event listener: ${err}`);
-        return null;
+        return { error: err };
     }
 }
 
 async function activateBlockEvent() {
     try {
-        console.log(`connection: ${connection}`);
-
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
@@ -101,14 +97,12 @@ async function activateBlockEvent() {
         return listener;
     } catch (err) {
         console.error(`Error activate block event listener: ${err}`);
-        return null;
+        return { error: err };
     }
 }
 
 async function activateCommitEvent(transactionName) {
     try {
-        console.log(`connection: ${connection}`);
-
         const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
@@ -137,7 +131,7 @@ async function activateCommitEvent(transactionName) {
         return listener;
     } catch (err) {
         console.error(`Error activate commit event listener: ${err}`);
-        return null;
+        return { error: err };
     }
 }
 

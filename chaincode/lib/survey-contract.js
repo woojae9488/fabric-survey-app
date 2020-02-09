@@ -47,8 +47,8 @@ class SurveyContract extends Contract {
 
     async beforeTransaction(ctx) {
         let txnDetails = ctx.stub.getFunctionAndParameters();
-        console.info(`Calling function: ${txnDetails.fcn}`);
-        console.info(`Function arguments : ${txnDetails.params}`);
+        console.info('Calling function: ' + txnDetails.fcn);
+        console.info('Function arguments: ' + txnDetails.params);
     }
 
     async unknownTransaction(_ctx) {
@@ -364,7 +364,27 @@ class SurveyContract extends Contract {
 
     /********************* Survey User Query Method *********************/
 
-    async queryStudent(ctx, id, password) {
+    async queryStudent(ctx, id) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.studentList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        return user;
+    }
+
+    async queryManager(ctx, id) {
+        let userKey = User.makeKey([id]);
+        let user = await ctx.managerList.getUser(userKey);
+        if (!user) {
+            throw new Error('Can not found User = ' + userKey);
+        }
+
+        return user;
+    }
+
+    async certifyStudent(ctx, id, password) {
         let userKey = User.makeKey([id]);
         let user = await ctx.studentList.getUser(userKey);
         if (!user) {
@@ -377,7 +397,7 @@ class SurveyContract extends Contract {
         return user;
     }
 
-    async queryManager(ctx, id, password) {
+    async certifyManager(ctx, id, password) {
         let userKey = User.makeKey([id]);
         let user = await ctx.managerList.getUser(userKey);
         if (!user) {

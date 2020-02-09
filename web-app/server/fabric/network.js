@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
+const util = require('util');
 
 const config = require('./config.js').connection;
 const otherCfg = require('./config.js').other;
@@ -45,14 +46,10 @@ async function connect(connType, userID) {
         const { walletPath, connection } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`userID: ${userID}`);
-        console.log(`wallet: ${wallet}`);
-        console.log(`connection: ${connection}`);
-
         const userExists = await wallet.exists(userID);
         if (!userExists) {
             console.error(`An identity for the user ${userID} does not exist in the wallet. Register ${userID} first`);
-            return null;
+            return { status: 401, error: `An identity for the user ${userID} does not exist in the wallet. Register ${userID} first` };
         }
 
         await gateway.connect(connection, { wallet, identity: userID, discovery: config.gatewayDiscovery });
@@ -70,14 +67,13 @@ async function connect(connType, userID) {
     } catch (err) {
         console.error(`Error processing transaction: ${err}`);
         gateway.disconnect();
-        return null;
+        return { status: 500, error: err };
     }
 }
 
 async function query(networkObj, ...funcAndArgs) {
     try {
         console.log(`Query parameter: ${funcAndArgs}`);
-        console.log(`Network Object: ${networkObj}`);
 
         let func = funcAndArgs.shift();
         let args = funcAndArgs;
@@ -87,7 +83,7 @@ async function query(networkObj, ...funcAndArgs) {
         return response;
     } catch (err) {
         console.error(`Failed to evaluate transaction: ${err}`);
-        return null;
+        return { status: 500, error: err };
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -96,7 +92,6 @@ async function query(networkObj, ...funcAndArgs) {
 async function invoke(networkObj, ...funcAndArgs) {
     try {
         console.log(`Invoke parameter: ${funcAndArgs}`);
-        console.log(networkObj);
 
         let func = funcAndArgs.shift();
         let args = funcAndArgs;
@@ -106,7 +101,7 @@ async function invoke(networkObj, ...funcAndArgs) {
         return response;
     } catch (err) {
         console.error(`Failed to submit transaction: ${err}`);
-        return null;
+        return { status: 500, error: err };
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -117,19 +112,16 @@ async function enrollAdmin(connType) {
         const { walletPath, orgMSPID, caURL } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`wallet: ${wallet}`);
-        const ca = new FabricCAServices(caURL);
-
         const adminExists = await wallet.exists(config.appAdmin);
         if (adminExists) {
             console.error('An identity for the admin user "admin" already exists in the wallet');
             return;
         }
 
-        // Does CA not need to register admin?
+        const ca = new FabricCAServices(caURL);
         const enrollment = await ca.enroll({ enrollmentID: config.appAdmin, enrollmentSecret: config.appAdminSecret });
         const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
-        wallet.import(config.appAdmin, identity);
+        await wallet.import(config.appAdmin, identity);
         console.log(`Successfully enrolled admin user ${config.appAdmin} and imported it into the wallet`);
     } catch (err) {
         console.error(`Failed to enroll admin user ${config.appAdmin}: ${err}`);
@@ -142,12 +134,10 @@ async function registerUser(connType, userID) {
         const { walletPath, connection, affiliationName, orgMSPID } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
-        console.log(`wallet: ${wallet}`);
-
         const userExists = await wallet.exists(userID);
         if (userExists) {
             console.error(`An identity for the user ${userID} already exists in the wallet`);
-            return null;
+            return { status: 400, error: `An identity for the user ${userID} already exists in the wallet` };
         }
 
         const adminExists = await wallet.exists(config.appAdmin);
@@ -162,18 +152,17 @@ async function registerUser(connType, userID) {
 
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
-        console.log(`Admin Identity: ${adminIdentity}`);
 
         const secret = await ca.register({ affiliation: affiliationName, enrollmentID: userID, role: 'client' }, adminIdentity);
         const enrollment = await ca.enroll({ enrollmentID: userID, enrollmentSecret: secret });
-        const userIdentity = await X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
+        const userIdentity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import(userID, userIdentity);
 
         console.log(`Successfully registered user. Use userID ${userID} to login: ${userIdentity}`);
         return userIdentity;
     } catch (err) {
         console.error(`Failed to register user ${userID}: ${err}`);
-        return null;
+        return { status: 500, error: err };
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -184,26 +173,24 @@ async function registerStudent(userID, password, name, departments) {
 
     if (!userID || !password || !name || !departments) {
         console.error('Error! You need to fill all fields before you can register!');
-        return null;
+        return { status: 400, error: 'Error! You need to fill all fields before you can register!' };
     }
     departments.unshift(otherCfg.studentDefaultDepartment);
     let departmentsJSON = JSON.stringify(departments);
 
     try {
         let identity = await registerUser(connectionType.STUDENT, userID);
-        if (!identity) {
-            return null;
-        }
+        if (identity.error) { return identity };
 
         let networkObj = await connect(connectionType.STUDENT, userID);
-        console.log(networkObj);
+        if (networkObj.error) { return networkObj };
 
         let response = await networkObj.contract.submitTransaction('registerStudent', userID, password, name, departmentsJSON);
         console.log(`Register user ${userID} transaction has been submitted: ${response}`);
         return response;
     } catch (err) {
         console.error(`Failed to register student ${userID}: ${err}`);
-        return null;
+        return { status: 500, error: err };
     } finally {
         await networkObj.gateway.disconnect();
     }
@@ -214,25 +201,23 @@ async function registerManager(userID, password, departments) {
 
     if (!userID || !password || !departments) {
         console.error('Error! You need to fill all fields before you can register!');
-        return null;
+        return { status: 400, error: 'Error! You need to fill all fields before you can register!' };
     }
     let departmentsJSON = JSON.stringify(departments);
 
     try {
         let identity = await registerUser(connectionType.MANAGER, userID);
-        if (identity) {
-            return null;
-        }
+        if (identity.error) { return identity };
 
         let networkObj = await connect(connectionType.MANAGER, userID);
-        console.log(networkObj);
+        if (networkObj.error) { return networkObj };
 
         let response = await networkObj.contract.submitTransaction('registerManager', userID, password, departmentsJSON);
         console.log(`Register user ${userID} transaction has been submitted: ${response}`);
         return response;
     } catch (err) {
         console.error(`Failed to register manager ${userID}: ${err}`);
-        return null;
+        return { status: 500, error: err };
     } finally {
         await networkObj.gateway.disconnect();
     }
