@@ -11,14 +11,17 @@ const util = require('util');
 const network = require('./fabric/network.js');
 const config = require('./fabric/config.js').connection;
 const connectionType = config.connectionType;
-// if admin is not exist =>
-network.enrollAdmin(connectionType.STUDENT);
-network.enrollAdmin(connectionType.MANAGER);
-
 const event = require('./fabric/event/event.js');
-event.handlingPastEvents();
-event.activateContractEvent();
-// event.activateBlockEvent();
+
+// if admin is not exist => ! promise synchronized handling !
+{
+    network.enrollAdmin(connectionType.STUDENT);
+    network.enrollAdmin(connectionType.MANAGER);
+
+    event.handlingPastEvents();
+    event.activateContractEvent();
+    // event.activateBlockEvent();
+}
 
 const app = express();
 app.use(bodyParser.json());

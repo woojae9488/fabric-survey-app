@@ -107,9 +107,9 @@ class ReplyList extends StateList {
         }
     }
 
-    makeReplyBookmark(surveyKey, studentID) {
+    static makeReplyBookmark(surveyKey, studentID) {
         let replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
-        return this.makeBookmark(replyInfoKey);
+        return StateList.makeBookmark(replyInfoKey);
     }
 }
 

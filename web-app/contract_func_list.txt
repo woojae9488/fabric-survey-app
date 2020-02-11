@@ -1,0 +1,41 @@
+
+/********************* Survey State Change Method (User) *********************/
+
+register(surveyBuffer)
+update(surveyBuffer) 
+remove(department, createdAt, managerID) 
+respond(replyBuffer) 
+revise(replyBuffer) 
+
+/********************* Survey State Change Method (WebApp) *********************/
+
+start(department, createdAt) 
+finish(department, createdAt) 
+
+/********************* Survey State Query Method *********************/
+
+querySurvey(department, createdAt) 
+querySurveyInfos(department) 
+querySurveyInfosWithPagination(department, pageSize, bookmarkCreatedAt) 
+querySurveyInfosByRange(department, startCreatedAt, endCreatedAt) 
+querySurveyInfosByRangeWithPagination(department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt) 
+queryReply(department, surveyCreatedAt, studentID) 
+queryReplies(department, surveyCreatedAt)
+queryRepliesByRange(department, surveyCreatedAt, startStudentID, endStudentID) 
+queryRepliesByRangeWithPagination(department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) 
+
+/********************* Survey User Method (User) *********************/
+
+registerStudent(id, password, name, department) 
+registerManager(id, password, department) 
+updateStudent(id, password, name, department) 
+updateManager(id, password, department) 
+deleteStudent(id, password) 
+deleteManager(id, password) 
+
+/********************* Survey User Query Method *********************/
+
+queryStudent(id) 
+queryManager(id)
+certifyStudent(id, password) 
+certifyManager(id, password)

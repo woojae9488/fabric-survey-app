@@ -84,9 +84,13 @@ class SurveyList extends StateList {
         }
     }
 
-    makeSurveyBookmark(department, createdAt) {
+    static makeSurveyBookmark(department, createdAt) {
         let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
-        return this.makeBookmark(surveyInfoKey);
+        return StateList.makeBookmark(surveyInfoKey);
+    }
+
+    static getUnremovedFromSurveyInfos(surveyInfos) {
+        return surveyInfos.filter(surveyInfo => !surveyInfo.isRemoved());
     }
 
     async setSurveyEvent(action, surveyInfo) {

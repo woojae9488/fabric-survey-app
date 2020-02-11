@@ -208,27 +208,29 @@ class SurveyContract extends Contract {
     }
 
     async querySurveyInfos(ctx, department) {
-        return ctx.surveyList.getSurveyInfosByDepartment(department);
+        let surveyInfos = await ctx.surveyList.getSurveyInfosByDepartment(department);
+        return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosWithPagination(ctx, department, pageSize, bookmarkCreatedAt) {
-        let surveyBookmark = ctx.surveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
-        return ctx.surveyList.getSurveyInfosByDepartmentWithPagination(department, pageSize, surveyBookmark);
+        let surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
+        let surveyInfos = await ctx.surveyList.getSurveyInfosByDepartmentWithPagination(department, pageSize, surveyBookmark);
+        return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosByRange(ctx, department, startCreatedAt, endCreatedAt) {
         let surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
         let surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
         let surveyInfos = await ctx.surveyList.getSurveyInfosByRange(surveyInfoStart, surveyInfoEnd);
-        return surveyInfos;
+        return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosByRangeWithPagination(ctx, department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt) {
         let surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
         let surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
-        let surveyBookmark = ctx.surveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
+        let surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
         let surveyInfos = await ctx.surveyList.getSurveyInfosByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark);
-        return surveyInfos;
+        return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async queryReply(ctx, department, surveyCreatedAt, studentID) {
@@ -243,22 +245,22 @@ class SurveyContract extends Contract {
 
     async queryReplies(ctx, department, surveyCreatedAt) {
         let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
-        return ctx.replyList.getRepliesBySurveyKey(surveyKey);
+        return await ctx.replyList.getRepliesBySurveyKey(surveyKey);
     }
 
     async queryRepliesByRange(ctx, department, surveyCreatedAt, startStudentID, endStudentID) {
         let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
         let replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
         let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
-        return ctx.replyList.getRepliesByRange(replyInfoStart, replyInfoEnd);
+        return await ctx.replyList.getRepliesByRange(replyInfoStart, replyInfoEnd);
     }
 
     async queryRepliesByRangeWithPagination(ctx, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) {
         let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
         let replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
         let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
-        let replyBookmark = ctx.replyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
-        return ctx.replyList.getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
+        let replyBookmark = ReplyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
+        return await ctx.replyList.getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
     }
 
     /********************* Survey User Method (User) *********************/

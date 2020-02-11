@@ -71,7 +71,7 @@ class Reply {
         return new Reply({ replyInfo, results });
     }
 
-    addResults(resultNum, answers) {
+    addResult(resultNum, answers) {
         let result = ReplyResult.createInstance(this.replyKey, resultNum, answers);
         this.results.push(result);
     }

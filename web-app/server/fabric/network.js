@@ -5,10 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
-const util = require('util');
 
 const config = require('./config.js').connection;
-const otherCfg = require('./config.js').other;
 const connectionType = config.connectionType;
 
 const studentConnPath = path.join(process.cwd(), config.studentConnectionProfile);
@@ -66,7 +64,7 @@ async function connect(connType, userID) {
         return networkObj;
     } catch (err) {
         console.error(`Error processing transaction: ${err}`);
-        gateway.disconnect();
+        await gateway.disconnect();
         return { status: 500, error: err };
     }
 }
@@ -175,7 +173,6 @@ async function registerStudent(userID, password, name, departments) {
         console.error('Error! You need to fill all fields before you can register!');
         return { status: 400, error: 'Error! You need to fill all fields before you can register!' };
     }
-    departments.unshift(otherCfg.studentDefaultDepartment);
     let departmentsJSON = JSON.stringify(departments);
 
     try {

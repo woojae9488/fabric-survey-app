@@ -30,7 +30,3 @@ exports.event = {
   removeListener: "removeEventListener",
   blockListener: "surveynetBlockListener"
 }
-
-exports.other = {
-  studentDefaultDepartment: "jnu"
-}
