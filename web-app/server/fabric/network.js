@@ -47,13 +47,13 @@ async function connect(connType, userID) {
         const userExists = await wallet.exists(userID);
         if (!userExists) {
             console.error(`An identity for the user ${userID} does not exist in the wallet. Register ${userID} first`);
-            return { status: 401, error: `An identity for the user ${userID} does not exist in the wallet. Register ${userID} first` };
+            return { status: 401, error: 'User identity does not exist in the wallet.' };
         }
 
         await gateway.connect(connection, { wallet, identity: userID, discovery: config.gatewayDiscovery });
         const network = await gateway.getNetwork(config.channelName);
         const contract = await network.getContract(config.contractName);
-        console.log('Connected to surveynet successly.');
+        console.log('Connected to fabric network successly.');
 
         let networkObj = {
             gateway: gateway,
@@ -63,7 +63,7 @@ async function connect(connType, userID) {
 
         return networkObj;
     } catch (err) {
-        console.error(`Error processing transaction: ${err}`);
+        console.error(`Fail to connect network: ${err}`);
         await gateway.disconnect();
         return { status: 500, error: err };
     }
@@ -112,7 +112,7 @@ async function enrollAdmin(connType) {
         const wallet = new FileSystemWallet(walletPath);
         const adminExists = await wallet.exists(config.appAdmin);
         if (adminExists) {
-            console.error('An identity for the admin user "admin" already exists in the wallet');
+            console.error('Admin user identity already exists in the wallet');
             return;
         }
 
@@ -120,9 +120,9 @@ async function enrollAdmin(connType) {
         const enrollment = await ca.enroll({ enrollmentID: config.appAdmin, enrollmentSecret: config.appAdminSecret });
         const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import(config.appAdmin, identity);
-        console.log(`Successfully enrolled admin user ${config.appAdmin} and imported it into the wallet`);
+        console.log(`Successfully enrolled admin user and imported it into the wallet`);
     } catch (err) {
-        console.error(`Failed to enroll admin user ${config.appAdmin}: ${err}`);
+        console.error(`Failed to enroll admin user: ${err}`);
         process.exit(1);
     }
 }
@@ -135,14 +135,14 @@ async function registerUser(connType, userID) {
         const userExists = await wallet.exists(userID);
         if (userExists) {
             console.error(`An identity for the user ${userID} already exists in the wallet`);
-            return { status: 400, error: `An identity for the user ${userID} already exists in the wallet` };
+            return { status: 400, error: 'User identity already exists in the wallet.' };
         }
 
         const adminExists = await wallet.exists(config.appAdmin);
         if (!adminExists) {
             console.error(`An identity for the admin user ${config.appAdmin} does not exist in the wallet`);
             console.error('Enroll the admin before trying');
-            await enrollAdmin(connType);
+            return { status: 500, error: 'Admin user identity does not exist in the wallet.' };
         }
 
         const gateway = new Gateway();
@@ -166,64 +166,8 @@ async function registerUser(connType, userID) {
     }
 }
 
-async function registerStudent(userID, password, name, departments) {
-    console.log(`student id: ${userID}`);
-
-    if (!userID || !password || !name || !departments) {
-        console.error('Error! You need to fill all fields before you can register!');
-        return { status: 400, error: 'Error! You need to fill all fields before you can register!' };
-    }
-    let departmentsJSON = JSON.stringify(departments);
-
-    try {
-        let identity = await registerUser(connectionType.STUDENT, userID);
-        if (identity.error) { return identity };
-
-        let networkObj = await connect(connectionType.STUDENT, userID);
-        if (networkObj.error) { return networkObj };
-
-        let response = await networkObj.contract.submitTransaction('registerStudent', userID, password, name, departmentsJSON);
-        console.log(`Register user ${userID} transaction has been submitted: ${response}`);
-        return response;
-    } catch (err) {
-        console.error(`Failed to register student ${userID}: ${err}`);
-        return { status: 500, error: err };
-    } finally {
-        await networkObj.gateway.disconnect();
-    }
-}
-
-async function registerManager(userID, password, departments) {
-    console.log(`manager id: ${userID}`);
-
-    if (!userID || !password || !departments) {
-        console.error('Error! You need to fill all fields before you can register!');
-        return { status: 400, error: 'Error! You need to fill all fields before you can register!' };
-    }
-    let departmentsJSON = JSON.stringify(departments);
-
-    try {
-        let identity = await registerUser(connectionType.MANAGER, userID);
-        if (identity.error) { return identity };
-
-        let networkObj = await connect(connectionType.MANAGER, userID);
-        if (networkObj.error) { return networkObj };
-
-        let response = await networkObj.contract.submitTransaction('registerManager', userID, password, departmentsJSON);
-        console.log(`Register user ${userID} transaction has been submitted: ${response}`);
-        return response;
-    } catch (err) {
-        console.error(`Failed to register manager ${userID}: ${err}`);
-        return { status: 500, error: err };
-    } finally {
-        await networkObj.gateway.disconnect();
-    }
-}
-
 exports.connect = connect;
 exports.query = query;
 exports.invoke = invoke;
 exports.enrollAdmin = enrollAdmin;
 exports.registerUser = registerUser;
-exports.registerStudent = registerStudent;
-exports.registerManager = registerManager;

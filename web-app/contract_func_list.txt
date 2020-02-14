@@ -26,10 +26,10 @@ queryRepliesByRangeWithPagination(department, surveyCreatedAt, startStudentID, e
 
 /********************* Survey User Method (User) *********************/
 
-registerStudent(id, password, name, department) 
-registerManager(id, password, department) 
-updateStudent(id, password, name, department) 
-updateManager(id, password, department) 
+registerStudent(id, password, name, departmentsJSON) 
+registerManager(id, password, departmentsJSON) 
+updateStudent(id, password, name, departmentsJSON) 
+updateManager(id, password, departmentsJSON) 
 deleteStudent(id, password) 
 deleteManager(id, password) 
 

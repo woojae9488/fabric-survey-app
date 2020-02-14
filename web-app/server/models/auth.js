@@ -3,272 +3,114 @@
 const network = require('../fabric/network.js');
 const config = require('../fabric/config.js').connection;
 const connectionType = config.connectionType;
-const authenticateUtils = require('../utils/authenticate.js');
+const authenticateUtil = require('../utils/authenticate.js');
 
-exports.studentSignup = async (information) => {
+exports.signup = async (connType, information) => {
     const { id, password, name, departments } = information;
+    let departmentsJSON = JSON.stringify(departments);
 
-    let contractRes = await network.registerStudent(id, password, name, departments);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
+    let walletRes, networkObj, contractRes;
+    if (connType === connectionType.MANAGER) {
+        walletRes = await network.registerUser(connectionType.MANAGER, id);
+        networkObj = await network.connect(connectionType.MANAGER, id);
+        contractRes = await network.invoke(networkObj, 'registerManager', id, password, departmentsJSON);
+    } else {
+        walletRes = await network.registerUser(connectionType.STUDENT, id);
+        networkObj = await network.connect(connectionType.STUDENT, id);
+        contractRes = await network.invoke(networkObj, 'registerStudent', id, password, name, departmentsJSON);
     }
 
-    return {
-        status: 200,
-        message: 'Success',
-        data: {}
-    };
+    let error = walletRes.error || networkObj.error || contractRes.error;
+    let status = walletRes.status || networkObj.status || contractRes.status;
+    if (error) {
+        return apiResponse.createModelRes(status, error);
+    }
+
+    return apiResponse.createModelRes(200, 'Success');
 };
 
-exports.studentSignin = async (information) => {
+exports.signin = async (connType, information) => {
     const { id, password } = information;
 
-    let networkObj = await network.connect(connectionType.STUDENT, id);
-    if (networkObj.error) {
-        return {
-            status: networkObj.status,
-            message: networkObj.error,
-            data: {}
-        };
+    let networkObj, contractRes;
+    if (connType === connectionType.MANAGER) {
+        networkObj = await network.connect(connectionType.MANAGER, id);
+        contractRes = await network.query(networkObj, 'certifyManager', id, password);
+    } else {
+        networkObj = await network.connect(connectionType.STUDENT, id);
+        contractRes = await network.query(networkObj, 'certifyStudent', id, password);
     }
-    let contractRes = await network.query(networkObj, 'certifyStudent', id, password);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
+
+    let error = networkObj.error || contractRes.error;
+    let status = networkObj.status || contractRes.status;
+    if (error) {
+        return apiResponse.createModelRes(status, error);
     }
 
     let { hashedPw, name, departments } = JSON.parse(contractRes);
-    let accessToken = authenticateUtils.generateAccessToken({ id, name, departments });
-    let refreshToken = authenticateUtils.generateRefreshToken({ id, hashedPw });
-    return {
-        status: 200,
-        message: 'Success',
-        data: { id, name, departments, accessToken, refreshToken }
-    };
+    let accessToken = authenticateUtil.generateAccessToken({ id, name, departments });
+    let refreshToken = authenticateUtil.generateRefreshToken({ id, hashedPw });
+
+    return apiResponse.createModelRes(200, 'Success', { accessToken, refreshToken });
 };
 
-exports.studentSignout = async (information) => {
+exports.signout = async (connType, information) => {
     const { id, password } = information;
 
-    let networkObj = await network.connect(connectionType.STUDENT, id);
-    if (networkObj.error) {
-        return {
-            status: networkObj.status,
-            message: networkObj.error,
-            data: {}
-        };
-    }
-    let contractRes = await network.query(networkObj, 'deleteStudent', id, password);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
+    let networkObj, contractRes;
+    if (connType === connectionType.MANAGER) {
+        networkObj = await network.connect(connectionType.MANAGER, id);
+        contractRes = await network.invoke(networkObj, 'deleteManager', id, password);
+    } else {
+        networkObj = await network.connect(connectionType.STUDENT, id);
+        contractRes = await network.invoke(networkObj, 'deleteStudent', id, password);
     }
 
-    return {
-        status: 200,
-        message: 'Success',
-        data: {}
-    };
+    let error = networkObj.error || contractRes.error;
+    let status = networkObj.status || contractRes.status;
+    if (error) {
+        return apiResponse.createModelRes(status, error);
+    }
+
+    return apiResponse.createModelRes(200, 'Success');
 }
 
-exports.certifyStudent = async (token) => {
+exports.certifyUser = async (token) => {
     try {
-        let data = await authenticateUtils.certifyAccessToken(token);
+        let tokenRes = await authenticateUtil.certifyAccessToken(token);
 
-        return {
-            status: 200,
-            message: 'Success',
-            data
-        };
+        return apiResponse.createModelRes(200, 'Success', tokenRes);
     } catch (err) {
-        return {
-            status: 401,
-            message: 'This token is invalid',
-            data: {}
-        };
+        return apiResponse.createModelRes(401, 'This token is invalid');
     }
 };
 
-exports.studentReissueAccessToken = async (refreshToken) => {
+exports.reissueAccessToken = async (connType, refreshToken) => {
     try {
-        let decodedToken = await authenticateUtils.decodedRefreshToken(refreshToken);
+        let decodedToken = await authenticateUtil.decodedRefreshToken(refreshToken);
         let id = decodedToken.id;
 
-        let networkObj = await network.connect(connectionType.STUDENT, id);
-        if (networkObj.error) {
-            return {
-                status: networkObj.status,
-                message: networkObj.error,
-                data: {}
-            };
+        let networkObj, contractRes;
+        if (connType === connectionType.MANAGER) {
+            networkObj = await network.connect(connectionType.MANAGER, id);
+            contractRes = await network.query(networkObj, 'queryManager', id);
+        } else {
+            networkObj = await network.connect(connectionType.STUDENT, id);
+            contractRes = await network.query(networkObj, 'queryStudent', id);
         }
-        let contractRes = await network.query(networkObj, 'queryStudent', id);
-        if (contractRes.error) {
-            return {
-                status: contractRes.status,
-                message: contractRes.error,
-                data: {}
-            };
+
+        let error = networkObj.error || contractRes.error;
+        let status = networkObj.status || contractRes.status;
+        if (error) {
+            return apiResponse.createModelRes(status, error);
         }
 
         let { hashedPw, name, departments } = JSON.parse(contractRes);
-        await authenticateUtils.certifyRefreshToken(refreshToken, hashedPw);
-        let accessToken = authenticateUtils.generateAccessToken({ id, name, departments });
+        await authenticateUtil.certifyRefreshToken(refreshToken, hashedPw);
+        let accessToken = authenticateUtil.generateAccessToken({ id, name, departments });
 
-        return {
-            status: 200,
-            message: 'Success',
-            data: { accessToken }
-        };
+        return apiResponse.createModelRes(200, 'Success', { accessToken });
     } catch (err) {
-        return {
-            status: 400,
-            message: 'This token is invalid',
-            data: {}
-        };
-    }
-};
-
-exports.managerSignup = async (information) => {
-    const { id, password, departments } = information;
-
-    let contractRes = await network.registerManager(id, password, departments);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
-    }
-
-    return {
-        status: 200,
-        message: 'Success',
-        data: {}
-    };
-};
-
-exports.managerSignin = async (information) => {
-    const { id, password } = information;
-
-    let networkObj = await network.connect(connectionType.MANAGER, id);
-    if (networkObj.error) {
-        return {
-            status: networkObj.status,
-            message: networkObj.error,
-            data: {}
-        };
-    }
-    let contractRes = await network.query(networkObj, 'certifyManager', id, password);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
-    }
-
-    let { hashedPw, name, departments } = JSON.parse(contractRes);
-    let accessToken = authenticateUtils.generateAccessToken({ id, name, departments });
-    let refreshToken = authenticateUtils.generateRefreshToken({ id, hashedPw });
-    return {
-        status: 200,
-        message: 'Success',
-        data: { id, name, departments, accessToken, refreshToken }
-    };
-};
-
-exports.managerSignout = async (information) => {
-    const { id, password } = information;
-
-    let networkObj = await network.connect(connectionType.MANAGER, id);
-    if (networkObj.error) {
-        return {
-            status: networkObj.status,
-            message: networkObj.error,
-            data: {}
-        };
-    }
-    let contractRes = await network.query(networkObj, 'deleteManager', id, password);
-    if (contractRes.error) {
-        return {
-            status: contractRes.status,
-            message: contractRes.error,
-            data: {}
-        };
-    }
-
-    return {
-        status: 200,
-        message: 'Success',
-        data: {}
-    };
-}
-
-exports.certifyManager = async (token) => {
-    try {
-        let data = await authenticateUtils.certifyAccessToken(token);
-
-        return {
-            status: 200,
-            message: 'Success',
-            data
-        };
-    } catch (err) {
-        return {
-            status: 401,
-            message: 'This token is invalid',
-            data: {}
-        };
-    }
-};
-
-exports.managerReissueAccessToken = async (refreshToken) => {
-    try {
-        let decodedToken = await authenticateUtils.decodedRefreshToken(refreshToken);
-        let id = decodedToken.id;
-
-        let networkObj = await network.connect(connectionType.MANAGER, id);
-        if (networkObj.error) {
-            return {
-                status: networkObj.status,
-                message: networkObj.error,
-                data: {}
-            };
-        }
-        let contractRes = await network.query(networkObj, 'queryManager', id);
-        if (contractRes.error) {
-            return {
-                status: contractRes.status,
-                message: contractRes.error,
-                data: {}
-            };
-        }
-
-        let { hashedPw, name, departments } = JSON.parse(contractRes);
-        await authenticateUtils.certifyRefreshToken(refreshToken, hashedPw);
-        let accessToken = authenticateUtils.generateAccessToken({ id, name, departments });
-
-        return {
-            status: 200,
-            message: 'Success',
-            data: { accessToken }
-        };
-    } catch (err) {
-        return {
-            status: 400,
-            message: 'This token is invalid',
-            data: {}
-        };
+        return apiResponse.createModelRes(400, 'This token is invalid');
     }
 };
