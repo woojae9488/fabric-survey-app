@@ -1,7 +1,7 @@
 
 'use strict';
 
-const PrivateDataList = require('../ledger-api/privatedatalist');
+const PrivateDataList = require('../ledger-api/privatedatalist.js');
 
 const User = require('./user.js');
 

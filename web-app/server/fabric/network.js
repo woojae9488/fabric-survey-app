@@ -1,4 +1,3 @@
-
 'use strict';
 
 const fs = require('fs');
@@ -18,23 +17,21 @@ const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
 const managerConnection = JSON.parse(managerConnJSON);
 
 function getConnectionMaterial(connType) {
-    let walletPath, connection, orgMSPID, caURL, affiliationName;
+    let walletPath, connection, orgMSPID, caURL;
 
     if (connType == connectionType.MANAGER) {
         walletPath = path.join(process.cwd(), config.managerWallet);
         connection = managerConnection;
         orgMSPID = config.managerMSPID;
         caURL = config.managerCaAddress;
-        affiliationName = "ManagerOrg";
     } else {
         walletPath = path.join(process.cwd(), config.studentWallet);
         connection = studentConnection;
         orgMSPID = config.studentMSPID;
         caURL = config.studentCaAddress;
-        affiliationName = "StudentOrg";
     }
 
-    return { walletPath, connection, orgMSPID, caURL, affiliationName };
+    return { walletPath, connection, orgMSPID, caURL };
 }
 
 async function connect(connType, userID) {
@@ -65,7 +62,7 @@ async function connect(connType, userID) {
     } catch (err) {
         console.error(`Fail to connect network: ${err}`);
         await gateway.disconnect();
-        return { status: 500, error: err };
+        return { status: 500, error: err.toString() };
     }
 }
 
@@ -73,17 +70,18 @@ async function query(networkObj, ...funcAndArgs) {
     try {
         console.log(`Query parameter: ${funcAndArgs}`);
 
-        let func = funcAndArgs.shift();
-        let args = funcAndArgs;
-        let response = await networkObj.contract.evaluateTransaction(func, args);
+        let contract = networkObj.contract;
+        let response = await contract.evaluateTransaction.apply(contract, funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been evaluated: ${response}`);
 
-        return response;
+        return response.toString();
     } catch (err) {
         console.error(`Failed to evaluate transaction: ${err}`);
-        return { status: 500, error: err };
+        return { status: 500, error: err.toString() };
     } finally {
-        await networkObj.gateway.disconnect();
+        if (networkObj.gatway) {
+            await networkObj.gateway.disconnect();
+        }
     }
 }
 
@@ -91,17 +89,18 @@ async function invoke(networkObj, ...funcAndArgs) {
     try {
         console.log(`Invoke parameter: ${funcAndArgs}`);
 
-        let func = funcAndArgs.shift();
-        let args = funcAndArgs;
-        let response = await networkObj.contract.submitTransaction(func, args);
+        let contract = networkObj.contract;
+        let response = await contract.submitTransaction.apply(contract, funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been submitted: ${response}`);
 
-        return response;
+        return response.toString();
     } catch (err) {
         console.error(`Failed to submit transaction: ${err}`);
-        return { status: 500, error: err };
+        return { status: 500, error: err.toString() };
     } finally {
-        await networkObj.gateway.disconnect();
+        if (networkObj.gatway) {
+            await networkObj.gateway.disconnect();
+        }
     }
 }
 
@@ -128,8 +127,10 @@ async function enrollAdmin(connType) {
 }
 
 async function registerUser(connType, userID) {
+    const gateway = new Gateway();
+
     try {
-        const { walletPath, connection, affiliationName, orgMSPID } = getConnectionMaterial(connType);
+        const { walletPath, connection, orgMSPID } = getConnectionMaterial(connType);
 
         const wallet = new FileSystemWallet(walletPath);
         const userExists = await wallet.exists(userID);
@@ -145,24 +146,22 @@ async function registerUser(connType, userID) {
             return { status: 500, error: 'Admin user identity does not exist in the wallet.' };
         }
 
-        const gateway = new Gateway();
         await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
-
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
-        const secret = await ca.register({ affiliation: affiliationName, enrollmentID: userID, role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: 'org1', enrollmentID: userID, role: 'client' }, adminIdentity);
         const enrollment = await ca.enroll({ enrollmentID: userID, enrollmentSecret: secret });
         const userIdentity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import(userID, userIdentity);
 
-        console.log(`Successfully registered user. Use userID ${userID} to login: ${userIdentity}`);
+        console.log(`Successfully registered user. Use userID ${userID} to login`);
         return userIdentity;
     } catch (err) {
         console.error(`Failed to register user ${userID}: ${err}`);
-        return { status: 500, error: err };
+        return { status: 500, error: err.toString() };
     } finally {
-        await networkObj.gateway.disconnect();
+        await gateway.disconnect();
     }
 }
 

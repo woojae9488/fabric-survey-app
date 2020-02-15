@@ -16,19 +16,27 @@ class SurveyQuestion extends State {
         Object.assign(this, obj);
     }
 
-    static fromBuffer(buffer) {
-        return SurveyQuestion.deserialize(buffer);
+    getSurveyKey() {
+        return this.surveyKey;
     }
 
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
+    getQuestionNum() {
+        return this.questionNum;
     }
 
-    static deserialize(data) {
-        return State.deserializeClass(data, SurveyQuestion);
+    getTitle() {
+        return this.title;
     }
 
-    static makeKey(keyParts){
+    getType() {
+        return this.type;
+    }
+
+    getContents() {
+        return this.contents;
+    }
+
+    static makeKey(keyParts) {
         keyParts.unshift(SurveyQuestion.getClass());
         return State.makeKey(keyParts);
     }

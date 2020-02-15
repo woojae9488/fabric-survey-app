@@ -16,16 +16,16 @@ class ReplyResult extends State {
         Object.assign(this, obj);
     }
 
-    static fromBuffer(buffer) {
-        return ReplyResult.deserialize(buffer);
+    getReplyKey() {
+        return this.replyKey;
     }
 
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
+    getResultNum() {
+        return this.resultNum;
     }
 
-    static deserialize(data) {
-        return State.deserializeClass(data, ReplyResult);
+    getAnwsers() {
+        return this.answers;
     }
 
     static makeKey(keyParts) {

@@ -61,8 +61,8 @@ class SurveyContract extends Contract {
 
     /********************* Survey State Change Method (User) *********************/
 
-    async register(ctx, surveyBuffer) {
-        let survey = Survey.fromBuffer(surveyBuffer);
+    async register(ctx, surveyStr) {
+        let survey = Survey.fromString(surveyStr);
         let surveyInfo = survey.getSurveyInfo();
 
         surveyInfo.setUpdatedAt(surveyInfo.getCreatedAt());
@@ -73,8 +73,8 @@ class SurveyContract extends Contract {
         return survey;
     }
 
-    async update(ctx, surveyBuffer) {
-        let newSurvey = Survey.fromBuffer(surveyBuffer);
+    async update(ctx, surveyStr) {
+        let newSurvey = Survey.fromString(surveyStr);
         let newSurveyInfo = newSurvey.getSurveyInfo();
         let surveyInfoKey = newSurveyInfo.getKey();
 
@@ -116,8 +116,8 @@ class SurveyContract extends Contract {
         return surveyInfo;
     }
 
-    async respond(ctx, replyBuffer) {
-        let reply = Reply.fromBuffer(replyBuffer);
+    async respond(ctx, replyStr) {
+        let reply = Reply.fromString(replyStr);
         let replyInfo = reply.getReplyInfo();
         let surveyKey = replyInfo.getSurveyKey();
         let surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
@@ -136,8 +136,8 @@ class SurveyContract extends Contract {
         return reply;
     }
 
-    async revise(ctx, replyBuffer) {
-        let newReply = Reply.fromBuffer(replyBuffer);
+    async revise(ctx, replyStr) {
+        let newReply = Reply.fromString(replyStr);
         let newReplyInfo = newReply.getReplyInfo();
         let replyInfoKey = newReplyInfo.getKey();
         let surveyKey = newReplyInfo.getSurveyKey();
@@ -265,7 +265,7 @@ class SurveyContract extends Contract {
 
     /********************* Survey User Method (User) *********************/
 
-    async registerStudent(ctx, id, password, name, departmentsJSON) {
+    async registerStudent(ctx, id, password, name, departmentsStr) {
         let userKey = User.makeKey([id]);
         let userExists = await ctx.studentList.getUser(userKey);
         if (userExists) {
@@ -274,7 +274,7 @@ class SurveyContract extends Contract {
 
         let salt = User.makeSalt();
         let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsJSON);
+        let departments = JSON.parse(departmentsStr);
         let user = User.createInstance(id, hashedPw, name, departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
@@ -282,7 +282,7 @@ class SurveyContract extends Contract {
         return user;
     }
 
-    async registerManager(ctx, id, password, departmentsJSON) {
+    async registerManager(ctx, id, password, departmentsStr) {
         let userKey = User.makeKey([id]);
         let userExists = await ctx.managerList.getUser(userKey);
         if (userExists) {
@@ -291,7 +291,7 @@ class SurveyContract extends Contract {
 
         let salt = User.makeSalt();
         let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsJSON);
+        let departments = JSON.parse(departmentsStr);
         let user = User.createInstance(id, hashedPw, 'manager', departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
@@ -299,7 +299,7 @@ class SurveyContract extends Contract {
         return user;
     }
 
-    async updateStudent(ctx, id, password, name, departmentsJSON) {
+    async updateStudent(ctx, id, password, name, departmentsStr) {
         let userKey = User.makeKey([id]);
         let user = await ctx.studentList.getUser(userKey);
         if (!user) {
@@ -308,7 +308,7 @@ class SurveyContract extends Contract {
 
         let salt = user.getSalt();
         let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsJSON);
+        let departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setName(name);
         user.setDepartments(departments);
@@ -318,7 +318,7 @@ class SurveyContract extends Contract {
         return user;
     }
 
-    async updateManager(ctx, id, password, departmentsJSON) {
+    async updateManager(ctx, id, password, departmentsStr) {
         let userKey = User.makeKey([id]);
         let user = await ctx.managerList.getUser(userKey);
         if (!user) {
@@ -327,7 +327,7 @@ class SurveyContract extends Contract {
 
         let salt = user.getSalt();
         let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsJSON);
+        let departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setDepartments(departments);
         user.setUpdatedAt(Date.now());

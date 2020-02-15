@@ -96,10 +96,6 @@ function networkUp() {
   if [ ! -x "scripts/script.sh" -a ! -x "scripts/utils.sh" ]; then
     chmod 777 scripts/*
   fi
-  if [ ! -d "./web-app/identity" ]; then
-    mkdir -p ./web-app/identity/manager/wallet
-    mkdir -p ./web-app/identity/student/wallet
-  fi
 
   checkPrereqs
   if [ ! -d "./artifacts/network/crypto-config" ]; then

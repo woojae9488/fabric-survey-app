@@ -40,18 +40,6 @@ class ReplyInfo extends State {
         return this.updatedAt;
     }
 
-    static fromBuffer(buffer) {
-        return ReplyInfo.deserialize(buffer);
-    }
-
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
-    }
-
-    static deserialize(data) {
-        return State.deserializeClass(data, ReplyInfo);
-    }
-
     static makeKey(keyParts) {
         keyParts.unshift(ReplyInfo.getClass());
         return State.makeKey(keyParts);

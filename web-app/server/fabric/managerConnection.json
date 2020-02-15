@@ -83,6 +83,9 @@
         "ca.manager.jnu.com": {
             "url": "https://localhost:7054",
             "caName": "ca.manager.jnu.com",
+            "httpOptions": {
+                "verify": false
+            },
             "tlsCACerts": {
                 "path": "../../artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca/ca.manager.jnu.com-cert.pem"
             }

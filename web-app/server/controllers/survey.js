@@ -8,7 +8,9 @@ const apiResponse = require('../utils/apiResponse.js');
 exports.register = async (req, res, next) => {
     const { id, survey } = req.body;
 
-    if (!survey) { return apiResponse.badRequest(res); }
+    if (!survey) {
+        return apiResponse.badRequest(res);
+    }
 
     let modelRes = await surveyModel.register({ id, survey });
     return apiResponse.send(res, modelRes);
@@ -17,7 +19,9 @@ exports.register = async (req, res, next) => {
 exports.update = async (req, res, next) => {
     const { id, survey } = req.body;
 
-    if (!survey) { return apiResponse.badRequest(res); }
+    if (!survey) {
+        return apiResponse.badRequest(res);
+    }
 
     let modelRes = await surveyModel.update({ id, survey });
     return apiResponse.send(res, modelRes);

@@ -73,7 +73,7 @@ async function activateContractEvent() {
         return { registerListener, updateListener, removeListener };
     } catch (err) {
         console.error(`Error activate contract event listener: ${err}`);
-        return { error: err };
+        return { error: err.toString() };
     }
 }
 
@@ -97,7 +97,7 @@ async function activateBlockEvent() {
         return listener;
     } catch (err) {
         console.error(`Error activate block event listener: ${err}`);
-        return { error: err };
+        return { error: err.toString() };
     }
 }
 
@@ -131,7 +131,7 @@ async function activateCommitEvent(transactionName) {
         return listener;
     } catch (err) {
         console.error(`Error activate commit event listener: ${err}`);
-        return { error: err };
+        return { error: err.toString() };
     }
 }
 

@@ -33,8 +33,8 @@ class Reply {
         return this.results;
     }
 
-    static fromBuffer(buffer) {
-        let json = JSON.parse(buffer.toString());
+    static fromString(objStr) {
+        let json = JSON.parse(objStr);
         let replyInfo = new ReplyInfo(json.replyInfo);
 
         let results = [];
@@ -47,7 +47,7 @@ class Reply {
     }
 
     toString() {
-        return Buffer.from(JSON.stringify(this));
+        return JSON.stringify(this);
     }
 
     static makeReplyKey(surveyKey, studentID) {

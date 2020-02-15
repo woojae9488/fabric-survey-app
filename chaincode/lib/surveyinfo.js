@@ -93,18 +93,6 @@ class SurveyInfo extends State {
         return this.currentState === surveyState.REMOVED;
     }
 
-    static fromBuffer(buffer) {
-        return SurveyInfo.deserialize(buffer);
-    }
-
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
-    }
-
-    static deserialize(data) {
-        return State.deserializeClass(data, SurveyInfo);
-    }
-
     static makeKey(keyParts) {
         keyParts.unshift(SurveyInfo.getClass());
         return State.makeKey(keyParts);

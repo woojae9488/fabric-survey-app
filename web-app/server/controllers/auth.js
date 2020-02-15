@@ -7,13 +7,14 @@ const apiResponse = require('../utils/apiResponse.js');
 
 exports.signup = async (req, res, next) => {
     const { id, password, name, departments } = req.body;
+    const { role } = req.params;
 
     if (!id || !password || !name || !departments) {
         return apiResponse.badRequest(res);
     }
 
     let modelRes;
-    if (name === 'manager') {
+    if (role === 'manager') {
         modelRes = await authModel.signup(connectionType.MANAGER, { id, password, departments });
     } else {
         modelRes = await authModel.signup(connectionType.STUDENT, { id, password, name, departments });
@@ -23,14 +24,15 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.signin = async (req, res, next) => {
-    const { id, password, name } = req.body;
+    const { id, password } = req.body;
+    const { role } = req.params;
 
     if (!id || !password) {
         return apiResponse.badRequest(res);
     }
 
     let modelRes;
-    if (name === 'manager') {
+    if (role === 'manager') {
         modelRes = await authModel.signin(connectionType.MANAGER, { id, password });
     } else {
         modelRes = await authModel.signin(connectionType.STUDENT, { id, password });
@@ -39,15 +41,34 @@ exports.signin = async (req, res, next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.signout = async (req, res, next) => {
-    const { id, password, name } = req.body;
+exports.changeInfo = async (req, res, next) => {
+    const { id, newPassword, newName, newDepartments } = req.body;
+    const { role, uid } = req.params;
 
-    if (!id || !password) {
+    if (!newPassword || !newName || !newDepartments || id !== uid) {
         return apiResponse.badRequest(res);
     }
 
     let modelRes;
-    if (name === 'manager') {
+    if (role === 'manager') {
+        modelRes = await authModel.changeInfo(connectionType.MANAGER, { id, newPassword, newDepartments });
+    } else {
+        modelRes = await authModel.changeInfo(connectionType.STUDENT, { id, newPassword, newName, newDepartments });
+    }
+
+    return apiResponse.send(res, modelRes);
+};
+
+exports.signout = async (req, res, next) => {
+    const { id, password } = req.body;
+    const { role, uid } = req.params;
+
+    if (!password || id !== uid) {
+        return apiResponse.badRequest(res);
+    }
+
+    let modelRes;
+    if (role === 'manager') {
         modelRes = await authModel.signout(connectionType.MANAGER, { id, password });
     } else {
         modelRes = await authModel.signout(connectionType.STUDENT, { id, password });
@@ -69,14 +90,14 @@ exports.certifyUser = async (req, res, next) => {
 
 exports.reissueAccessToken = async (req, res, next) => {
     const refreshToken = req.headers['x-refresh-token'];
-    const { name } = req.body;
+    const { role } = req.params;
 
     if (!refreshToken) {
         return apiResponse.badRequest(res);
     }
 
     let modelRes;
-    if (name === 'manager') {
+    if (role === 'manager') {
         modelRes = await authModel.reissueAccessToken(connectionType.MANAGER, refreshToken);
     } else {
         modelRes = await authModel.reissueAccessToken(connectionType.STUDENT, refreshToken);

@@ -68,18 +68,6 @@ class User extends PrivateData {
         return hashedPw === this.hashedPw;
     }
 
-    static fromBuffer(buffer) {
-        return User.deserialize(buffer);
-    }
-
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
-    }
-
-    static deserialize(data) {
-        return PrivateData.deserializeClass(data, User);
-    }
-
     static makeKey(keyParts) {
         keyParts.unshift(User.getClass());
         return PrivateData.makeKey(keyParts);

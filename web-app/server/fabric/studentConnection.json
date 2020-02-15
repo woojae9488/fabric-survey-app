@@ -83,6 +83,9 @@
         "ca.student.jnu.com": {
             "url": "https://localhost:8054",
             "caName": "ca.student.jnu.com",
+            "httpOptions": {
+                "verify": false
+            },
             "tlsCACerts": {
                 "path": "../../artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca/ca.student.jnu.com-cert.pem"
             }

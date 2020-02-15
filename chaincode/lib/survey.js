@@ -33,8 +33,8 @@ class Survey {
         return this.questions;
     }
 
-    static fromBuffer(buffer) {
-        let json = JSON.parse(buffer.toString());
+    static fromString(objStr) {
+        let json = JSON.parse(objStr);
         let surveyInfo = new SurveyInfo(json.surveyInfo);
 
         let questions = [];
@@ -46,8 +46,8 @@ class Survey {
         return new Survey({ surveyInfo, questions });
     }
 
-    toBuffer() {
-        return Buffer.from(JSON.stringify(this));
+    toString() {
+        return JSON.stringify(this);
     }
 
     static makeSurveyKey(department, createdAt) {

@@ -66,18 +66,6 @@ class State {
     }
 
     /**
-     * Deserialize object into specific object class
-     * Typically used after getState() ledger API
-     * @param {data} data to deserialize into JSON object
-     * @return {json} json with the data to store
-     */
-    static deserializeClass(data, objClass) {
-        let json = JSON.parse(data);
-        let object = new (objClass)(json);
-        return object;
-    }
-
-    /**
      * Join the keyParts to make a unififed string
      * @param (String[]) keyParts
      */

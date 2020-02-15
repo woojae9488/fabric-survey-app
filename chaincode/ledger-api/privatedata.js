@@ -40,12 +40,6 @@ class PrivateData {
         return object;
     }
 
-    static deserializeClass(data, objClass) {
-        let json = JSON.parse(data);
-        let object = new (objClass)(json);
-        return object;
-    }
-
     static makeKey(keyParts) {
         return keyParts.map(part => part.toString()).join(':');
     }
