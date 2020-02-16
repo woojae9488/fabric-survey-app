@@ -7,14 +7,12 @@ const morgan = require('morgan');
 
 const apiResponse = require('./utils/apiResponse.js');
 const network = require('./fabric/network.js');
-const config = require('./fabric/config.js').connection;
-const connectionType = config.connectionType;
 const event = require('./fabric/event/event.js');
 const router = require('./routes/index.js');
 
 async function main() {
-    await network.enrollAdmin(connectionType.MANAGER);
-    await network.enrollAdmin(connectionType.STUDENT);
+    await network.enrollAdmin(true);
+    await network.enrollAdmin(false);
 
     event.handlingPastEvents();
     await event.activateContractEvent();

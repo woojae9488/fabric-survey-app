@@ -1,7 +1,7 @@
 
 'use strict';
 
-const State = require('../ledger-api/state.js');
+const State = require('../ledger-api/State.js');
 
 const surveyState = {
     REGISTERED: 1,

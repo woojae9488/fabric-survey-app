@@ -1,11 +1,9 @@
 'use strict';
 
-const config = require('../fabric/config.js').connection;
-const connectionType = config.connectionType;
 const authModel = require('../models/auth.js');
 const apiResponse = require('../utils/apiResponse.js');
 
-exports.signup = async (req, res, next) => {
+exports.signup = async (req, res, _next) => {
     const { id, password, name, departments } = req.body;
     const { role } = req.params;
 
@@ -15,15 +13,17 @@ exports.signup = async (req, res, next) => {
 
     let modelRes;
     if (role === 'manager') {
-        modelRes = await authModel.signup(connectionType.MANAGER, { id, password, departments });
+        modelRes = await authModel.signup(true, { id, password, departments });
+    } else if (role === 'student') {
+        modelRes = await authModel.signup(false, { id, password, name, departments });
     } else {
-        modelRes = await authModel.signup(connectionType.STUDENT, { id, password, name, departments });
+        return apiResponse.badRequest(res);
     }
 
     return apiResponse.send(res, modelRes);
 };
 
-exports.signin = async (req, res, next) => {
+exports.signin = async (req, res, _next) => {
     const { id, password } = req.body;
     const { role } = req.params;
 
@@ -33,15 +33,17 @@ exports.signin = async (req, res, next) => {
 
     let modelRes;
     if (role === 'manager') {
-        modelRes = await authModel.signin(connectionType.MANAGER, { id, password });
+        modelRes = await authModel.signin(true, { id, password });
+    } else if (role === 'student') {
+        modelRes = await authModel.signin(false, { id, password });
     } else {
-        modelRes = await authModel.signin(connectionType.STUDENT, { id, password });
+        return apiResponse.badRequest(res);
     }
 
     return apiResponse.send(res, modelRes);
 };
 
-exports.changeInfo = async (req, res, next) => {
+exports.changeInfo = async (req, res, _next) => {
     const { id, newPassword, newName, newDepartments } = req.body;
     const { role, uid } = req.params;
 
@@ -51,15 +53,17 @@ exports.changeInfo = async (req, res, next) => {
 
     let modelRes;
     if (role === 'manager') {
-        modelRes = await authModel.changeInfo(connectionType.MANAGER, { id, newPassword, newDepartments });
+        modelRes = await authModel.changeInfo(true, { id, newPassword, newDepartments });
+    } else if (role === 'student') {
+        modelRes = await authModel.changeInfo(false, { id, newPassword, newName, newDepartments });
     } else {
-        modelRes = await authModel.changeInfo(connectionType.STUDENT, { id, newPassword, newName, newDepartments });
+        return apiResponse.badRequest(res);
     }
 
     return apiResponse.send(res, modelRes);
 };
 
-exports.signout = async (req, res, next) => {
+exports.signout = async (req, res, _next) => {
     const { id, password } = req.body;
     const { role, uid } = req.params;
 
@@ -69,18 +73,21 @@ exports.signout = async (req, res, next) => {
 
     let modelRes;
     if (role === 'manager') {
-        modelRes = await authModel.signout(connectionType.MANAGER, { id, password });
+        modelRes = await authModel.signout(true, { id, password });
+    } else if (role === 'student') {
+        modelRes = await authModel.signout(false, { id, password });
     } else {
-        modelRes = await authModel.signout(connectionType.STUDENT, { id, password });
+        return apiResponse.badRequest(res);
     }
 
     return apiResponse.send(res, modelRes);
 };
 
-exports.certifyUser = async (req, res, next) => {
+exports.certifyUser = async (req, res, _next) => {
     const token = req.headers['x-access-token'];
+    const { role } = req.params;
 
-    if (!token) {
+    if (!token || !(role === 'manager' || role === 'student')) {
         return apiResponse.badRequest(res);
     }
 
@@ -88,7 +95,7 @@ exports.certifyUser = async (req, res, next) => {
     return apiResponse.send(res, modelRes);
 }
 
-exports.reissueAccessToken = async (req, res, next) => {
+exports.reissueAccessToken = async (req, res, _next) => {
     const refreshToken = req.headers['x-refresh-token'];
     const { role } = req.params;
 
@@ -98,9 +105,11 @@ exports.reissueAccessToken = async (req, res, next) => {
 
     let modelRes;
     if (role === 'manager') {
-        modelRes = await authModel.reissueAccessToken(connectionType.MANAGER, refreshToken);
+        modelRes = await authModel.reissueAccessToken(true, refreshToken);
+    } else if (role === 'student') {
+        modelRes = await authModel.reissueAccessToken(false, refreshToken);
     } else {
-        modelRes = await authModel.reissueAccessToken(connectionType.STUDENT, refreshToken);
+        return apiResponse.badRequest(res);
     }
 
     return apiResponse.send(res, modelRes);

@@ -1,6 +1,7 @@
+
 'use strict';
 
-const PrivateData = require('./privatedata.js');
+const PrivateData = require('./PrivateData.js');
 
 class PrivateDataList {
 
@@ -11,18 +12,18 @@ class PrivateDataList {
     }
 
     async addPrivateData(privateData) {
-        let { objectType, attributes } = PrivateDataList.getCompositeKeyMaterial(privateData.getSplitKey());
-        let key = this.ctx.stub.createCompositeKey(objectType, attributes);
-        let data = PrivateData.serialize(privateData);
+        const { objectType, attributes } = PrivateDataList.getCompositeKeyMaterial(privateData.getSplitKey());
+        const key = this.ctx.stub.createCompositeKey(objectType, attributes);
+        const data = PrivateData.serialize(privateData);
         await this.ctx.stub.putPrivateData(this.collection, key, data);
     }
 
     async getPrivateData(key) {
-        let { objectType, attributes } = PrivateDataList.getCompositeKeyMaterial(PrivateData.splitKey(key));
-        let ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
-        let data = await this.ctx.stub.getPrivateData(this.collection, ledgerKey);
+        const { objectType, attributes } = PrivateDataList.getCompositeKeyMaterial(PrivateData.splitKey(key));
+        const ledgerKey = this.ctx.stub.createCompositeKey(objectType, attributes);
+        const data = await this.ctx.stub.getPrivateData(this.collection, ledgerKey);
         if (data.toString()) {
-            let privateData = PrivateData.deserialize(data, this.supportedClasses);
+            const privateData = PrivateData.deserialize(data, this.supportedClasses);
             return privateData;
         } else {
             return null;
@@ -47,8 +48,8 @@ class PrivateDataList {
     }
 
     static getCompositeKeyMaterial(splitKey) {
-        let objectType = splitKey[0];
-        let attributes = splitKey.slice(1);
+        const objectType = splitKey.shift();
+        const attributes = splitKey;
         return { objectType, attributes };
     }
 }

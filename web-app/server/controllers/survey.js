@@ -1,55 +1,53 @@
 'use strict';
 
-const config = require('../fabric/config.js').connection;
-const connectionType = config.connectionType;
 const surveyModel = require('../models/survey.js');
 const apiResponse = require('../utils/apiResponse.js');
 
-exports.register = async (req, res, next) => {
+exports.register = async (req, res, _next) => {
     const { id, survey } = req.body;
 
     if (!survey) {
         return apiResponse.badRequest(res);
     }
 
-    let modelRes = await surveyModel.register({ id, survey });
+    const modelRes = await surveyModel.register({ id, survey });
     return apiResponse.send(res, modelRes);
 };
 
-exports.update = async (req, res, next) => {
+exports.update = async (req, res, _next) => {
     const { id, survey } = req.body;
 
     if (!survey) {
         return apiResponse.badRequest(res);
     }
 
-    let modelRes = await surveyModel.update({ id, survey });
+    const modelRes = await surveyModel.update({ id, survey });
     return apiResponse.send(res, modelRes);
 };
 
-exports.remove = async (req, res, next) => {
+exports.remove = async (req, res, _next) => {
     const { id } = req.body;
     const { department, createdAt } = req.params;
 
-    let modelRes = await surveyModel.remove({ id, department, createdAt });
+    const modelRes = await surveyModel.remove({ id, department, createdAt });
     return apiResponse.send(res, modelRes);
 };
 
-exports.query = async (req, res, next) => {
+exports.query = async (req, res, _next) => {
     const { id, name } = req.body;
     const { department, createdAt } = req.params;
 
     let modelRes;
     if (name === 'manager') {
-        modelRes = await surveyModel.query(connectionType.MANAGER, { id, department, createdAt });
+        modelRes = await surveyModel.query(true, { id, department, createdAt });
     } else {
-        modelRes = await surveyModel.query(connectionType.STUDENT, { id, department, createdAt });
+        modelRes = await surveyModel.query(false, { id, department, createdAt });
     }
 
     return apiResponse.send(res, modelRes);
 };
 
-exports.queryList = async (req, res, next) => {
+exports.queryList = async (req, res, _next) => {
     const { id, name } = req.body;
     const { department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt } = req.params;
 
@@ -57,35 +55,35 @@ exports.queryList = async (req, res, next) => {
     if (startCreatedAt && endCreatedAt) {
         if (pageSize && bookmarkCreatedAt) {
             if (name === 'manager') {
-                modelRes = await surveyModel.queryListPageByRange(connectionType.MANAGER,
+                modelRes = await surveyModel.queryListPageByRange(true,
                     { id, department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt });
             } else {
-                modelRes = await surveyModel.queryListPageByRange(connectionType.STUDENT,
+                modelRes = await surveyModel.queryListPageByRange(false,
                     { id, department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt });
             }
         } else {
             if (name === 'manager') {
-                modelRes = await surveyModel.queryListByRange(connectionType.MANAGER,
+                modelRes = await surveyModel.queryListByRange(true,
                     { id, department, startCreatedAt, endCreatedAt });
             } else {
-                modelRes = await surveyModel.queryListByRange(connectionType.STUDENT,
+                modelRes = await surveyModel.queryListByRange(false,
                     { id, department, startCreatedAt, endCreatedAt });
             }
         }
     } else {
         if (pageSize && bookmarkCreatedAt) {
             if (name === 'manager') {
-                modelRes = await surveyModel.queryListPage(connectionType.MANAGER,
+                modelRes = await surveyModel.queryListPage(true,
                     { id, department, pageSize, bookmarkCreatedAt });
             } else {
-                modelRes = await surveyModel.queryListPage(connectionType.STUDENT,
+                modelRes = await surveyModel.queryListPage(false,
                     { id, department, pageSize, bookmarkCreatedAt });
             }
         } else {
             if (name === 'manager') {
-                modelRes = await surveyModel.queryList(connectionType.MANAGER, { id, department });
+                modelRes = await surveyModel.queryList(true, { id, department });
             } else {
-                modelRes = await surveyModel.queryList(connectionType.STUDENT, { id, department });
+                modelRes = await surveyModel.queryList(false, { id, department });
             }
         }
     }

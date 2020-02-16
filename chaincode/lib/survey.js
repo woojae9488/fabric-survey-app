@@ -1,14 +1,14 @@
 
 'use strict';
 
-const State = require('../ledger-api/state.js');
-const SurveyInfo = require('./surveyinfo.js');
-const SurveyQuestion = require('./surveyquestion.js');
+const State = require('../ledger-api/State.js');
+const SurveyInfo = require('./SurveyInfo.js');
+const SurveyQuestion = require('./SurveyQuestion.js');
 
 class Survey {
 
     constructor(obj) {
-        let surveyInfoKey = obj.surveyInfo.getKey();
+        const surveyInfoKey = obj.surveyInfo.getKey();
         this.surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
         Object.assign(this, obj);
     }
@@ -34,14 +34,14 @@ class Survey {
     }
 
     static fromString(objStr) {
-        let json = JSON.parse(objStr);
-        let surveyInfo = new SurveyInfo(json.surveyInfo);
+        const json = JSON.parse(objStr);
+        const surveyInfo = new SurveyInfo(json.surveyInfo);
 
-        let questions = [];
-        let jsonQuestions = json.questions;
-        for (let i = 0; i < jsonQuestions.length; i++) {
-            questions.push(new SurveyQuestion(jsonQuestions[i]));
-        }
+        const questions = [];
+        const jsonQuestions = json.questions;
+        jsonQuestions.forEach((jsonQuestion) => {
+            questions.push(new SurveyQuestion(jsonQuestion));
+        });
 
         return new Survey({ surveyInfo, questions });
     }
@@ -55,24 +55,24 @@ class Survey {
     }
 
     static makeSurveyKeyByInfoKey(surveyInfoKey) {
-        let keyParts = State.splitKey(surveyInfoKey);
+        const keyParts = State.splitKey(surveyInfoKey);
         keyParts.shift();
         return keyParts.join('_');
     }
 
     static makeInfoKeyBySurveyKey(surveyKey) {
-        let keyParts = surveyKey.split('_');
+        const keyParts = surveyKey.split('_');
         return SurveyInfo.makeKey(keyParts);
     }
 
     static createInstance(department, createdAt, managerID, title, startDate, finishDate) {
-        let surveyInfo = SurveyInfo.createInstance(department, createdAt, managerID, title, startDate, finishDate);
-        let questions = [];
+        const surveyInfo = SurveyInfo.createInstance(department, createdAt, managerID, title, startDate, finishDate);
+        const questions = [];
         return new Survey({ surveyInfo, questions });
     }
 
     addQuestion(questionNum, title, type, contents) {
-        let question = SurveyQuestion.createInstance(this.surveyKey, questionNum, title, type, contents);
+        const question = SurveyQuestion.createInstance(this.surveyKey, questionNum, title, type, contents);
         this.questions.push(question);
     }
 

@@ -4,16 +4,16 @@
 const { Contract, Context } = require('fabric-contract-api');
 
 // surveyNet specifc state classes
-const Survey = require('./survey.js');
-const SurveyInfo = require('./surveyinfo.js');
-const SurveyList = require('./surveylist.js');
-const Reply = require('./reply.js');
-const ReplyInfo = require('./replyinfo.js');
-const ReplyList = require('./replylist.js');
+const Survey = require('./Survey.js');
+const SurveyInfo = require('./SurveyInfo.js');
+const SurveyList = require('./SurveyList.js');
+const Reply = require('./Reply.js');
+const ReplyInfo = require('./ReplyInfo.js');
+const ReplyList = require('./ReplyList.js');
 
 // surveyNet specifc private data classes
-const User = require('./user.js');
-const UserList = require('./userlist.js');
+const User = require('./User.js');
+const UserList = require('./UserList.js');
 
 /**
  * A custom context provides easy access to list of all survey elements
@@ -46,7 +46,7 @@ class SurveyContract extends Contract {
     }
 
     async beforeTransaction(ctx) {
-        let txnDetails = ctx.stub.getFunctionAndParameters();
+        const txnDetails = ctx.stub.getFunctionAndParameters();
         console.info('Calling function: ' + txnDetails.fcn);
         console.info('Function arguments: ' + txnDetails.params);
     }
@@ -62,8 +62,8 @@ class SurveyContract extends Contract {
     /********************* Survey State Change Method (User) *********************/
 
     async register(ctx, surveyStr) {
-        let survey = Survey.fromString(surveyStr);
-        let surveyInfo = survey.getSurveyInfo();
+        const survey = Survey.fromString(surveyStr);
+        const surveyInfo = survey.getSurveyInfo();
 
         surveyInfo.setUpdatedAt(surveyInfo.getCreatedAt());
         surveyInfo.setRegistered();
@@ -74,11 +74,11 @@ class SurveyContract extends Contract {
     }
 
     async update(ctx, surveyStr) {
-        let newSurvey = Survey.fromString(surveyStr);
-        let newSurveyInfo = newSurvey.getSurveyInfo();
-        let surveyInfoKey = newSurveyInfo.getKey();
+        const newSurvey = Survey.fromString(surveyStr);
+        const newSurveyInfo = newSurvey.getSurveyInfo();
+        const surveyInfoKey = newSurveyInfo.getKey();
 
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -97,8 +97,8 @@ class SurveyContract extends Contract {
     }
 
     async remove(ctx, department, createdAt, managerID) {
-        let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -117,12 +117,12 @@ class SurveyContract extends Contract {
     }
 
     async respond(ctx, replyStr) {
-        let reply = Reply.fromString(replyStr);
-        let replyInfo = reply.getReplyInfo();
-        let surveyKey = replyInfo.getSurveyKey();
-        let surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
+        const reply = Reply.fromString(replyStr);
+        const replyInfo = reply.getReplyInfo();
+        const surveyKey = replyInfo.getSurveyKey();
+        const surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
 
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -137,13 +137,13 @@ class SurveyContract extends Contract {
     }
 
     async revise(ctx, replyStr) {
-        let newReply = Reply.fromString(replyStr);
-        let newReplyInfo = newReply.getReplyInfo();
-        let replyInfoKey = newReplyInfo.getKey();
-        let surveyKey = newReplyInfo.getSurveyKey();
-        let surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
+        const newReply = Reply.fromString(replyStr);
+        const newReplyInfo = newReply.getReplyInfo();
+        const replyInfoKey = newReplyInfo.getKey();
+        const surveyKey = newReplyInfo.getSurveyKey();
+        const surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
 
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -151,7 +151,7 @@ class SurveyContract extends Contract {
             throw new Error('Reply can only be reponded in SURVEYING state. Current state = ' + surveyInfo.getCurrentState());
         }
 
-        let replyInfo = await ctx.replyList.getReplyInfo(replyInfoKey);
+        const replyInfo = await ctx.replyList.getReplyInfo(replyInfoKey);
         if (!replyInfo) {
             throw new Error('Can not found Reply = ' + replyInfo);
         }
@@ -165,8 +165,8 @@ class SurveyContract extends Contract {
     /********************* Survey State Change Method (WebApp) *********************/
 
     async start(ctx, department, createdAt) {
-        let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -181,8 +181,8 @@ class SurveyContract extends Contract {
     }
 
     async finish(ctx, department, createdAt) {
-        let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
-        let surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
+        const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -199,8 +199,8 @@ class SurveyContract extends Contract {
     /********************* Survey State Query Method *********************/
 
     async querySurvey(ctx, department, createdAt) {
-        let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
-        let survey = await ctx.surveyList.getSurvey(surveyInfoKey);
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
+        const survey = await ctx.surveyList.getSurvey(surveyInfoKey);
         if (!survey.getSurveyInfo()) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
@@ -208,35 +208,35 @@ class SurveyContract extends Contract {
     }
 
     async querySurveyInfos(ctx, department) {
-        let surveyInfos = await ctx.surveyList.getSurveyInfosByDepartment(department);
+        const surveyInfos = await ctx.surveyList.getSurveyInfosByDepartment(department);
         return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosWithPagination(ctx, department, pageSize, bookmarkCreatedAt) {
-        let surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
-        let surveyInfos = await ctx.surveyList.getSurveyInfosByDepartmentWithPagination(department, pageSize, surveyBookmark);
+        const surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
+        const surveyInfos = await ctx.surveyList.getSurveyInfosByDepartmentWithPagination(department, pageSize, surveyBookmark);
         return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosByRange(ctx, department, startCreatedAt, endCreatedAt) {
-        let surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
-        let surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
-        let surveyInfos = await ctx.surveyList.getSurveyInfosByRange(surveyInfoStart, surveyInfoEnd);
+        const surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
+        const surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
+        const surveyInfos = await ctx.surveyList.getSurveyInfosByRange(surveyInfoStart, surveyInfoEnd);
         return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async querySurveyInfosByRangeWithPagination(ctx, department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt) {
-        let surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
-        let surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
-        let surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
-        let surveyInfos = await ctx.surveyList.getSurveyInfosByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark);
+        const surveyInfoStart = SurveyInfo.makeKey([department, startCreatedAt]);
+        const surveyInfoEnd = SurveyInfo.makeKey([department, endCreatedAt]);
+        const surveyBookmark = SurveyList.makeSurveyBookmark(department, bookmarkCreatedAt);
+        const surveyInfos = await ctx.surveyList.getSurveyInfosByRangeWithPagination(surveyInfoStart, surveyInfoEnd, pageSize, surveyBookmark);
         return SurveyList.getUnremovedFromSurveyInfos(surveyInfos);
     }
 
     async queryReply(ctx, department, surveyCreatedAt, studentID) {
-        let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
-        let replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
-        let reply = await ctx.replyList.getReply(replyInfoKey);
+        const surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
+        const replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
+        const reply = await ctx.replyList.getReply(replyInfoKey);
         if (!reply.getReplyInfo()) {
             throw new Error('Can not found Reply = ' + replyInfoKey);
         }
@@ -244,38 +244,38 @@ class SurveyContract extends Contract {
     }
 
     async queryReplies(ctx, department, surveyCreatedAt) {
-        let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
+        const surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
         return await ctx.replyList.getRepliesBySurveyKey(surveyKey);
     }
 
     async queryRepliesByRange(ctx, department, surveyCreatedAt, startStudentID, endStudentID) {
-        let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
-        let replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
-        let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
+        const surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
+        const replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
+        const replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
         return await ctx.replyList.getRepliesByRange(replyInfoStart, replyInfoEnd);
     }
 
     async queryRepliesByRangeWithPagination(ctx, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) {
-        let surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
-        let replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
-        let replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
-        let replyBookmark = ReplyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
+        const surveyKey = Survey.makeSurveyKey(department, surveyCreatedAt);
+        const replyInfoStart = ReplyInfo.makeKey([surveyKey, startStudentID]);
+        const replyInfoEnd = ReplyInfo.makeKey([surveyKey, endStudentID]);
+        const replyBookmark = ReplyList.makeReplyBookmark(surveyKey, bookmarkStudentID);
         return await ctx.replyList.getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
     }
 
     /********************* Survey User Method (User) *********************/
 
     async registerStudent(ctx, id, password, name, departmentsStr) {
-        let userKey = User.makeKey([id]);
-        let userExists = await ctx.studentList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const userExists = await ctx.studentList.getUser(userKey);
         if (userExists) {
             throw new Error('User ' + userKey + ' already exists');
         }
 
-        let salt = User.makeSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsStr);
-        let user = User.createInstance(id, hashedPw, name, departments, salt, Date.now());
+        const salt = User.makeSalt();
+        const hashedPw = User.encryptPassword(password, salt);
+        const departments = JSON.parse(departmentsStr);
+        const user = User.createInstance(id, hashedPw, name, departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
         await ctx.studentList.addUser(user);
@@ -283,16 +283,16 @@ class SurveyContract extends Contract {
     }
 
     async registerManager(ctx, id, password, departmentsStr) {
-        let userKey = User.makeKey([id]);
-        let userExists = await ctx.managerList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const userExists = await ctx.managerList.getUser(userKey);
         if (userExists) {
             throw new Error('User ' + userKey + ' already exists');
         }
 
-        let salt = User.makeSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsStr);
-        let user = User.createInstance(id, hashedPw, 'manager', departments, salt, Date.now());
+        const salt = User.makeSalt();
+        const hashedPw = User.encryptPassword(password, salt);
+        const departments = JSON.parse(departmentsStr);
+        const user = User.createInstance(id, hashedPw, 'manager', departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
         await ctx.managerList.addUser(user);
@@ -300,15 +300,15 @@ class SurveyContract extends Contract {
     }
 
     async updateStudent(ctx, id, password, name, departmentsStr) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.studentList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.studentList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
 
-        let salt = user.getSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsStr);
+        const salt = user.getSalt();
+        const hashedPw = User.encryptPassword(password, salt);
+        const departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setName(name);
         user.setDepartments(departments);
@@ -319,15 +319,15 @@ class SurveyContract extends Contract {
     }
 
     async updateManager(ctx, id, password, departmentsStr) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.managerList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.managerList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
 
-        let salt = user.getSalt();
-        let hashedPw = User.encryptPassword(password, salt);
-        let departments = JSON.parse(departmentsStr);
+        const salt = user.getSalt();
+        const hashedPw = User.encryptPassword(password, salt);
+        const departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setDepartments(departments);
         user.setUpdatedAt(Date.now());
@@ -337,8 +337,8 @@ class SurveyContract extends Contract {
     }
 
     async deleteStudent(ctx, id, password) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.studentList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.studentList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
@@ -351,8 +351,8 @@ class SurveyContract extends Contract {
     }
 
     async deleteManager(ctx, id, password) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.managerList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.managerList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
@@ -367,8 +367,8 @@ class SurveyContract extends Contract {
     /********************* Survey User Query Method *********************/
 
     async queryStudent(ctx, id) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.studentList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.studentList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
@@ -377,8 +377,8 @@ class SurveyContract extends Contract {
     }
 
     async queryManager(ctx, id) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.managerList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.managerList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
@@ -387,8 +387,8 @@ class SurveyContract extends Contract {
     }
 
     async certifyStudent(ctx, id, password) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.studentList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.studentList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }
@@ -400,8 +400,8 @@ class SurveyContract extends Contract {
     }
 
     async certifyManager(ctx, id, password) {
-        let userKey = User.makeKey([id]);
-        let user = await ctx.managerList.getUser(userKey);
+        const userKey = User.makeKey([id]);
+        const user = await ctx.managerList.getUser(userKey);
         if (!user) {
             throw new Error('Can not found User = ' + userKey);
         }

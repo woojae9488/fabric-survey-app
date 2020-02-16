@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
     }
 
     try {
-        let result = await authenticateUtil.certifyAccessToken(accessToken);
+        const result = await authenticateUtil.certifyAccessToken(accessToken);
         req.body.id = result.id;
         req.body.name = result.name;
         req.body.departments = result.departments;

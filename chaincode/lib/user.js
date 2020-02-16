@@ -1,7 +1,7 @@
 
 'use strict';
 
-const PrivateData = require('../ledger-api/privatedata.js');
+const PrivateData = require('../ledger-api/PrivateData.js');
 const crypto = require('crypto');
 
 class User extends PrivateData {
@@ -64,7 +64,7 @@ class User extends PrivateData {
     }
 
     authenticate(password) {
-        let hashedPw = User.encryptPassword(password, this.salt);
+        const hashedPw = User.encryptPassword(password, this.salt);
         return hashedPw === this.hashedPw;
     }
 

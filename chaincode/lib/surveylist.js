@@ -3,9 +3,9 @@
 
 const StateList = require('../ledger-api/statelist.js');
 
-const Survey = require('./survey.js');
-const SurveyInfo = require('./surveyinfo.js');
-const SurveyQuestion = require('./surveyquestion.js');
+const Survey = require('./Survey.js');
+const SurveyInfo = require('./SurveyInfo.js');
+const SurveyQuestion = require('./SurveyQuestion.js');
 
 class SurveyList extends StateList {
 
@@ -16,21 +16,21 @@ class SurveyList extends StateList {
     }
 
     async addSurvey(survey) {
-        let surveyInfo = survey.getSurveyInfo();
-        let questions = survey.getQuestions();
+        const surveyInfo = survey.getSurveyInfo();
+        const questions = survey.getQuestions();
 
         await this.addState(surveyInfo);
-        for (let i = 0; i < questions.length; i++) {
-            await this.addState(questions[i]);
-        }
+        questions.forEach((question) => {
+            await this.addState(question);
+        });
     }
 
     async getSurvey(surveyInfoKey) {
-        let surveyInfo = await this.getState(surveyInfoKey);
+        const surveyInfo = await this.getState(surveyInfoKey);
 
-        let surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
-        let questionsKey = SurveyQuestion.makeKey([surveyKey]);
-        let questions = await this.getStatesByPartialKey(questionsKey);
+        const surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
+        const questionsKey = SurveyQuestion.makeKey([surveyKey]);
+        const questions = await this.getStatesByPartialKey(questionsKey);
 
         return new Survey({ surveyInfo, questions });
     }
@@ -40,14 +40,14 @@ class SurveyList extends StateList {
     }
 
     async getSurveyInfosByDepartment(department) {
-        let surveyInfosKey = SurveyInfo.makeKey([department]);
-        let surveyInfos = await this.getStatesByPartialKey(surveyInfosKey);
+        const surveyInfosKey = SurveyInfo.makeKey([department]);
+        const surveyInfos = await this.getStatesByPartialKey(surveyInfosKey);
         return surveyInfos;
     }
 
     async getSurveyInfosByDepartmentWithPagination(department, pageSize, surveyBookmark) {
-        let surveyInfosKey = SurveyInfo.makeKey([department]);
-        let surveyInfos = await this.getStatesByPartialKeyWithPagination(surveyInfosKey, pageSize, surveyBookmark);
+        const surveyInfosKey = SurveyInfo.makeKey([department]);
+        const surveyInfos = await this.getStatesByPartialKeyWithPagination(surveyInfosKey, pageSize, surveyBookmark);
         return surveyInfos;
     }
 
@@ -60,15 +60,15 @@ class SurveyList extends StateList {
     }
 
     async updateSurvey(survey) {
-        let surveyInfo = survey.getSurveyInfo();
-        let questions = survey.getQuestions();
-        let surveyKey = survey.getSurveyKey();
+        const surveyInfo = survey.getSurveyInfo();
+        const questions = survey.getQuestions();
+        const surveyKey = survey.getSurveyKey();
 
         await this.updateState(surveyInfo);
         await this.deleteQuestions(surveyKey);
-        for (let i = 0; i < questions.length; i++) {
-            await this.addState(questions[i]);
-        }
+        questions.forEach((question) => {
+            await this.addState(question);
+        });
     }
 
     async updateSurveyInfo(surveyInfoKey) {
@@ -76,16 +76,16 @@ class SurveyList extends StateList {
     }
 
     async deleteQuestions(surveyKey) {
-        let questionsKey = SurveyQuestion.makeKey([surveyKey]);
-        let questions = await this.getStatesByPartialKey(questionsKey);
+        const questionsKey = SurveyQuestion.makeKey([surveyKey]);
+        const questions = await this.getStatesByPartialKey(questionsKey);
 
-        for (let i = 0; i < questions.length; i++) {
-            await this.deleteState(questions[i].getKey());
-        }
+        questions.forEach((question) => {
+            await this.deleteState(question.getKey());
+        });
     }
 
     static makeSurveyBookmark(department, createdAt) {
-        let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
         return StateList.makeBookmark(surveyInfoKey);
     }
 
@@ -94,7 +94,7 @@ class SurveyList extends StateList {
     }
 
     async setSurveyEvent(action, surveyInfo) {
-        let eventName = 'survey' + action + 'Event';
+        const eventName = 'survey' + action + 'Event';
         await this.setEvent(eventName, surveyInfo);
     }
 }

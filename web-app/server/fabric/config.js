@@ -1,6 +1,6 @@
 exports.connection = {
-  managerConnectionProfile: "./fabric/managerConnection.json",
-  studentConnectionProfile: "./fabric/studentConnection.json",
+  managerConnectionProfile: "./fabric/manager-connection.json",
+  studentConnectionProfile: "./fabric/student-connection.json",
   managerWallet: "./identity/manager/wallet",
   studentWallet: "./identity/student/wallet",
   managerMSPID: "ManagerMSP",
@@ -14,11 +14,7 @@ exports.connection = {
     asLocalhost: true
   },
   channelName: "surveynet",
-  contractName: "surveycc",
-  connectionType: {
-    MANAGER: 1,
-    STUDENT: 2
-  }
+  contractName: "surveycc"
 };
 
 exports.event = {

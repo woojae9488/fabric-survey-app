@@ -1,19 +1,17 @@
 'use strict';
 
 const network = require('../fabric/network.js');
-const config = require('../fabric/config.js').connection;
-const connectionType = config.connectionType;
 const apiResponse = require('../utils/apiResponse.js');
 
 exports.respond = async (information) => {
     const { id, reply } = information;
 
-    const networkObj = await network.connect(connectionType.STUDENT, id);
+    const networkObj = await network.connect(false, id);
     const contractRes = await network.invoke(networkObj, 'respond', reply);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 
@@ -23,27 +21,27 @@ exports.respond = async (information) => {
 exports.revise = async (information) => {
     const { id, reply } = information;
 
-    const networkObj = await network.connect(connectionType.STUDENT, id);
+    const networkObj = await network.connect(false, id);
     const contractRes = await network.invoke(networkObj, 'revise', reply);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 
     return apiResponse.createModelRes(200, 'Success');
 };
 
-exports.query = async (connType, information) => {
+exports.query = async (isManager, information) => {
     const { id, department, surveyCreatedAt } = information;
 
-    const networkObj = await network.connect(connType, id);
+    const networkObj = await network.connect(isManager, id);
     const contractRes = await network.query(networkObj, 'queryReply', department, surveyCreatedAt, id);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 
@@ -53,12 +51,12 @@ exports.query = async (connType, information) => {
 exports.queryAll = async (information) => {
     const { id, department, surveyCreatedAt } = information;
 
-    const networkObj = await network.connect(connectionType.MANAGER, id);
+    const networkObj = await network.connect(true, id);
     const contractRes = await network.query(networkObj, 'queryReplies', department, surveyCreatedAt);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 
@@ -68,13 +66,13 @@ exports.queryAll = async (information) => {
 exports.queryAllByRange = async (information) => {
     const { id, department, surveyCreatedAt, startStudentID, endStudentID } = information;
 
-    const networkObj = await network.connect(connectionType.MANAGER, id);
+    const networkObj = await network.connect(true, id);
     const contractRes = await network.query(networkObj, 'queryRepliesByRange',
         department, surveyCreatedAt, startStudentID, endStudentID);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 
@@ -84,13 +82,13 @@ exports.queryAllByRange = async (information) => {
 exports.queryPageByRange = async (information) => {
     const { id, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID } = information;
 
-    const networkObj = await network.connect(connectionType.MANAGER, id);
+    const networkObj = await network.connect(true, id);
     const contractRes = await network.query(networkObj, 'queryRepliesByRangeWithPagination',
         department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID);
 
-    let error = networkObj.error || contractRes.error;
+    const error = networkObj.error || contractRes.error;
     if (error) {
-        let status = networkObj.status || contractRes.status;
+        const status = networkObj.status || contractRes.status;
         return apiResponse.createModelRes(status, error);
     }
 

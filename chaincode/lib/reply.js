@@ -1,14 +1,14 @@
 
 'use strict';
 
-const State = require('../ledger-api/state.js');
-const ReplyInfo = require('./replyinfo.js');
-const ReplyResult = require('./replyresult.js');
+const State = require('../ledger-api/State.js');
+const ReplyInfo = require('./ReplyInfo.js');
+const ReplyResult = require('./ReplyResult.js');
 
 class Reply {
 
     constructor(obj) {
-        let replyInfoKey = obj.replyInfo.getKey();
+        const replyInfoKey = obj.replyInfo.getKey();
         this.replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
         Object.assign(this, obj);
     }
@@ -34,14 +34,14 @@ class Reply {
     }
 
     static fromString(objStr) {
-        let json = JSON.parse(objStr);
-        let replyInfo = new ReplyInfo(json.replyInfo);
+        const json = JSON.parse(objStr);
+        const replyInfo = new ReplyInfo(json.replyInfo);
 
-        let results = [];
-        let jsonResults = json.results;
-        for (let i = 0; i < jsonResults.length; i++) {
-            results.push(new ReplyResult(jsonResults[i]));
-        }
+        const results = [];
+        const jsonResults = json.results;
+        jsonResults.forEach((jsonResult) => {
+            results.push(new ReplyResult(jsonResult));
+        });
 
         return new Reply({ replyInfo, results });
     }
@@ -55,24 +55,24 @@ class Reply {
     }
 
     static makeReplyKeyByInfoKey(replyInfoKey) {
-        let keyParts = State.splitKey(replyInfoKey);
+        const keyParts = State.splitKey(replyInfoKey);
         keyParts.shift();
         return keyParts.join('_');
     }
 
     static makeInfoKeyByReplyKey(replyKey) {
-        let keyParts = replyKey.split('_');
+        const keyParts = replyKey.split('_');
         return ReplyInfo.makeKey(keyParts);
     }
 
     static createInstance(surveyKey, studentID, createdAt) {
-        let replyInfo = ReplyInfo.createInstance(surveyKey, studentID, createdAt);
-        let results = [];
+        const replyInfo = ReplyInfo.createInstance(surveyKey, studentID, createdAt);
+        const results = [];
         return new Reply({ replyInfo, results });
     }
 
     addResult(resultNum, answers) {
-        let result = ReplyResult.createInstance(this.replyKey, resultNum, answers);
+        const result = ReplyResult.createInstance(this.replyKey, resultNum, answers);
         this.results.push(result);
     }
 

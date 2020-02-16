@@ -6,20 +6,17 @@ const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 
 const config = require('./config.js').connection;
-const connectionType = config.connectionType;
-
 const studentConnPath = path.join(process.cwd(), config.studentConnectionProfile);
 const studentConnJSON = fs.readFileSync(studentConnPath, 'utf8');
 const studentConnection = JSON.parse(studentConnJSON);
-
 const managerConnPath = path.join(process.cwd(), config.managerConnectionProfile);
 const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
 const managerConnection = JSON.parse(managerConnJSON);
 
-function getConnectionMaterial(connType) {
+function getConnectionMaterial(isManager) {
     let walletPath, connection, orgMSPID, caURL;
 
-    if (connType == connectionType.MANAGER) {
+    if (isManager) {
         walletPath = path.join(process.cwd(), config.managerWallet);
         connection = managerConnection;
         orgMSPID = config.managerMSPID;
@@ -34,11 +31,11 @@ function getConnectionMaterial(connType) {
     return { walletPath, connection, orgMSPID, caURL };
 }
 
-async function connect(connType, userID) {
+exports.connect = async (isManager, userID) => {
     const gateway = new Gateway();
 
     try {
-        const { walletPath, connection } = getConnectionMaterial(connType);
+        const { walletPath, connection } = getConnectionMaterial(isManager);
 
         const wallet = new FileSystemWallet(walletPath);
         const userExists = await wallet.exists(userID);
@@ -52,7 +49,7 @@ async function connect(connType, userID) {
         const contract = await network.getContract(config.contractName);
         console.log('Connected to fabric network successly.');
 
-        let networkObj = {
+        const networkObj = {
             gateway: gateway,
             network: network,
             contract: contract
@@ -66,12 +63,11 @@ async function connect(connType, userID) {
     }
 }
 
-async function query(networkObj, ...funcAndArgs) {
+exports.query = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Query parameter: ${funcAndArgs}`);
 
-        let contract = networkObj.contract;
-        let response = await contract.evaluateTransaction.apply(contract, funcAndArgs);
+        const response = await networkObj.contract.evaluateTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been evaluated: ${response}`);
 
         return response.toString();
@@ -85,12 +81,11 @@ async function query(networkObj, ...funcAndArgs) {
     }
 }
 
-async function invoke(networkObj, ...funcAndArgs) {
+exports.invoke = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Invoke parameter: ${funcAndArgs}`);
 
-        let contract = networkObj.contract;
-        let response = await contract.submitTransaction.apply(contract, funcAndArgs);
+        const response = await networkObj.contract.submitTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been submitted: ${response}`);
 
         return response.toString();
@@ -104,9 +99,9 @@ async function invoke(networkObj, ...funcAndArgs) {
     }
 }
 
-async function enrollAdmin(connType) {
+exports.enrollAdmin = async (isManager) => {
     try {
-        const { walletPath, orgMSPID, caURL } = getConnectionMaterial(connType);
+        const { walletPath, orgMSPID, caURL } = getConnectionMaterial(isManager);
 
         const wallet = new FileSystemWallet(walletPath);
         const adminExists = await wallet.exists(config.appAdmin);
@@ -126,11 +121,11 @@ async function enrollAdmin(connType) {
     }
 }
 
-async function registerUser(connType, userID) {
+exports.registerUser = async (isManager, userID) => {
     const gateway = new Gateway();
 
     try {
-        const { walletPath, connection, orgMSPID } = getConnectionMaterial(connType);
+        const { walletPath, connection, orgMSPID } = getConnectionMaterial(isManager);
 
         const wallet = new FileSystemWallet(walletPath);
         const userExists = await wallet.exists(userID);
@@ -164,9 +159,3 @@ async function registerUser(connType, userID) {
         await gateway.disconnect();
     }
 }
-
-exports.connect = connect;
-exports.query = query;
-exports.invoke = invoke;
-exports.enrollAdmin = enrollAdmin;
-exports.registerUser = registerUser;

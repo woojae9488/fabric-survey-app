@@ -1,11 +1,11 @@
 
 'use strict';
 
-const StateList = require('../ledger-api/statelist.js');
+const StateList = require('../ledger-api/StateList.js');
 
-const Reply = require('./reply.js');
-const ReplyInfo = require('./replyinfo.js');
-const ReplyResult = require('./replyresult.js');
+const Reply = require('./Reply.js');
+const ReplyInfo = require('./ReplyInfo.js');
+const ReplyResult = require('./ReplyResult.js');
 
 class ReplyList extends StateList {
 
@@ -16,21 +16,21 @@ class ReplyList extends StateList {
     }
 
     async addReply(reply) {
-        let replyInfo = reply.getReplyInfo();
-        let results = reply.getResults();
+        const replyInfo = reply.getReplyInfo();
+        const results = reply.getResults();
 
         await this.addState(replyInfo);
-        for (let i = 0; i < results.length; i++) {
-            await this.addState(results[i]);
-        }
+        results.forEach((result) => {
+            await this.addState(result);
+        });
     }
 
     async getReply(replyInfoKey) {
-        let replyInfo = await this.getState(replyInfoKey);
+        const replyInfo = await this.getState(replyInfoKey);
 
-        let replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
-        let resultsKey = ReplyResult.makeKey([replyKey]);
-        let results = await this.getStatesByPartialKey(resultsKey);
+        const replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
+        const resultsKey = ReplyResult.makeKey([replyKey]);
+        const results = await this.getStatesByPartialKey(resultsKey);
 
         return new Reply({ replyInfo, results });
     }
@@ -40,75 +40,73 @@ class ReplyList extends StateList {
     }
 
     async getRepliesBySurveyKey(surveyKey) {
-        let replies = [];
+        const replies = [];
 
-        let replyInfosKey = ReplyInfo.makeKey([surveyKey]);
-        let replyInfos = await this.getStatesByPartialKey(replyInfosKey);
+        const replyInfosKey = ReplyInfo.makeKey([surveyKey]);
+        const replyInfos = await this.getStatesByPartialKey(replyInfosKey);
 
-        for (let i = 0; i < replyInfos.length; i++) {
-            let replyInfo = replyInfos[i];
-            let replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
-            let resultsKey = ReplyResult.makeKey([replyKey]);
-            let results = await this.getStatesByPartialKey(resultsKey);
+        replyInfos.forEach((replyInfo) => {
+            const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
+            const resultsKey = ReplyResult.makeKey([replyKey]);
+            const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        });
 
         return replies;
     }
 
     async getRepliesByRange(replyInfoStart, replyInfoEnd) {
-        let replies = [];
+        const replies = [];
 
-        let replyInfos = await this.getStatesByRange(replyInfoStart, replyInfoEnd);
-        for (let i = 0; i < replyInfos.length; i++) {
-            let replyInfo = replyInfos[i];
-            let replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
-            let resultsKey = ReplyResult.makeKey([replyKey]);
-            let results = await this.getStatesByPartialKey(resultsKey);
+        const replyInfos = await this.getStatesByRange(replyInfoStart, replyInfoEnd);
+        replyInfos.forEach((replyInfo) => {
+            const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
+            const resultsKey = ReplyResult.makeKey([replyKey]);
+            const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        });
 
         return replies;
     }
 
     async getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark) {
-        let replies = [];
+        const replies = [];
 
-        let replyInfos = await this.getStatesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
-        for (let i = 0; i < replyInfos.length; i++) {
-            let replyInfo = replyInfos[i];
-            let replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
-            let resultsKey = ReplyResult.makeKey([replyKey]);
-            let results = await this.getStatesByPartialKey(resultsKey);
+        const replyInfos = await this.getStatesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
+        replyInfos.forEach((replyInfo) => {
+            const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
+            const resultsKey = ReplyResult.makeKey([replyKey]);
+            const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        });
 
         return replies;
     }
 
     async updateReply(reply) {
-        let replyInfo = reply.getReplyInfo();
-        let results = reply.getResults();
-        let replyKey = reply.getReplyKey();
+        const replyInfo = reply.getReplyInfo();
+        const results = reply.getResults();
+        const replyKey = reply.getReplyKey();
 
         await this.updateState(replyInfo);
         await this.deleteResults(replyKey);
-        for (let i = 0; i < results.length; i++) {
-            await this.addState(results[i]);
-        }
+
+        results.forEach((result) => {
+            await this.addState(result);
+        });
     }
 
     async deleteResults(replyKey) {
-        let resultsKey = ReplyResult.makeKey([replyKey]);
-        let results = await this.getStatesByPartialKey(resultsKey);
+        const resultsKey = ReplyResult.makeKey([replyKey]);
+        const results = await this.getStatesByPartialKey(resultsKey);
 
-        for (let i = 0; i < results.length; i++) {
-            await this.deleteState(results[i].getKey());
-        }
+        results.forEach((result) => {
+            await this.deleteState(result.getKey());
+        });
     }
 
     static makeReplyBookmark(surveyKey, studentID) {
-        let replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
+        const replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
         return StateList.makeBookmark(replyInfoKey);
     }
 }

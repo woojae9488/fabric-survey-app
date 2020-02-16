@@ -30,12 +30,12 @@ class PrivateData {
     }
 
     static deserialize(data, supportedClasses) {
-        let json = JSON.parse(data);
-        let objClass = supportedClasses[json.class];
+        const json = JSON.parse(data);
+        const objClass = supportedClasses[json.class];
         if (!objClass) {
             throw new Error(`Unknown class of ${json.class}`);
         }
-        let object = new (objClass)(json);
+        const object = new (objClass)(json);
 
         return object;
     }
