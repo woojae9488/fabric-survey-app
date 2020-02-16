@@ -10,7 +10,7 @@ const network = require('./fabric/network.js');
 const config = require('./fabric/config.js').connection;
 const connectionType = config.connectionType;
 const event = require('./fabric/event/event.js');
-const Router = require('./routes/index.js');
+const router = require('./routes/index.js');
 
 async function main() {
     await network.enrollAdmin(connectionType.MANAGER);
@@ -25,7 +25,7 @@ async function main() {
     app.use(bodyParser.json());
     app.use(cors());
 
-    app.use('/', Router);
+    app.use('/', router);
     app.use((_req, res, _next) => {
         return apiResponse.notFound(res);
     });

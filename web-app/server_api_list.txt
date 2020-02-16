@@ -1,0 +1,20 @@
+
+authRouter.use('/auth/users/:role/:uid', authMiddleware);
+
+authRouter.post('/auth/users/:role', controller.signup);
+authRouter.put('/auth/users/:role/:uid', controller.changeInfo);
+authRouter.delete('/auth/users/:role/:uid', controller.signout);
+authRouter.post('/auth/tokens/:role', controller.signin);
+authRouter.get('/auth/tokens/:role', controller.certifyUser);
+authRouter.put('/auth/tokens/:role', controller.reissueAccessToken);
+
+surveyRouter.post('/surveys/', controller.register);
+surveyRouter.put('/surveys/', controller.update);
+surveyRouter.get('/surveys/:department', controller.queryList);
+surveyRouter.get('/surveys/:department/:createdAt', controller.query);
+surveyRouter.delete('/surveys/:department/:createdAt', controller.remove);
+
+replyRouter.post('/replies/', controller.respond);
+replyRouter.put('/replies/', controller.revise);
+replyRouter.get('/replies/:department/:surveyCreatedAt', controller.queryAll);
+replyRouter.get('/replies/:department/:surveyCreatedAt/:id', controller.query);

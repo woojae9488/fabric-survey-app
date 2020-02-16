@@ -29,12 +29,15 @@ exports.revise = async (req, res, next) => {
 
 exports.query = async (req, res, next) => {
     const { id, name } = req.body;
-    const { department, surveyCreatedAt } = req.params;
+    const { department, surveyCreatedAt, uid } = req.params;
 
     let modelRes;
     if (name === 'manager') {
-        modelRes = await replyModel.query(connectionType.MANAGER, { id, department, surveyCreatedAt });
+        modelRes = await replyModel.query(connectionType.MANAGER, { id: uid, department, surveyCreatedAt });
     } else {
+        if (id !== uid) {
+            return apiResponse.badRequest(res);
+        }
         modelRes = await replyModel.query(connectionType.STUDENT, { id, department, surveyCreatedAt });
     }
 

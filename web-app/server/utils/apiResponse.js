@@ -18,6 +18,13 @@ exports.badRequest = (res) => {
     });
 };
 
+exports.unauthorized = (res, msg) => {
+    return res.status(401).json({
+        message: msg,
+        data: {}
+    });
+};
+
 exports.notFound = (res) => {
     return res.status(404).json({
         message: 'API not found',

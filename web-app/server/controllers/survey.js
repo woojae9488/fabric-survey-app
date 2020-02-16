@@ -37,7 +37,7 @@ exports.remove = async (req, res, next) => {
 
 exports.query = async (req, res, next) => {
     const { id, name } = req.body;
-    const { department } = req.params;
+    const { department, createdAt } = req.params;
 
     let modelRes;
     if (name === 'manager') {

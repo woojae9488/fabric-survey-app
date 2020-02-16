@@ -201,7 +201,7 @@ class SurveyContract extends Contract {
     async querySurvey(ctx, department, createdAt) {
         let surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
         let survey = await ctx.surveyList.getSurvey(surveyInfoKey);
-        if (!survey.getServeyInfo()) {
+        if (!survey.getSurveyInfo()) {
             throw new Error('Can not found Survey = ' + surveyInfoKey);
         }
         return survey;

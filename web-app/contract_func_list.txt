@@ -1,41 +1,41 @@
 
 /********************* Survey State Change Method (User) *********************/
 
-register(surveyBuffer)
-update(surveyBuffer) 
-remove(department, createdAt, managerID) 
-respond(replyBuffer) 
-revise(replyBuffer) 
+register(ctx, surveyStr)
+update(ctx, surveyStr)
+remove(ctx, department, createdAt, managerID)
+respond(ctx, replyStr)
+revise(ctx, replyStr)
 
 /********************* Survey State Change Method (WebApp) *********************/
 
-start(department, createdAt) 
-finish(department, createdAt) 
+start(ctx, department, createdAt)
+finish(ctx, department, createdAt)
 
 /********************* Survey State Query Method *********************/
 
-querySurvey(department, createdAt) 
-querySurveyInfos(department) 
-querySurveyInfosWithPagination(department, pageSize, bookmarkCreatedAt) 
-querySurveyInfosByRange(department, startCreatedAt, endCreatedAt) 
-querySurveyInfosByRangeWithPagination(department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt) 
-queryReply(department, surveyCreatedAt, studentID) 
-queryReplies(department, surveyCreatedAt)
-queryRepliesByRange(department, surveyCreatedAt, startStudentID, endStudentID) 
-queryRepliesByRangeWithPagination(department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID) 
+querySurvey(ctx, department, createdAt)
+querySurveyInfos(ctx, department)
+querySurveyInfosWithPagination(ctx, department, pageSize, bookmarkCreatedAt)
+querySurveyInfosByRange(ctx, department, startCreatedAt, endCreatedAt)
+querySurveyInfosByRangeWithPagination(ctx, department, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt)
+queryReply(ctx, department, surveyCreatedAt, studentID)
+queryReplies(ctx, department, surveyCreatedAt)
+queryRepliesByRange(ctx, department, surveyCreatedAt, startStudentID, endStudentID)
+queryRepliesByRangeWithPagination(ctx, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID)
 
 /********************* Survey User Method (User) *********************/
 
-registerStudent(id, password, name, departmentsJSON) 
-registerManager(id, password, departmentsJSON) 
-updateStudent(id, password, name, departmentsJSON) 
-updateManager(id, password, departmentsJSON) 
-deleteStudent(id, password) 
-deleteManager(id, password) 
+registerStudent(ctx, id, password, name, departmentsStr)
+registerManager(ctx, id, password, departmentsStr)
+updateStudent(ctx, id, password, name, departmentsStr)
+updateManager(ctx, id, password, departmentsStr)
+deleteStudent(ctx, id, password)
+deleteManager(ctx, id, password)
 
 /********************* Survey User Query Method *********************/
 
-queryStudent(id) 
-queryManager(id)
-certifyStudent(id, password) 
-certifyManager(id, password)
+queryStudent(ctx, id)
+queryManager(ctx, id)
+certifyStudent(ctx, id, password)
+certifyManager(ctx, id, password)

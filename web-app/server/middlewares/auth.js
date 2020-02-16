@@ -1,16 +1,13 @@
 'use strict';
 
 const authenticateUtil = require('../utils/authenticate');
+const apiResponse = require('../utils/apiResponse.js');
 
 module.exports = async (req, res, next) => {
     const accessToken = req.headers['x-access-token'];
 
     if (!accessToken) {
-        return res.status(401).json({
-            message: 'Required access token',
-            data: {}
-        });
-        // redirect to signup or signin page
+        return apiResponse.unauthorized(res, 'Required access token');
     }
 
     try {
@@ -20,9 +17,6 @@ module.exports = async (req, res, next) => {
         req.body.departments = result.departments;
         next();
     } catch (err) {
-        return res.status(401).json({
-            message: err,
-            data: {}
-        });
+        return apiResponse.unauthorized(res, err.toString());
     }
 };

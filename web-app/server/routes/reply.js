@@ -9,6 +9,6 @@ replyRouter.use(authMiddleware);
 replyRouter.post('/', controller.respond);
 replyRouter.put('/', controller.revise);
 replyRouter.get('/:department/:surveyCreatedAt', controller.queryAll);
-replyRouter.get('/:department/:surveyCreatedAt/:id', controller.query);
+replyRouter.get('/:department/:surveyCreatedAt/:uid', controller.query);
 
 module.exports = replyRouter;
