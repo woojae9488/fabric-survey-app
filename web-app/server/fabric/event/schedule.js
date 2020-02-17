@@ -3,109 +3,10 @@
 const fs = require('fs');
 const path = require('path');
 const nodeschedule = require('node-schedule');
-
 const network = require('../network.js');
-const config = require('../config.js').connection;
 
 const surveyInfosPath = path.join(__dirname, './schedule.json');
 const scheduleJobs = {};
-
-function initSurveySchedule() {
-    console.log('Start to initialize survey schedule.');
-    const surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
-    const surveyInfos = JSON.parse(surveyInfosJSON);
-
-    surveyInfos.forEach((surveyInfo) => {
-        console.log(`Survey schedule : ${surveyInfo.key}`);
-        const scheduleJob = reserveSurveyDate(surveyInfo);
-        scheduleJobs[surveyInfo.key] = scheduleJob;
-    });
-}
-
-async function addSurveySchedule(surveyInfoBuffer) {
-    const surveyInfo = JSON.parse(surveyInfoBuffer);
-    console.log(`Add survey schedule: ${surveyInfo.key}`);
-
-    const scheduleJob = reserveSurveyDate(surveyInfo);
-    scheduleJobs[surveyInfo.key] = scheduleJob;
-    await addManagedSurvey(surveyInfo);
-}
-
-async function updateSurveySchedule(surveyInfoBuffer) {
-    const surveyInfo = JSON.parse(surveyInfoBuffer);
-    console.log(`Update survey schedule: ${surveyInfo.key}`);
-
-    const scheduleJob = scheduleJobs[surveyInfo.key];
-    cancelSurveySchedule(scheduleJob);
-
-    const newScheduleJob = reserveSurveyDate(surveyInfo);
-    scheduleJobs[surveyInfo.key] = newScheduleJob;
-    await updateManagedSurvey(surveyInfo);
-}
-
-async function removeSurveySchedule(surveyInfoBuffer) {
-    const surveyInfo = JSON.parse(surveyInfoBuffer);
-    console.log(`Remove survey schedule: ${surveyInfo.key}`);
-
-    const scheduleJob = scheduleJobs[surveyInfo.key];
-    cancelSurveySchedule(scheduleJob);
-    delete scheduleJobs[surveyInfo.key];
-
-    await removeManagedSurvey(surveyInfo.key);
-}
-
-function reserveSurveyDate(surveyInfo) {
-    const department = surveyInfo.department;
-    const createdAt = surveyInfo.createdAt;
-    const surveyInfoKey = surveyInfo.key;
-    let startJob, finishJob;
-
-    if (surveyInfo.startDate < Date.now()) {
-        startSurvey(department, createdAt);
-    } else {
-        const startDate = new Date(parseInt(surveyInfo.startDate));
-        startJob = nodeschedule.scheduleJob(startDate, startSurvey(department, createdAt));
-    }
-
-    if (surveyInfo.finishDate < Date.now()) {
-        finishSurvey(department, createdAt, surveyInfoKey);
-    } else {
-        const finishDate = new Date(parseInt(surveyInfo.finishDate));
-        finishJob = nodeschedule.scheduleJob(finishDate, finishSurvey(department, createdAt, surveyInfoKey));
-    }
-
-    console.log(`Reserve survey schedule successly: ${surveyInfoKey}`);
-    return { start: startJob, finish: finishJob };
-}
-
-function cancelSurveySchedule(scheduleJob) {
-    scheduleJob.start.cancel();
-    scheduleJob.finish.cancel();
-    console.log(`Cancel survey schedule successly`);
-}
-
-async function startSurvey(department, createdAt) {
-    const networkObj = await network.connect(true, config.appAdmin);
-    const contractRes = await network.invoke(networkObj, 'start', department, createdAt);
-    if (networkObj.error || contractRes.error) {
-        console.log(networkObj.error || contractRes.error);
-    } else {
-        console.log(`Survey ${department}.${createdAt} start!!`);
-    }
-}
-
-async function finishSurvey(department, createdAt, surveyInfoKey) {
-    const networkObj = await network.connect(true, config.appAdmin);
-    const contractRes = await network.invoke(networkObj, 'finish', department, createdAt);
-    if (networkObj.error || contractRes.error) {
-        console.log(networkObj.error || contractRes.error);
-        return;
-    }
-    console.log(`Survey ${department}.${createdAt} finish!!`);
-
-    await removeManagedSurvey(surveyInfoKey);
-    console.log(`Survey ${department}.${createdAt} removed!!`);
-}
 
 function addManagedSurvey(surveyInfo) {
     return new Promise((resolve, reject) => {
@@ -173,8 +74,101 @@ function removeManagedSurvey(surveyInfoKey) {
     });
 }
 
-exports.initSurveySchedule = initSurveySchedule;
-exports.addSurveySchedule = addSurveySchedule;
-exports.updateSurveySchedule = updateSurveySchedule;
-exports.removeSurveySchedule = removeSurveySchedule;
+async function startSurvey(department, createdAt) {
+    const networkObj = await network.connect(true, process.env.ADMIN);
+    const contractRes = await network.invoke(networkObj, 'start', department, createdAt);
+    if (networkObj.error || contractRes.error) {
+        console.log(networkObj.error || contractRes.error);
+    } else {
+        console.log(`Survey ${department}.${createdAt} start!!`);
+    }
+}
+
+async function finishSurvey(department, createdAt, surveyInfoKey) {
+    const networkObj = await network.connect(true, process.env.ADMIN);
+    const contractRes = await network.invoke(networkObj, 'finish', department, createdAt);
+    if (networkObj.error || contractRes.error) {
+        console.log(networkObj.error || contractRes.error);
+        return;
+    }
+    console.log(`Survey ${department}.${createdAt} finish!!`);
+
+    await removeManagedSurvey(surveyInfoKey);
+    console.log(`Survey ${department}.${createdAt} removed!!`);
+}
+
+function reserveSurveyDate(surveyInfo) {
+    const department = surveyInfo.department;
+    const createdAt = surveyInfo.createdAt;
+    const surveyInfoKey = surveyInfo.key;
+    let startJob, finishJob;
+
+    if (surveyInfo.startDate < Date.now()) {
+        startSurvey(department, createdAt);
+    } else {
+        const startDate = new Date(parseInt(surveyInfo.startDate));
+        startJob = nodeschedule.scheduleJob(startDate, startSurvey(department, createdAt));
+    }
+
+    if (surveyInfo.finishDate < Date.now()) {
+        finishSurvey(department, createdAt, surveyInfoKey);
+    } else {
+        const finishDate = new Date(parseInt(surveyInfo.finishDate));
+        finishJob = nodeschedule.scheduleJob(finishDate, finishSurvey(department, createdAt, surveyInfoKey));
+    }
+
+    console.log(`Reserve survey schedule successly: ${surveyInfoKey}`);
+    return { start: startJob, finish: finishJob };
+}
+
+function cancelSurveySchedule(scheduleJob) {
+    scheduleJob.start.cancel();
+    scheduleJob.finish.cancel();
+    console.log(`Cancel survey schedule successly`);
+}
+
+exports.initSurveySchedule = () => {
+    console.log('Start to initialize survey schedule.');
+    const surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
+    const surveyInfos = JSON.parse(surveyInfosJSON);
+
+    surveyInfos.forEach((surveyInfo) => {
+        console.log(`Survey schedule : ${surveyInfo.key}`);
+        const scheduleJob = reserveSurveyDate(surveyInfo);
+        scheduleJobs[surveyInfo.key] = scheduleJob;
+    });
+}
+
+exports.addSurveySchedule = (surveyInfoBuffer) => {
+    const surveyInfo = JSON.parse(surveyInfoBuffer);
+    console.log(`Add survey schedule: ${surveyInfo.key}`);
+
+    const scheduleJob = reserveSurveyDate(surveyInfo);
+    scheduleJobs[surveyInfo.key] = scheduleJob;
+    await addManagedSurvey(surveyInfo);
+}
+
+exports.updateSurveySchedule = (surveyInfoBuffer) => {
+    const surveyInfo = JSON.parse(surveyInfoBuffer);
+    console.log(`Update survey schedule: ${surveyInfo.key}`);
+
+    const scheduleJob = scheduleJobs[surveyInfo.key];
+    cancelSurveySchedule(scheduleJob);
+
+    const newScheduleJob = reserveSurveyDate(surveyInfo);
+    scheduleJobs[surveyInfo.key] = newScheduleJob;
+    await updateManagedSurvey(surveyInfo);
+}
+
+exports.removeSurveySchedule = (surveyInfoBuffer) => {
+    const surveyInfo = JSON.parse(surveyInfoBuffer);
+    console.log(`Remove survey schedule: ${surveyInfo.key}`);
+
+    const scheduleJob = scheduleJobs[surveyInfo.key];
+    cancelSurveySchedule(scheduleJob);
+    delete scheduleJobs[surveyInfo.key];
+
+    await removeManagedSurvey(surveyInfo.key);
+}
+
 exports.scheduleJobs = scheduleJobs;

@@ -4,31 +4,31 @@
 const fs = require('fs');
 const path = require('path');
 const { FileSystemWallet, Gateway } = require('fabric-network');
-
 const schedule = require('./schedule.js');
-const config = require('../config.js').connection;
-const eventCfg = require('../config.js').event;
 
-const connectionPath = path.join(process.cwd(), config.managerConnectionProfile);
+const connectionPath = path.join(process.cwd(), process.env.MANAGER_CONN);
 const connectionJSON = fs.readFileSync(connectionPath, 'utf8');
 const connection = JSON.parse(connectionJSON);
 
-const walletPath = path.join(process.cwd(), config.managerWallet);
+const walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
 const wallet = new FileSystemWallet(walletPath);
 
-function handlingPastEvents() {
+exports.handlingPastEvents = () => {
     schedule.initSurveySchedule();
 }
 
-async function activateContractEvent() {
+exports.activateContractEvent = () => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
-        const network = await gateway.getNetwork(config.channelName);
-        const contract = await network.getContract(config.contractName);
+        await gateway.connect(connection, {
+            wallet, identity: process.env.ADMIN,
+            discovery: { enabled: true, asLocalhost: true }
+        });
+        const network = await gateway.getNetwork(process.env.CHANNEL);
+        const contract = await network.getContract(process.env.CONTRACT);
         console.log('Connected to surveynet successly.');
 
-        const registerListener = await contract.addContractListener(eventCfg.registerListener, eventCfg.registerEvent,
+        const registerListener = await contract.addContractListener(process.env.L_REGISTER, process.env.E_REGISTER,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen register event: ${err}`);
@@ -42,7 +42,7 @@ async function activateContractEvent() {
             }
         );
 
-        const updateListener = await contract.addContractListener(eventCfg.updateListener, eventCfg.updateEvent,
+        const updateListener = await contract.addContractListener(process.env.L_UPDATE, process.env.E_UPDATE,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen update event: ${err}`);
@@ -56,7 +56,7 @@ async function activateContractEvent() {
             }
         );
 
-        const removeListener = await contract.addContractListener(eventCfg.removeListener, eventCfg.removeEvent,
+        const removeListener = await contract.addContractListener(process.env.L_REMOVE, process.env.E_REMOVE,
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen remove event: ${err}`);
@@ -77,14 +77,17 @@ async function activateContractEvent() {
     }
 }
 
-async function activateBlockEvent() {
+exports.activateBlockEvent = () => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
-        const network = await gateway.getNetwork(config.channelName);
+        await gateway.connect(connection, {
+            wallet, identity: process.env.ADMIN,
+            discovery: { enabled: true, asLocalhost: true }
+        });
+        const network = await gateway.getNetwork(process.env.CHANNEL);
         console.log('Connected to surveynet successly.');
 
-        const listener = await network.addBlockListener(eventCfg.blockListener,
+        const listener = await network.addBlockListener(process.env.L_BLOCK,
             (err, block) => {
                 if (err) {
                     console.error(`Failed to listen block event: ${err}`);
@@ -101,12 +104,15 @@ async function activateBlockEvent() {
     }
 }
 
-async function activateCommitEvent(transactionName) {
+exports.activateCommitEvent = (transactionName) => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
-        const network = await gateway.getNetwork(config.channelName);
-        const contract = await network.getContract(config.contractName);
+        await gateway.connect(connection, {
+            wallet, identity: process.env.ADMIN,
+            discovery: { enabled: true, asLocalhost: true }
+        });
+        const network = await gateway.getNetwork(process.env.CHANNEL);
+        const contract = await network.getContract(process.env.CONTRACT);
         console.log('Connected to surveynet successly.');
 
         const transaction = contract.createTransaction(transactionName);
@@ -134,8 +140,3 @@ async function activateCommitEvent(transactionName) {
         return { error: err.toString() };
     }
 }
-
-exports.handlingPastEvents = handlingPastEvents;
-exports.activateContractEvent = activateContractEvent;
-exports.activateBlockEvent = activateBlockEvent;
-exports.activateCommitEvent = activateCommitEvent;

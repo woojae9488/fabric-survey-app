@@ -1,7 +1,7 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const secret = "JNU_SURVEY@#!%"
+const secret = process.env.JWT_SECRET;
 
 exports.generateAccessToken = (information) => {
     return jwt.sign(information, secret, { expiresIn: '30m' });

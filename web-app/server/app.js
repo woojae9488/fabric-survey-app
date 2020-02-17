@@ -1,5 +1,6 @@
 'use strict';
 
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
@@ -28,7 +29,7 @@ async function main() {
         return apiResponse.notFound(res);
     });
 
-    app.listen(process.env.PORT || 8090);
+    app.listen(process.env.PORT);
 }
 
 main();

@@ -5,11 +5,11 @@ const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 
-const config = require('./config.js').connection;
-const studentConnPath = path.join(process.cwd(), config.studentConnectionProfile);
+const studentConnPath = path.join(process.cwd(), process.env.STUDENT_CONN);
 const studentConnJSON = fs.readFileSync(studentConnPath, 'utf8');
 const studentConnection = JSON.parse(studentConnJSON);
-const managerConnPath = path.join(process.cwd(), config.managerConnectionProfile);
+
+const managerConnPath = path.join(process.cwd(), process.env.MANAGER_CONN);
 const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
 const managerConnection = JSON.parse(managerConnJSON);
 
@@ -17,15 +17,15 @@ function getConnectionMaterial(isManager) {
     let walletPath, connection, orgMSPID, caURL;
 
     if (isManager) {
-        walletPath = path.join(process.cwd(), config.managerWallet);
+        walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
         connection = managerConnection;
-        orgMSPID = config.managerMSPID;
-        caURL = config.managerCaAddress;
+        orgMSPID = process.env.MANAGER_MSP;
+        caURL = process.env.MANAGER_CA_ADDR;
     } else {
-        walletPath = path.join(process.cwd(), config.studentWallet);
+        walletPath = path.join(process.cwd(), process.env.STUDENT_WALLET);
         connection = studentConnection;
-        orgMSPID = config.studentMSPID;
-        caURL = config.studentCaAddress;
+        orgMSPID = process.env.STUDENT_MSP;
+        caURL = process.env.STUDENT_CA_ADDR;
     }
 
     return { walletPath, connection, orgMSPID, caURL };
@@ -44,9 +44,12 @@ exports.connect = async (isManager, userID) => {
             return { status: 401, error: 'User identity does not exist in the wallet.' };
         }
 
-        await gateway.connect(connection, { wallet, identity: userID, discovery: config.gatewayDiscovery });
-        const network = await gateway.getNetwork(config.channelName);
-        const contract = await network.getContract(config.contractName);
+        await gateway.connect(connection, {
+            wallet, identity: userID,
+            discovery: { enabled: true, asLocalhost: true }
+        });
+        const network = await gateway.getNetwork(process.env.CHANNEL);
+        const contract = await network.getContract(process.env.CONTRACT);
         console.log('Connected to fabric network successly.');
 
         const networkObj = {
@@ -104,16 +107,16 @@ exports.enrollAdmin = async (isManager) => {
         const { walletPath, orgMSPID, caURL } = getConnectionMaterial(isManager);
 
         const wallet = new FileSystemWallet(walletPath);
-        const adminExists = await wallet.exists(config.appAdmin);
+        const adminExists = await wallet.exists(process.env.ADMIN);
         if (adminExists) {
             console.error('Admin user identity already exists in the wallet');
             return;
         }
 
         const ca = new FabricCAServices(caURL);
-        const enrollment = await ca.enroll({ enrollmentID: config.appAdmin, enrollmentSecret: config.appAdminSecret });
+        const enrollment = await ca.enroll({ enrollmentID: process.env.ADMIN, enrollmentSecret: process.env.ADMIN_SECRET });
         const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
-        await wallet.import(config.appAdmin, identity);
+        await wallet.import(process.env.ADMIN, identity);
         console.log(`Successfully enrolled admin user and imported it into the wallet`);
     } catch (err) {
         console.error(`Failed to enroll admin user: ${err}`);
@@ -134,14 +137,17 @@ exports.registerUser = async (isManager, userID) => {
             return { status: 400, error: 'User identity already exists in the wallet.' };
         }
 
-        const adminExists = await wallet.exists(config.appAdmin);
+        const adminExists = await wallet.exists(process.env.ADMIN);
         if (!adminExists) {
-            console.error(`An identity for the admin user ${config.appAdmin} does not exist in the wallet`);
+            console.error(`An identity for the admin user ${process.env.ADMIN} does not exist in the wallet`);
             console.error('Enroll the admin before trying');
             return { status: 500, error: 'Admin user identity does not exist in the wallet.' };
         }
 
-        await gateway.connect(connection, { wallet, identity: config.appAdmin, discovery: config.gatewayDiscovery });
+        await gateway.connect(connection, {
+            wallet, identity: process.env.ADMIN,
+            discovery: { enabled: true, asLocalhost: true }
+        });
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
 
