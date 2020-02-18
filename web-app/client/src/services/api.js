@@ -1,4 +1,5 @@
 import axios from 'axios'
+import cookieJs from "js-cookie";
 
 export default {
     instance() {
@@ -11,6 +12,18 @@ export default {
 
     setHeader(header, data) {
         axios.defaults.headers.common[header] = data
+    },
+
+    getHeader(header) {
+        return axios.defaults.headers.common[header];
+    },
+
+    setCookie(cookie, data) {
+        cookieJs.setCookie(cookie, data);
+    },
+
+    getCookie(cookie) {
+        return cookieJs.getCookie(cookie);
     },
 
     getResultData(apiResult) {

@@ -20,7 +20,7 @@ export default {
     },
 
     // params: {startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt}
-    async queryList(department, params) {
+    async queryList(department, params = {}) {
         return await Api.instance().get(`/surveys/${department}`, { params })
     }
 }

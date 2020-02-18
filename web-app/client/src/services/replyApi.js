@@ -16,7 +16,7 @@ export default {
     },
 
     // params: {startStudentID, endStudentID, pageSize, bookmarkStudentId}
-    async queryAll(department, surveyCreatedAt, params) {
+    async queryAll(department, surveyCreatedAt, params = {}) {
         return await Api.instance().get(`/replies/${department}/${surveyCreatedAt}`, { params })
     }
 }

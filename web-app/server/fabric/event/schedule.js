@@ -1,84 +1,22 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const lowdb = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 const nodeschedule = require('node-schedule');
 const network = require('../network.js');
 
-const surveyInfosPath = path.join(__dirname, './schedule.json');
+const adapter = new FileSync('./schedule.json');
+const db = lowdb(adapter);
+db.defaults({ schedules: [] }).write();
 const scheduleJobs = {};
-
-function addManagedSurvey(surveyInfo) {
-    return new Promise((resolve, reject) => {
-        try {
-            let surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
-            const surveyInfos = JSON.parse(surveyInfosJSON);
-
-            surveyInfos.push(surveyInfo);
-            surveyInfosJSON = JSON.stringify(surveyInfos);
-            fs.writeFileSync(surveyInfosPath, surveyInfosJSON, 'utf8');
-            console.log(`Add managed survey successly: ${surveyInfo.key}`);
-
-            resolve();
-        } catch (err) {
-            console.error(`Fail to add managed survey: ${err}`);
-            reject(err);
-        }
-    });
-}
-
-function updateManagedSurvey(newSurveyInfo) {
-    return new Promise((resolve, reject) => {
-        try {
-            let surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
-            const surveyInfos = JSON.parse(surveyInfosJSON);
-
-            const surveyInfo = surveyInfos.find(data => data.key === newSurveyInfo.key);
-            if (surveyInfo) {
-                surveyInfos.splice(surveyInfos.indexOf(surveyInfo), 1);
-            }
-            surveyInfos.push(newSurveyInfo);
-
-            surveyInfosJSON = JSON.stringify(surveyInfos);
-            fs.writeFileSync(surveyInfosPath, surveyInfosJSON, 'utf8');
-            console.log(`Update managed survey successly: ${surveyInfo.key}`);
-
-            resolve();
-        } catch (err) {
-            console.error(`Fail to update managed survey: ${err}`);
-            reject(err);
-        }
-    });
-}
-
-function removeManagedSurvey(surveyInfoKey) {
-    return new Promise((resolve, reject) => {
-        try {
-            let surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
-            const surveyInfos = JSON.parse(surveyInfosJSON);
-
-            const surveyInfo = surveyInfos.find(data => data.key === surveyInfoKey);
-            if (surveyInfo) {
-                surveyInfos.splice(surveyInfos.indexOf(surveyInfo), 1);
-            }
-
-            surveyInfosJSON = JSON.stringify(surveyInfos);
-            fs.writeFileSync(surveyInfosPath, surveyInfosJSON, 'utf8');
-            console.log(`Remove managed survey successly: ${surveyInfokey}`);
-
-            resolve();
-        } catch (err) {
-            console.error(`Fail to remove managed survey: ${err}`);
-            reject(err);
-        }
-    });
-}
 
 async function startSurvey(department, createdAt) {
     const networkObj = await network.connect(true, process.env.ADMIN);
     const contractRes = await network.invoke(networkObj, 'start', department, createdAt);
-    if (networkObj.error || contractRes.error) {
-        console.log(networkObj.error || contractRes.error);
+
+    const error = networkObj.error || contractRes.error;
+    if (error) {
+        console.log(error);
     } else {
         console.log(`Survey ${department}.${createdAt} start!!`);
     }
@@ -87,13 +25,15 @@ async function startSurvey(department, createdAt) {
 async function finishSurvey(department, createdAt, surveyInfoKey) {
     const networkObj = await network.connect(true, process.env.ADMIN);
     const contractRes = await network.invoke(networkObj, 'finish', department, createdAt);
-    if (networkObj.error || contractRes.error) {
-        console.log(networkObj.error || contractRes.error);
+
+    const error = networkObj.error || contractRes.error;
+    if (error) {
+        console.log(error);
         return;
     }
     console.log(`Survey ${department}.${createdAt} finish!!`);
 
-    await removeManagedSurvey(surveyInfoKey);
+    db.get('schedules').remove({ key: surveyInfoKey }).write();
     console.log(`Survey ${department}.${createdAt} removed!!`);
 }
 
@@ -129,8 +69,7 @@ function cancelSurveySchedule(scheduleJob) {
 
 exports.initSurveySchedule = () => {
     console.log('Start to initialize survey schedule.');
-    const surveyInfosJSON = fs.readFileSync(surveyInfosPath, 'utf8');
-    const surveyInfos = JSON.parse(surveyInfosJSON);
+    const surveyInfos = db.get('schedules').value();
 
     surveyInfos.forEach((surveyInfo) => {
         console.log(`Survey schedule : ${surveyInfo.key}`);
@@ -145,7 +84,7 @@ exports.addSurveySchedule = (surveyInfoBuffer) => {
 
     const scheduleJob = reserveSurveyDate(surveyInfo);
     scheduleJobs[surveyInfo.key] = scheduleJob;
-    await addManagedSurvey(surveyInfo);
+    db.get('schedules').push(surveyInfo);
 }
 
 exports.updateSurveySchedule = (surveyInfoBuffer) => {
@@ -157,7 +96,7 @@ exports.updateSurveySchedule = (surveyInfoBuffer) => {
 
     const newScheduleJob = reserveSurveyDate(surveyInfo);
     scheduleJobs[surveyInfo.key] = newScheduleJob;
-    await updateManagedSurvey(surveyInfo);
+    db.get('schedules').find({ key: surveyInfo.key }).assign({ surveyInfo }).write();
 }
 
 exports.removeSurveySchedule = (surveyInfoBuffer) => {
@@ -167,8 +106,7 @@ exports.removeSurveySchedule = (surveyInfoBuffer) => {
     const scheduleJob = scheduleJobs[surveyInfo.key];
     cancelSurveySchedule(scheduleJob);
     delete scheduleJobs[surveyInfo.key];
-
-    await removeManagedSurvey(surveyInfo.key);
+    db.get('schedules').remove({ key: surveyInfo.key }).write();
 }
 
 exports.scheduleJobs = scheduleJobs;
