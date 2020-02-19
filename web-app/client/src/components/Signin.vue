@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <h1>login</h1>
-    <form @submit="login">
+    <h1>Signin</h1>
+    <form @submit.prevent="signin">
       <label>
         <input type="radio" v-model="loginData.role" name="role" value="student" />학생
       </label>
@@ -29,10 +29,10 @@
         </tr>
       </table>
       <br />
-      <input type="submit" value="Login" />
+      <input type="submit" value="Signin" />
       <br />
-      <router-link v-if="isStudent" to="/StudentSignup">Register</router-link>
     </form>
+    <router-link v-if="isStudent" to="/StudentSignup">Signup</router-link>
     <vue-instant-loading-spinner id="loader" ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
@@ -43,7 +43,7 @@ import userService from "@/services/userApi.js";
 import VueInstantLoadingSpinner from "vue-instant-loading-spinner/src/components/VueInstantLoadingSpinner.vue";
 
 export default {
-  name: "Login",
+  name: "Signin",
   data() {
     return {
       loginData: {
@@ -62,10 +62,14 @@ export default {
     VueInstantLoadingSpinner
   },
   methods: {
-    async login() {
+    async signin() {
       await this.runSpinner();
 
       try {
+        if (!this.loginData.id || !this.loginData.password) {
+          alert("You must complete both ID and PW fields");
+        }
+
         const apiRes = await userService.signin(
           this.loginData.role,
           this.loginData.id,
@@ -78,7 +82,7 @@ export default {
         this.$router.push("/SurveyList");
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Login fail");
+        alert("Signin fail");
       } finally {
         await this.hideSpinner();
       }
