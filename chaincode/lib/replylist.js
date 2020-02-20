@@ -20,9 +20,10 @@ class ReplyList extends StateList {
         const results = reply.getResults();
 
         await this.addState(replyInfo);
-        results.forEach((result) => {
+
+        for (const result of results) {
             await this.addState(result);
-        });
+        }
     }
 
     async getReply(replyInfoKey) {
@@ -45,12 +46,12 @@ class ReplyList extends StateList {
         const replyInfosKey = ReplyInfo.makeKey([surveyKey]);
         const replyInfos = await this.getStatesByPartialKey(replyInfosKey);
 
-        replyInfos.forEach((replyInfo) => {
+        for (const replyInfo of replyInfos) {
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        });
+        }
 
         return replies;
     }
@@ -59,12 +60,12 @@ class ReplyList extends StateList {
         const replies = [];
 
         const replyInfos = await this.getStatesByRange(replyInfoStart, replyInfoEnd);
-        replyInfos.forEach((replyInfo) => {
+        for (const replyInfo of replyInfos) {
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        });
+        }
 
         return replies;
     }
@@ -73,12 +74,12 @@ class ReplyList extends StateList {
         const replies = [];
 
         const replyInfos = await this.getStatesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
-        replyInfos.forEach((replyInfo) => {
+        for (const replyInfo of replyInfos) {
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        });
+        }
 
         return replies;
     }
@@ -91,18 +92,18 @@ class ReplyList extends StateList {
         await this.updateState(replyInfo);
         await this.deleteResults(replyKey);
 
-        results.forEach((result) => {
+        for (const result of results) {
             await this.addState(result);
-        });
+        }
     }
 
     async deleteResults(replyKey) {
         const resultsKey = ReplyResult.makeKey([replyKey]);
         const results = await this.getStatesByPartialKey(resultsKey);
 
-        results.forEach((result) => {
+        for (const result of results) {
             await this.deleteState(result.getKey());
-        });
+        }
     }
 
     static makeReplyBookmark(surveyKey, studentID) {

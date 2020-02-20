@@ -17,7 +17,7 @@ exports.handlingPastEvents = () => {
     schedule.initSurveySchedule();
 }
 
-exports.activateContractEvent = () => {
+exports.activateContractEvent = async () => {
     try {
         const gateway = new Gateway();
         await gateway.connect(connection, {
@@ -77,7 +77,7 @@ exports.activateContractEvent = () => {
     }
 }
 
-exports.activateBlockEvent = () => {
+exports.activateBlockEvent = async () => {
     try {
         const gateway = new Gateway();
         await gateway.connect(connection, {
@@ -104,7 +104,7 @@ exports.activateBlockEvent = () => {
     }
 }
 
-exports.activateCommitEvent = (transactionName) => {
+exports.activateCommitEvent = async (transactionName) => {
     try {
         const gateway = new Gateway();
         await gateway.connect(connection, {

@@ -68,6 +68,7 @@ export default {
       try {
         if (!this.loginData.id || !this.loginData.password) {
           alert("You must complete both ID and PW fields");
+          return;
         }
 
         const apiRes = await userService.signin(
@@ -77,8 +78,10 @@ export default {
         );
 
         const apiData = api.getResultData(apiRes);
+        api.setCookie("role", this.loginData.role);
         api.setCookie("accessToken", apiData.accessToken);
         api.setCookie("refreshToken", apiData.refreshToken);
+
         this.$router.push("/SurveyList");
       } catch (err) {
         console.log(api.getErrorMsg(err));

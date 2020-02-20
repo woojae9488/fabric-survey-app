@@ -62,6 +62,7 @@ export default {
     return {
       studentCardSrc: "",
       registerData: {
+        role: "",
         studentId: "",
         name: "",
         department: "",
@@ -76,6 +77,7 @@ export default {
     },
     checkCardData() {
       return (
+        this.registerData.role &&
         this.registerData.studentId &&
         this.registerData.name &&
         this.registerData.department
@@ -102,10 +104,11 @@ export default {
 
         try {
           const cardData = await new Object(
-            new Object(
-              JSON.parse('{"id":"200000","name":"ooo","department":"oooooooo"}')
+            JSON.parse(
+              '{"role":"student","id":"200000","name":"ooo","department":"oooooooo"}'
             )
           ); // hack: need openCV recognition
+          this.registerData.role = cardData.role;
           this.registerData.studentId = cardData.id;
           this.registerData.name = cardData.name;
           this.registerData.department = cardData.department;
@@ -129,17 +132,19 @@ export default {
           !this.registerData.passwordConfirm
         ) {
           alert("You must complete Student Card, PW, Confirm fields");
+          return;
         }
         if (this.registerData.password !== this.registerData.passwordConfirm) {
           alert("Password confirm mismatch");
+          return;
         }
 
         await userService.signup(
-          "student",
+          this.registerData.role,
           this.registerData.studentId,
           this.registerData.password,
           this.registerData.name,
-          this.registerData.department
+          ["jnu", this.registerData.department]
         );
 
         this.$router.push("/Signin");

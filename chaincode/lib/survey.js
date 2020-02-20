@@ -39,9 +39,9 @@ class Survey {
 
         const questions = [];
         const jsonQuestions = json.questions;
-        jsonQuestions.forEach((jsonQuestion) => {
+        for (const jsonQuestion of jsonQuestions) {
             questions.push(new SurveyQuestion(jsonQuestion));
-        });
+        }
 
         return new Survey({ surveyInfo, questions });
     }

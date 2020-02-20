@@ -39,9 +39,9 @@ class Reply {
 
         const results = [];
         const jsonResults = json.results;
-        jsonResults.forEach((jsonResult) => {
+        for (const jsonResult of jsonResults) {
             results.push(new ReplyResult(jsonResult));
-        });
+        }
 
         return new Reply({ replyInfo, results });
     }

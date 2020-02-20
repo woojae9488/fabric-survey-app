@@ -71,11 +71,11 @@ exports.initSurveySchedule = () => {
     console.log('Start to initialize survey schedule.');
     const surveyInfos = db.get('schedules').value();
 
-    surveyInfos.forEach((surveyInfo) => {
+    for(const surveyInfo of surveyInfos){
         console.log(`Survey schedule : ${surveyInfo.key}`);
         const scheduleJob = reserveSurveyDate(surveyInfo);
         scheduleJobs[surveyInfo.key] = scheduleJob;
-    });
+    }
 }
 
 exports.addSurveySchedule = (surveyInfoBuffer) => {

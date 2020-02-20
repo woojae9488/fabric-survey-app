@@ -20,9 +20,9 @@ class SurveyList extends StateList {
         const questions = survey.getQuestions();
 
         await this.addState(surveyInfo);
-        questions.forEach((question) => {
+        for (const question of questions) {
             await this.addState(question);
-        });
+        }
     }
 
     async getSurvey(surveyInfoKey) {
@@ -66,9 +66,9 @@ class SurveyList extends StateList {
 
         await this.updateState(surveyInfo);
         await this.deleteQuestions(surveyKey);
-        questions.forEach((question) => {
+        for (const question of questions) {
             await this.addState(question);
-        });
+        }
     }
 
     async updateSurveyInfo(surveyInfoKey) {
@@ -79,9 +79,9 @@ class SurveyList extends StateList {
         const questionsKey = SurveyQuestion.makeKey([surveyKey]);
         const questions = await this.getStatesByPartialKey(questionsKey);
 
-        questions.forEach((question) => {
+        for (const question of questions) {
             await this.deleteState(question.getKey());
-        });
+        }
     }
 
     static makeSurveyBookmark(department, createdAt) {

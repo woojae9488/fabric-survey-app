@@ -19,11 +19,15 @@ export default {
     },
 
     setCookie(cookie, data) {
-        cookieJs.setCookie(cookie, data);
+        cookieJs.set(cookie, data);
     },
 
     getCookie(cookie) {
-        return cookieJs.getCookie(cookie);
+        return cookieJs.get(cookie);
+    },
+
+    getCookieJSON(cookie) {
+        return cookieJs.getJSON(cookie);
     },
 
     getResultData(apiResult) {
