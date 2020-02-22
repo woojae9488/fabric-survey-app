@@ -16,7 +16,7 @@
             <label for="userId">ID :</label>
           </td>
           <td>
-            <input type="text" v-model="loginData.id" id="userId" />
+            <input type="text" v-model="loginData.id" id="userId" required />
           </td>
         </tr>
         <tr>
@@ -24,7 +24,7 @@
             <label for="userPw">PASSWORD :</label>
           </td>
           <td>
-            <input type="password" v-model="loginData.password" id="userPw" />
+            <input type="password" v-model="loginData.password" id="userPw" required />
           </td>
         </tr>
       </table>
@@ -33,17 +33,21 @@
       <br />
     </form>
     <router-link v-if="isStudent" to="/StudentSignup">Signup</router-link>
-    <vue-instant-loading-spinner id="loader" ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
 
 <script>
 import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
-import VueInstantLoadingSpinner from "vue-instant-loading-spinner/src/components/VueInstantLoadingSpinner.vue";
+import eventBus from "@/utils/eventBus.js";
 
 export default {
   name: "Signin",
+  created() {
+    if (api.getData("accessToken") && api.getData("refreshToken")) {
+      this.$router.push("/SurveyList");
+    }
+  },
   data() {
     return {
       loginData: {
@@ -58,19 +62,11 @@ export default {
       return this.loginData.role === "student";
     }
   },
-  components: {
-    VueInstantLoadingSpinner
-  },
   methods: {
     async signin() {
-      await this.runSpinner();
+      eventBus.$emit("runSpinner");
 
       try {
-        if (!this.loginData.id || !this.loginData.password) {
-          alert("You must complete both ID and PW fields");
-          return;
-        }
-
         const apiRes = await userService.signin(
           this.loginData.role,
           this.loginData.id,
@@ -78,23 +74,17 @@ export default {
         );
 
         const apiData = api.getResultData(apiRes);
-        api.setCookie("role", this.loginData.role);
-        api.setCookie("accessToken", apiData.accessToken);
-        api.setCookie("refreshToken", apiData.refreshToken);
+        api.setData("role", this.loginData.role);
+        api.setData("accessToken", apiData.accessToken);
+        api.setData("refreshToken", apiData.refreshToken);
 
         this.$router.push("/SurveyList");
       } catch (err) {
         console.log(api.getErrorMsg(err));
         alert("Signin fail");
       } finally {
-        await this.hideSpinner();
+        eventBus.$emit("hideSpinner");
       }
-    },
-    async runSpinner() {
-      this.$refs.Spinner.show();
-    },
-    async hideSpinner() {
-      this.$refs.Spinner.hide();
     }
   }
 };

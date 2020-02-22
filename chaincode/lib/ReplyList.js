@@ -2,7 +2,6 @@
 'use strict';
 
 const StateList = require('../ledger-api/StateList.js');
-
 const Reply = require('./Reply.js');
 const ReplyInfo = require('./ReplyInfo.js');
 const ReplyResult = require('./ReplyResult.js');

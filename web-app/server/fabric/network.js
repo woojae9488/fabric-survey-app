@@ -73,7 +73,7 @@ exports.query = async (networkObj, ...funcAndArgs) => {
         const response = await networkObj.contract.evaluateTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been evaluated: ${response}`);
 
-        return response.toString();
+        return JSON.parse(response);
     } catch (err) {
         console.error(`Failed to evaluate transaction: ${err}`);
         return { status: 500, error: err.toString() };
@@ -91,7 +91,7 @@ exports.invoke = async (networkObj, ...funcAndArgs) => {
         const response = await networkObj.contract.submitTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been submitted: ${response}`);
 
-        return response.toString();
+        return JSON.parse(response);
     } catch (err) {
         console.error(`Failed to submit transaction: ${err}`);
         return { status: 500, error: err.toString() };

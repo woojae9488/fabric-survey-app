@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <h1>Title</h1>
+    <h1>Survey</h1>
+    {{department}}
+    {{createdAt}}
   </div>
 </template>
 
@@ -10,7 +12,8 @@ import userService from "@/services/userApi.js";
 import eventBus from "@/utils/eventBus.js";
 
 export default {
-  name: "",
+  name: "Survey",
+  props: ["department", "createdAt"],
   data() {
     return {};
   },

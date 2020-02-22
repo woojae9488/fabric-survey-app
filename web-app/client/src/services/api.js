@@ -1,11 +1,10 @@
 import axios from 'axios'
-import cookieJs from "js-cookie";
 
 export default {
     instance() {
         return axios.create({
             baseURL: 'http://localhost:8090',
-            timeout: 5000,
+            timeout: 6000,
             headers: { 'Content-Type': 'application/json' }
         })
     },
@@ -18,16 +17,12 @@ export default {
         return axios.defaults.headers.common[header];
     },
 
-    setCookie(cookie, data) {
-        cookieJs.set(cookie, data);
+    setData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
     },
 
-    getCookie(cookie) {
-        return cookieJs.get(cookie);
-    },
-
-    getCookieJSON(cookie) {
-        return cookieJs.getJSON(cookie);
+    getData(key) {
+        return JSON.parse(localStorage.getItem(key));
     },
 
     getResultData(apiResult) {

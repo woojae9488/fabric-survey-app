@@ -11,7 +11,7 @@
         <table v-if="checkCardData">
           <tr>
             <td>학번:</td>
-            <td>{{registerData.studentId}}</td>
+            <td>{{registerData.id}}</td>
           </tr>
           <tr>
             <td>이름:</td>
@@ -31,7 +31,7 @@
             <label for="userPw">PASSWORD :</label>
           </td>
           <td>
-            <input type="password" v-model="registerData.password" id="userPw" />
+            <input type="password" v-model="registerData.password" id="userPw" required />
           </td>
         </tr>
         <tr>
@@ -39,7 +39,7 @@
             <label for="pwConfirm">CONFIRM :</label>
           </td>
           <td>
-            <input type="password" v-model="registerData.passwordConfirm" id="pwConfirm" />
+            <input type="password" v-model="registerData.passwordConfirm" id="pwConfirm" required />
           </td>
         </tr>
       </table>
@@ -47,14 +47,13 @@
       <input type="submit" value="Signup" />
       <br />
     </form>
-    <vue-instant-loading-spinner id="loader" ref="Spinner"></vue-instant-loading-spinner>
   </div>
 </template>
 
 <script>
 import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
-import VueInstantLoadingSpinner from "vue-instant-loading-spinner/src/components/VueInstantLoadingSpinner.vue";
+import eventBus from "@/utils/eventBus.js";
 
 export default {
   name: "StudentSignup",
@@ -63,7 +62,7 @@ export default {
       studentCardSrc: "",
       registerData: {
         role: "",
-        studentId: "",
+        id: "",
         name: "",
         department: "",
         password: "",
@@ -78,23 +77,20 @@ export default {
     checkCardData() {
       return (
         this.registerData.role &&
-        this.registerData.studentId &&
+        this.registerData.id &&
         this.registerData.name &&
         this.registerData.department
       );
     }
   },
-  components: {
-    VueInstantLoadingSpinner
-  },
   methods: {
     async showImgPreview(event) {
-      await this.runSpinner();
+      eventBus.$emit("runSpinner");
 
       const imgFile = event.target.files[0];
       if (!imgFile.type.match("image/.*")) {
         alert("Only image files can be uploaded");
-        await this.hideSpinner();
+        eventBus.$emit("hideSpinner");
         return;
       }
 
@@ -109,31 +105,23 @@ export default {
             )
           ); // hack: need openCV recognition
           this.registerData.role = cardData.role;
-          this.registerData.studentId = cardData.id;
+          this.registerData.id = cardData.id;
           this.registerData.name = cardData.name;
           this.registerData.department = cardData.department;
         } catch (err) {
           console.log(api.getErrorMsg(err));
           alert("Read card data fail");
         } finally {
-          await this.hideSpinner();
+          eventBus.$emit("hideSpinner");
         }
       };
       reader.readAsDataURL(imgFile);
     },
 
     async signup() {
-      await this.runSpinner();
+      eventBus.$emit("runSpinner");
 
       try {
-        if (
-          !this.checkCardData ||
-          !this.registerData.password ||
-          !this.registerData.passwordConfirm
-        ) {
-          alert("You must complete Student Card, PW, Confirm fields");
-          return;
-        }
         if (this.registerData.password !== this.registerData.passwordConfirm) {
           alert("Password confirm mismatch");
           return;
@@ -141,7 +129,7 @@ export default {
 
         await userService.signup(
           this.registerData.role,
-          this.registerData.studentId,
+          this.registerData.id,
           this.registerData.password,
           this.registerData.name,
           ["jnu", this.registerData.department]
@@ -152,14 +140,8 @@ export default {
         console.log(api.getErrorMsg(err));
         alert("Signup fail");
       } finally {
-        await this.hideSpinner();
+        eventBus.$emit("hideSpinner");
       }
-    },
-    async runSpinner() {
-      this.$refs.Spinner.show();
-    },
-    async hideSpinner() {
-      this.$refs.Spinner.hide();
     }
   }
 };

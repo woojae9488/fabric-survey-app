@@ -2,7 +2,6 @@
 'use strict';
 
 const PrivateDataList = require('../ledger-api/PrivateDataList.js');
-
 const User = require('./User.js');
 
 class UserList extends PrivateDataList {

@@ -1,8 +1,7 @@
 
 'use strict';
 
-const StateList = require('../ledger-api/statelist.js');
-
+const StateList = require('../ledger-api/StateList.js');
 const Survey = require('./Survey.js');
 const SurveyInfo = require('./SurveyInfo.js');
 const SurveyQuestion = require('./SurveyQuestion.js');

@@ -42,7 +42,7 @@ exports.signin = async (isManager, information) => {
         return apiResponse.createModelRes(status, error);
     }
 
-    const { hashedPw, name, departments } = JSON.parse(contractRes);
+    const { hashedPw, name, departments } = contractRes;
     const accessToken = authenticateUtil.generateAccessToken({ id, name, departments });
     const refreshToken = authenticateUtil.generateRefreshToken({ id, hashedPw });
 
@@ -118,7 +118,7 @@ exports.reissueAccessToken = async (isManager, refreshToken) => {
             return apiResponse.createModelRes(status, error);
         }
 
-        const { hashedPw, name, departments } = JSON.parse(contractRes);
+        const { hashedPw, name, departments } = contractRes;
         await authenticateUtil.certifyRefreshToken(refreshToken, hashedPw);
         const accessToken = authenticateUtil.generateAccessToken({ id, name, departments });
 

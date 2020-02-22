@@ -96,6 +96,9 @@ function networkUp() {
   if [ ! -x "scripts/script.sh" -a ! -x "scripts/utils.sh" ]; then
     chmod 777 scripts/*
   fi
+  if [ ! -L "web-app/client/src/chaincode" ]; then
+    ln -s ../../../chaincode/ web-app/client/src/chaincode
+  fi
 
   checkPrereqs
   if [ ! -d "./artifacts/network/crypto-config" ]; then
