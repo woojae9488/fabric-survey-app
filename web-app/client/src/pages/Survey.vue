@@ -1,9 +1,8 @@
 <template>
-  <div class="container">
-    <h1>Reply</h1>
+  <div class="Survey">
+    <h1>Survey</h1>
     {{department}}
     {{createdAt}}
-    {{uid}}
   </div>
 </template>
 
@@ -13,24 +12,13 @@ import userService from "@/services/userApi.js";
 import eventBus from "@/utils/eventBus.js";
 
 export default {
-  name: "Reply",
-  props: ["department", "createdAt", "uid"],
-  created() {
-    this.checkIdentity();
-  },
-  updated() {
-    this.checkIdentity();
-  },
+  name: "Survey",
+  props: ["department", "createdAt"],
   data() {
     return {};
   },
   computed: {},
   methods: {
-    checkIdentity() {
-      if (this.uid !== api.getData("user").id) {
-        this.$router.push("/SurveyList");
-      }
-    },
     async func() {
       eventBus.$emit("runSpinner");
 

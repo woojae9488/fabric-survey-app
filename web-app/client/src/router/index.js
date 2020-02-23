@@ -3,13 +3,13 @@ import Router from 'vue-router'
 import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
 
-import MakeSurvey from '@/components/MakeSurvey'
-import Reply from '@/components/Reply'
-import Signin from '@/components/Signin'
-import StudentSignup from '@/components/StudentSignup'
-import Survey from '@/components/Survey'
-import SurveyList from '@/components/SurveyList'
-import NotFound from '@/components/NotFound'
+import MakeSurvey from '@/pages/MakeSurvey'
+import Reply from '@/pages/Reply'
+import Signin from '@/pages/Signin'
+import StudentSignup from '@/pages/StudentSignup'
+import Survey from '@/pages/Survey'
+import SurveyList from '@/pages/SurveyList'
+import NotFound from '@/pages/NotFound'
 
 Vue.use(Router)
 
