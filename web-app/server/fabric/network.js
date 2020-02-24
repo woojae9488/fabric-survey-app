@@ -69,7 +69,7 @@ exports.connect = async (isManager, userID) => {
 exports.query = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Query parameter: ${funcAndArgs}`);
-
+        funcAndArgs = funcAndArgs.map(elem => String(elem));
         const response = await networkObj.contract.evaluateTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been evaluated: ${response}`);
 
@@ -87,7 +87,7 @@ exports.query = async (networkObj, ...funcAndArgs) => {
 exports.invoke = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Invoke parameter: ${funcAndArgs}`);
-
+        funcAndArgs = funcAndArgs.map(elem => String(elem));
         const response = await networkObj.contract.submitTransaction(...funcAndArgs);
         console.log(`Transaction ${funcAndArgs} has been submitted: ${response}`);
 

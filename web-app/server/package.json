@@ -15,7 +15,6 @@
     "dotenv": "^8.2.0",
     "eslint": "^6.0.1",
     "express": "^4.17.1",
-    "fabric-client": "1.4.5",
     "fabric-ca-client": "1.4.5",
     "fabric-network": "1.4.5",
     "jsonwebtoken": "^8.3.0",

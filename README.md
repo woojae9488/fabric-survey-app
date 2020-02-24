@@ -25,6 +25,21 @@ chmod 777 operate.sh
 ./operate.sh down
 ```
 
+### 백엔드 서버 구동
+```bash
+cd web-app/server/
+npm install
+node app.js
+```
+
+**fabric-ca-client:1.4.6 이상부터 에러 발생**
+**따라서 fabric-network 노드 모듈의 fabric-ca-client 모듈을 npm install에서 받은 1.4.5 버전으로 변경**
+```bash
+cd node-modules/fabric-network/
+rm -rf node-modules/fabric-ca-client
+cp -r ../fabric-ca-client/ node-modules/
+```
+
 ### 참조
 * [hyperledger-fabricdocs (release-1.4)](https://hyperledger-fabric.readthedocs.io/en/release-1.4/)
 * [Hyperledger Fabric SDK for node.js](https://hyperledger.github.io/fabric-sdk-node/release-1.4/index.html)

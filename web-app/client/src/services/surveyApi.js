@@ -2,14 +2,14 @@ import api from '@/services/api'
 import Survey from '../../../../chaincode/lib/Survey'
 
 export default {
-    makeSurvey(id,surveyInfo, questions) {
+    makeSurvey(id, surveyInfo, questions) {
         const survey = Survey.createInstance(
             surveyInfo.department,
-            surveyInfo.createdAt,
+            Date.now(),
             id,
             surveyInfo.title,
-            surveyInfo.startDate,
-            surveyInfo.finishDate
+            surveyInfo.start,
+            surveyInfo.finish
         );
 
         for (const index in questions) {

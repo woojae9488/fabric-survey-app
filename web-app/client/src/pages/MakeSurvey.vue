@@ -259,8 +259,10 @@ export default {
       surveyInfo: {
         department: "",
         title: "",
+        start: "",
         startDate: "",
         startTime: "",
+        finish: "",
         finishDate: "",
         finishTime: ""
       },
@@ -357,8 +359,8 @@ export default {
 
       const start = `${this.surveyInfo.startDate} ${this.surveyInfo.startTime}`;
       const finish = `${this.surveyInfo.finishDate} ${this.surveyInfo.finishTime}`;
-      this.surveyInfo.startDate = new Date(start).getTime();
-      this.surveyInfo.finishDate = new Date(finish).getTime();
+      this.surveyInfo.start = new Date(start).getTime();
+      this.surveyInfo.finish = new Date(finish).getTime();
 
       const survey = surveyService.makeSurvey(
         this.userData.id,
@@ -368,9 +370,9 @@ export default {
 
       try {
         if (this.department && this.createdAt) {
-          await surveyService.register(survey);
-        } else {
           await surveyService.update(survey);
+        } else {
+          await surveyService.register(survey);
         }
 
         this.$router.push("/SurveyList");

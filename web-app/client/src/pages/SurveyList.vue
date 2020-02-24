@@ -83,7 +83,7 @@ export default {
         indexs: [],
         lists: []
       },
-      surveyState: ["registered, surveying, finished"],
+      surveyState: ["registered", "surveying", "finished"],
       surveyTable: {
         index: 0,
         totalRows: 1,
@@ -93,7 +93,7 @@ export default {
           { key: "currentState", sortable: true },
           { key: "title", sortable: false },
           { key: "startDate", sortable: true },
-          { key: "endDate", sortable: true }
+          { key: "finishDate", sortable: true }
         ]
       }
     };
@@ -112,7 +112,7 @@ export default {
         for (const department of this.userData.departments) {
           const apiRes = await surveyService.queryList(department);
           const apiData = api.getResultData(apiRes);
-          const rowData = this.changeInfoToRowData(apiData);
+          const rowData = this.changeInfosToRows(apiData);
           this.surveyInfos.indexs.push(department);
           this.surveyInfos.lists.push(rowData);
         }
@@ -141,23 +141,28 @@ export default {
       this.surveyTable.currentPage = 1;
     },
 
-    changeInfoToRowData(info) {
-      info.path = `/${info.department}/${info.createdAt}`;
-      for (const key in info) {
-        if (key === "currentState") {
-          info[key] = this.surveyState(info[key] - 1);
-        } else if (key === "startDate" || key === "finishDate") {
-          info[key] = this.getFormatedDate(info[key]);
+    changeInfosToRows(infos) {
+      for (const info of infos) {
+        info.path = `/${info.department}/${info.createdAt}`;
+        for (const key in info) {
+          if (key === "currentState") {
+            info[key] = this.surveyState[info[key] - 1];
+          } else if (key === "startDate" || key === "finishDate") {
+            info[key] = this.getFormatedDate(info[key]);
+          }
         }
       }
-      return info;
+      return infos;
     },
 
     getFormatedDate(time) {
       // yy.MM.dd HH:mm
       const d = new Date(time);
+      const minute =
+        d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
+        
       return (
-        (d.getFullYear() % 1000) +
+        d.getFullYear() +
         "." +
         (d.getMonth() + 1) +
         "." +
@@ -165,7 +170,7 @@ export default {
         " " +
         d.getHours() +
         ":" +
-        d.getMinutes()
+        minute
       );
     }
   }

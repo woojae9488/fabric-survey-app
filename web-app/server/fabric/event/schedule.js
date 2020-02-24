@@ -47,14 +47,14 @@ function reserveSurveyDate(surveyInfo) {
         startSurvey(department, createdAt);
     } else {
         const startDate = new Date(parseInt(surveyInfo.startDate));
-        startJob = nodeschedule.scheduleJob(startDate, startSurvey(department, createdAt));
+        startJob = nodeschedule.scheduleJob(startDate, () => { startSurvey(department, createdAt); });
     }
 
     if (surveyInfo.finishDate < Date.now()) {
         finishSurvey(department, createdAt, surveyInfoKey);
     } else {
         const finishDate = new Date(parseInt(surveyInfo.finishDate));
-        finishJob = nodeschedule.scheduleJob(finishDate, finishSurvey(department, createdAt, surveyInfoKey));
+        finishJob = nodeschedule.scheduleJob(finishDate, () => { finishSurvey(department, createdAt, surveyInfoKey); });
     }
 
     console.log(`Reserve survey schedule successly: ${surveyInfoKey}`);
@@ -71,7 +71,7 @@ exports.initSurveySchedule = () => {
     console.log('Start to initialize survey schedule.');
     const surveyInfos = db.get('schedules').value();
 
-    for(const surveyInfo of surveyInfos){
+    for (const surveyInfo of surveyInfos) {
         console.log(`Survey schedule : ${surveyInfo.key}`);
         const scheduleJob = reserveSurveyDate(surveyInfo);
         scheduleJobs[surveyInfo.key] = scheduleJob;

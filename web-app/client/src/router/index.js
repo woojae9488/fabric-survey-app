@@ -17,15 +17,13 @@ const router = new Router({
     routes: [
         {
             path: '/MakeSurvey',
-            redirect: { name: 'MakeSurvey' }
-            // name: 'MakeSurvey',
-            // component: MakeSurvey,
-            // props: true,
-            // meta: { authRequired: true, onlyManager: true }
+            name: 'MakeSurvey',
+            component: MakeSurvey,
+            meta: { authRequired: true, onlyManager: true }
         },
         {
             path: '/MakeSurvey/:department/:createdAt',
-            name: 'MakeSurvey',
+            name: 'UpdateSurvey',
             component: MakeSurvey,
             props: true,
             meta: { authRequired: true, onlyManager: true }
@@ -60,7 +58,7 @@ const router = new Router({
             path: '/SurveyList',
             name: 'SurveyList',
             component: SurveyList,
-            meta: { authRequired: false, onlyManager: false }
+            meta: { authRequired: true, onlyManager: false }
         },
         {
             path: '*',
