@@ -56,13 +56,13 @@
           </b-row>
 
           <b-row class="my-4" align-h="center">
-            <b-col sm="12">
+            <b-col sm="13">
               <b-button type="submit" variant="primary">Signin</b-button>
             </b-col>
           </b-row>
 
           <b-row v-if="isStudent" class="my-1" align-h="center">
-            <b-col sm="12">
+            <b-col sm="13">
               <b-link to="/StudentSignup">Signup</b-link>
             </b-col>
           </b-row>

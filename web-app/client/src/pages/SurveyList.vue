@@ -83,13 +83,14 @@ export default {
         indexs: [],
         lists: []
       },
+      surveyState: ["registered, surveying, finished"],
       surveyTable: {
         index: 0,
         totalRows: 1,
         perPage: 7,
         currentPage: 1,
         fields: [
-          { key: "createdAt", sortable: true },
+          { key: "currentState", sortable: true },
           { key: "title", sortable: false },
           { key: "startDate", sortable: true },
           { key: "endDate", sortable: true }
@@ -143,7 +144,9 @@ export default {
     changeInfoToRowData(info) {
       info.path = `/${info.department}/${info.createdAt}`;
       for (const key in info) {
-        if (typeof info[key] === "number") {
+        if (key === "currentState") {
+          info[key] = this.surveyState(info[key] - 1);
+        } else if (key === "startDate" || key === "finishDate") {
           info[key] = this.getFormatedDate(info[key]);
         }
       }

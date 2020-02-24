@@ -18,8 +18,9 @@
             <b-col sm="12">
               <b-form-file
                 id="student-card"
-                v-model="studentCardSrc"
+                v-model="studentCardFile"
                 :state="studentCardSrcState"
+                accept="image/*"
                 placeholder="Choose a Student card file or drop it here..."
                 drop-placeholder="Drop Student card file here..."
                 @change="showImgPreview"
@@ -33,7 +34,6 @@
               <b-img v-if="studentCardSrcState" :src="studentCardSrc" width="300" thumbnail fulid></b-img>
             </b-col>
             <b-col sm="7">
-              <b-table v-if="checkCardData" :items="studentInfoItems" borderless small stacked></b-table>
               <b-table-simple v-if="checkCardData">
                 <b-tr>
                   <b-th>role</b-th>
@@ -116,6 +116,7 @@ export default {
   data() {
     return {
       title: "Register your JNU identity",
+      studentCardFile: null,
       studentCardSrc: "",
       registerData: {
         role: "",
@@ -129,17 +130,17 @@ export default {
   },
   computed: {
     studentCardSrcState() {
-      return this.studentCardSrc.length == 0 ? null : true;
+      return this.studentCardSrc.length === 0 ? null : true;
     },
     passwordState() {
-      return this.registerData.password.length == 0
+      return this.registerData.password.length === 0
         ? null
         : this.registerData.password.length < 8
         ? false
         : true;
     },
     passwordConfirmState() {
-      return this.registerData.passwordConfirm.length == 0
+      return this.registerData.passwordConfirm.length === 0
         ? null
         : this.registerData.passwordConfirm.length < 8
         ? false
@@ -159,22 +160,17 @@ export default {
       eventBus.$emit("runSpinner");
 
       const imgFile = event.target.files[0];
-      if (!imgFile.type.match("image/.*")) {
-        alert("Only image files can be uploaded");
-        eventBus.$emit("hideSpinner");
-        return;
-      }
-
       const reader = new FileReader();
-      reader.onload = async e => {
-        this.studentCardSrc = e.target.result;
 
+      reader.onload = async e => {
         try {
+          this.studentCardSrc = e.target.result;
           const cardData = await new Object(
             JSON.parse(
               '{"role":"student","id":"200000","name":"ooo","department":"oooooooo"}'
             )
           ); // hack: need openCV recognition
+
           this.registerData.role = cardData.role;
           this.registerData.id = cardData.id;
           this.registerData.name = cardData.name;

@@ -13,6 +13,7 @@ function allocateSwap() {
 }
 
 function installPrereqs() {
+  cd ../
   set -x
   apt-get update
   apt-get install -y nodejs npm
@@ -26,19 +27,13 @@ function installPrereqs() {
 }
 
 function addEnvironments() {
-  cat << EOF >> .profile
+  echo "export GOROOT=/usr/local/go" >> ~ubuntu/.profile
+  echo "export GOPATH=~ubuntu/go" >> ~ubuntu/.profile
+  echo "export PATH=~ubuntu/go/bin:/usr/local/go/bin:~ubuntu/fabric-samples/bin:$PATH" >> ~ubuntu/.profile
 
-  export GOROOT=/usr/local/go
-  export GOPATH=~ubuntu/go
-  export PATH=~ubuntu/go/bin:/usr/local/go/bin:~ubuntu/fabric-samples/bin:$PATH
-  EOF
-
-  cat << EOF >> /root/.profile
-
-  export GOROOT=/usr/local/go
-  export GOPATH=~ubuntu/go
-  export PATH=~ubuntu/go/bin:/usr/local/go/bin:~ubuntu/fabric-samples/bin:$PATH
-  EOF
+  echo "export GOROOT=/usr/local/go" >> /root/.profile
+  echo "export GOPATH=~ubuntu/go" >> /root/.profile
+  echo "export PATH=~ubuntu/go/bin:/usr/local/go/bin:~ubuntu/fabric-samples/bin:$PATH" >> /root/.profile
 
   set -x
   source .profile
