@@ -4,6 +4,7 @@ import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
 
 import MakeSurvey from '@/pages/MakeSurvey'
+import Replies from '@/pages/Replies'
 import Reply from '@/pages/Reply'
 import Signin from '@/pages/Signin'
 import StudentSignup from '@/pages/StudentSignup'
@@ -25,6 +26,13 @@ const router = new Router({
             path: '/MakeSurvey/:department/:createdAt',
             name: 'UpdateSurvey',
             component: MakeSurvey,
+            props: true,
+            meta: { authRequired: true, onlyManager: true }
+        },
+        {
+            path: '/Replies/:department/:surveyCreatedAt',
+            name: 'Replies',
+            component: Replies,
             props: true,
             meta: { authRequired: true, onlyManager: true }
         },
@@ -52,7 +60,7 @@ const router = new Router({
             name: 'Survey',
             component: Survey,
             props: true,
-            meta: { authRequired: true, onlyManager: false }
+            meta: { authRequired: true, onlyManager: true }
         },
         {
             path: '/SurveyList',

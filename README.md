@@ -1,10 +1,10 @@
-## JNU survey network (Hyperledger Fabric)
+## JNU Survey Network Using Hyperledger Fabric
 
 ### 네트워크 준비사항
 
 Hyperledger Fabric 관련 SW들 설치
-* node.js 8.9 ~ 9.0
-* NPM 5.6.0 ~
+* node.js 8.9 ~ 9.0  --> 10.*
+* NPM 5.6.0 ~ --> 6.*
 * golang 1.11 ~
 * docker 17.06 CE ~
 * docker-compose 1.14 ~
@@ -32,12 +32,19 @@ npm install
 node app.js
 ```
 
-**fabric-ca-client:1.4.6 이상부터 에러 발생**
-**따라서 fabric-network 노드 모듈의 fabric-ca-client 모듈을 npm install에서 받은 1.4.5 버전으로 변경**
+**fabric-ca-client:1.4.6 이상부터 에러 발생**    
+**fabric-network 모듈 안에 있는 fabric-ca-client 모듈을 npm에서 받은 1.4.5 버전으로 변경**
 ```bash
 cd node-modules/fabric-network/
-rm -rf node-modules/fabric-ca-client
+rm -rf node-modules/fabric-ca-client/
 cp -r ../fabric-ca-client/ node-modules/
+```
+
+### 프론트엔드 서버 구동
+```bash
+cd web-app/client/
+npm install
+npm run serve
 ```
 
 ### 참조

@@ -90,7 +90,7 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >∧</b-button>
+                >?</b-button>
               </b-row>
               <b-row class="mt-1" align-h="center">
                 <b-button
@@ -99,27 +99,13 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >∨</b-button>
+                >?</b-button>
               </b-row>
             </b-container>
           </b-col>
 
           <b-col sm="8">
-            <b-card
-              :header="'Q' + (index + 1) + '. ' + question.title"
-              border-variant="info"
-              header-border-variant="info"
-              align="left"
-            >
-              <b-row class="mb-1" align-v="center">
-                <b-col sm="auto">Type :</b-col>
-                <b-col sm="3">{{question.type}}</b-col>
-              </b-row>
-              <b-row class="mb-1" align-v="center">
-                <b-col sm="auto" v-if="question.contents.length">Contents :</b-col>
-                <b-col sm="9">{{question.contents.join(", ")}}</b-col>
-              </b-row>
-            </b-card>
+            <b-survey-content :number="index + 1" :question="question"></b-survey-content>
           </b-col>
 
           <b-col sm="2">
@@ -224,6 +210,7 @@
 </template>
 
 <script>
+import BSurveyContent from "@/pages/components/BSurveyContent.vue";
 import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import eventBus from "@/utils/eventBus.js";
@@ -231,6 +218,7 @@ import eventBus from "@/utils/eventBus.js";
 export default {
   name: "MakeSurvey",
   props: ["department", "createdAt"],
+  components: { BSurveyContent },
   async created() {
     if (this.department && this.createdAt) {
       eventBus.$emit("runSpinner");
