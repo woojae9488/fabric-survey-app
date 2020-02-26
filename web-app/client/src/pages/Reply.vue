@@ -11,9 +11,9 @@
     >
       <b-container fluid>
         <b-form @submit.prevent="replySurvey">
-          <b-row class="my-2" align-h="center">
+          <b-row class="my-2" align-h="center" v-for="(question,index) in questions" :key="index">
             <b-col sm="11">
-              <b-reply-contents :questions="questions" :results="results"></b-reply-contents>
+              <b-form-reply :number="index + 1" :question="question" :result="results[index]"></b-form-reply>
             </b-col>
           </b-row>
           <b-row class="mt-4" align-h="center">
@@ -30,12 +30,12 @@ import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import replyService from "@/services/replyApi.js";
 import eventBus from "@/utils/eventBus.js";
-import BReplyContents from "@/pages/components/BReplyContents.vue";
+import BFormReply from "@/pages/components/BFormReply.vue";
 
 export default {
   name: "Reply",
   props: ["department", "surveyCreatedAt", "uid"],
-  components: { BReplyContents },
+  components: { BFormReply },
   async created() {
     eventBus.$emit("runSpinner");
     this.checkIdentity();
@@ -80,6 +80,11 @@ export default {
     }
   },
   methods: {
+    checkIdentity() {
+      if (this.uid !== api.getData("user").id) {
+        this.$router.push("/SurveyList");
+      }
+    },
     async overWriteExistReply() {
       try {
         const replyRes = await replyService.query(
@@ -92,12 +97,12 @@ export default {
         this.results = replyData.results;
       } catch (err) {
         this.existReplyInfo = null;
-        this.results = [];
-      }
-    },
-    checkIdentity() {
-      if (this.uid !== api.getData("user").id) {
-        this.$router.push("/SurveyList");
+        for (const index in this.questions) {
+          this.results.push({
+            number: index,
+            answers: []
+          });
+        }
       }
     },
     async replySurvey() {

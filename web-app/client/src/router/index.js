@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
 
+import ManagerSignup from '@/pages/ManagerSignup'
 import MakeSurvey from '@/pages/MakeSurvey'
 import Replies from '@/pages/Replies'
 import Reply from '@/pages/Reply'
@@ -16,6 +17,12 @@ Vue.use(Router)
 
 const router = new Router({
     routes: [
+        {
+            path: '/ManagerSignup',
+            name: 'ManagerSignup',
+            component: ManagerSignup,
+            meta: { authRequired: true, onlyManager: true }
+        },
         {
             path: '/MakeSurvey',
             name: 'MakeSurvey',
