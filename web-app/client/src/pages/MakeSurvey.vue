@@ -24,6 +24,7 @@
             <b-form-select
               id="survey-department"
               v-model="surveyInfo.department"
+              :disabled="isSurveyExist"
               :options="userData.departments"
               required
             ></b-form-select>
@@ -119,7 +120,7 @@
           <b-button @click="toggleMaker" variant="info">Add Question</b-button>
         </b-row>
         <b-row v-if="isQuestionExist" class="my-3" align-h="center">
-          <b-button type="submit" variant="success">Register</b-button>
+          <b-button type="submit" variant="success">{{submitButtonStr}}</b-button>
         </b-row>
       </b-container>
 
@@ -220,7 +221,7 @@ export default {
   props: ["department", "createdAt"],
   components: { BSurveyContent },
   async created() {
-    if (this.department && this.createdAt) {
+    if (this.isSurveyExist) {
       eventBus.$emit("runSpinner");
       try {
         const apiRes = await surveyService.query(
@@ -244,16 +245,7 @@ export default {
       title: "Make your Survey",
       isMakerHide: true,
       userData: {},
-      surveyInfo: {
-        department: "",
-        title: "",
-        start: "",
-        startDate: "",
-        startTime: "",
-        finish: "",
-        finishDate: "",
-        finishTime: ""
-      },
+      surveyInfo: {},
       questions: [],
       maker: {
         title: "",
@@ -270,12 +262,18 @@ export default {
     },
     isQuestionExist() {
       return this.questions.length;
+    },
+    isSurveyExist() {
+      return Boolean(this.department && this.createdAt);
+    },
+    submitButtonStr() {
+      return Boolean(this.department && this.createdAt) ? "Update" : "Register";
     }
   },
   methods: {
     overwriteExistData(data) {
-      Object.assign(this.surveyInfo, data.surveyInfo);
-      Object.assign(this.questions, data.questions);
+      this.surveyInfo = data.surveyInfo;
+      this.questions = data.questions;
 
       const start = new Date(this.surveyInfo.startDate);
       const startDate = start.toLocaleDateString();
@@ -357,7 +355,7 @@ export default {
       );
 
       try {
-        if (this.department && this.createdAt) {
+        if (this.isSurveyExist) {
           await surveyService.update(survey);
         } else {
           await surveyService.register(survey);

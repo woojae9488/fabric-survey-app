@@ -3,9 +3,10 @@ import Survey from '../../../../chaincode/lib/Survey'
 
 export default {
     makeSurvey(id, surveyInfo, questions) {
+        const createdAt = surveyInfo.createdAt || Date.now();
         const survey = Survey.createInstance(
             surveyInfo.department,
-            Date.now(),
+            createdAt,
             id,
             surveyInfo.title,
             surveyInfo.start,
@@ -14,7 +15,7 @@ export default {
 
         for (const index in questions) {
             const question = questions[index];
-            survey.addQuestion(index + 1, question.title, question.type, question.contents);
+            survey.addQuestion(index, question.title, question.type, question.contents);
         }
         return survey;
     },

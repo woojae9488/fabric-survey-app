@@ -37,7 +37,7 @@ const router = new Router({
             meta: { authRequired: true, onlyManager: true }
         },
         {
-            path: '/Reply/:department/:createdAt/:uid',
+            path: '/Reply/:department/:surveyCreatedAt/:uid',
             name: 'Reply',
             component: Reply,
             props: true,

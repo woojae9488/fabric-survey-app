@@ -18,7 +18,9 @@ export default {
     eventBus.$emit("runSpinner");
   },
   data() {
-    return {};
+    return {
+      title: "Replies"
+    };
   },
   computed: {},
   methods: {}
