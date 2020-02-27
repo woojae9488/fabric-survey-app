@@ -15,13 +15,20 @@
         <b-col sm="1" offset-sm="6">
           <b-button
             :to="`/MakeSurvey/${this.department}/${this.createdAt}`"
+            class="mx-1"
             variant="outline-primary"
             size="sm"
             pill
           >Update</b-button>
         </b-col>
         <b-col sm="1">
-          <b-button @click="removeSurvey" variant="outline-danger" size="sm" pill>Remove</b-button>
+          <b-button
+            @click="removeSurvey"
+            class="mx-1"
+            variant="outline-danger"
+            size="sm"
+            pill
+          >Remove</b-button>
         </b-col>
       </b-row>
 
@@ -52,7 +59,7 @@
 import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import eventBus from "@/utils/eventBus.js";
-import BSurveyContent from "@/pages/components/BSurveyContent.vue";
+import BSurveyContent from "@/components/BSurveyContent.vue";
 
 export default {
   name: "Survey",

@@ -25,6 +25,17 @@ exports.signup = async (isManager, information) => {
     return apiResponse.createModelRes(200, 'Success');
 };
 
+exports.checkExistence = async (isManager, information) => {
+    const { uid } = information;
+
+    const userExists = await network.checkUserExists(isManager, uid);
+    if (userExists.error) {
+        return apiResponse.createModelRes(userExists.status, userExists.error);
+    }
+
+    return apiResponse.createModelRes(200, 'Success', { userExists });
+};
+
 exports.signin = async (isManager, information) => {
     const { id, password } = information;
 

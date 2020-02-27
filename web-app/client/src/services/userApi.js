@@ -1,10 +1,14 @@
 import api from '@/services/api'
 
 export default {
+    async checkExistence(role, id) {
+        return await api.instance().get(`/auth/users/${role}/${id}`)
+    },
+
     async signup(role, id, password, name, departments) {
         departments = JSON.stringify(departments)
         return await api.instance().post(`/auth/users/${role}`, {
-            id, password, name, departments: departments
+            id, password, name, departments
         })
     },
 

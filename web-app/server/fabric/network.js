@@ -165,3 +165,15 @@ exports.registerUser = async (isManager, userID) => {
         await gateway.disconnect();
     }
 }
+
+exports.checkUserExists = async (isManager, userID) => {
+    try {
+        const { walletPath } = getConnectionMaterial(isManager);
+        const wallet = new FileSystemWallet(walletPath);
+        const userExists = await wallet.exists(userID);
+        return userExists;
+    } catch (err) {
+        console.error(`Failed to check user exists ${userID}: ${err}`);
+        return { status: 500, error: err.toString() };
+    }
+}

@@ -91,7 +91,7 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >?</b-button>
+                >Up</b-button>
               </b-row>
               <b-row class="mt-1" align-h="center">
                 <b-button
@@ -100,7 +100,7 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >?</b-button>
+                >Down</b-button>
               </b-row>
             </b-container>
           </b-col>
@@ -211,10 +211,10 @@
 </template>
 
 <script>
-import BSurveyContent from "@/pages/components/BSurveyContent.vue";
 import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import eventBus from "@/utils/eventBus.js";
+import BSurveyContent from "@/components/BSurveyContent.vue";
 
 export default {
   name: "MakeSurvey",

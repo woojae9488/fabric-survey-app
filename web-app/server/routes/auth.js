@@ -7,6 +7,7 @@ const authMiddleware = require('../middlewares/auth.js');
 authRouter.use('/users/:role/:uid', authMiddleware);
 
 authRouter.post('/users/:role', controller.signup);
+authRouter.get('/users/:role/:uid', controller.checkExistence);
 authRouter.put('/users/:role/:uid', controller.changeInfo);
 authRouter.delete('/users/:role/:uid', controller.signout);
 

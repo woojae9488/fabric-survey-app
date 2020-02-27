@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import api from "@/services/api.js";
 import userService from "@/services/userApi.js";
 
+import ChangeInfo from "@/pages/ChangeInfo"
 import ManagerSignup from '@/pages/ManagerSignup'
 import MakeSurvey from '@/pages/MakeSurvey'
 import Replies from '@/pages/Replies'
@@ -17,6 +18,16 @@ Vue.use(Router)
 
 const router = new Router({
     routes: [
+        {
+            path: '/',
+            redirect: '/Signin'
+        },
+        {
+            path: '/ChangeInfo',
+            name: 'ChangeInfo',
+            component: ChangeInfo,
+            meta: { authRequired: true, onlyManager: false }
+        },
         {
             path: '/ManagerSignup',
             name: 'ManagerSignup',

@@ -1,5 +1,5 @@
 <template>
-  <div class="Survey">
+  <div class="Replies">
     <h2 class="pb-4">{{title}}</h2>
 
     <b-card
@@ -16,7 +16,7 @@
               border-variant="info"
               header-border-variant="info"
               align="left"
-            >Survey Attendees : {{replyUsersStr}}</b-card>
+            >Survey Attendees ({{replyUsersCnt}}) : {{replyUsersStr}}</b-card>
           </b-col>
         </b-row>
         <b-row class="my-2" align-h="center" v-for="(question,index) in questions" :key="index">
@@ -29,7 +29,7 @@
           </b-col>
         </b-row>
         <b-row class="mt-4" align-h="center">
-          <b-button to="/SurveyList" variant="info">SurveyList</b-button>
+          <b-button to="/SurveyList" variant="info">Survey List</b-button>
         </b-row>
       </b-container>
     </b-card>
@@ -41,7 +41,7 @@ import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import replyService from "@/services/replyApi.js";
 import eventBus from "@/utils/eventBus.js";
-import BQuestionResult from "@/pages/components/BQuestionResult.vue";
+import BQuestionResult from "@/components/BQuestionResult.vue";
 
 export default {
   name: "Replies",
@@ -88,6 +88,9 @@ export default {
     };
   },
   computed: {
+    replyUsersCnt() {
+      return this.replyUsers.length;
+    },
     replyUsersStr() {
       return this.replyUsers.join(", ");
     }

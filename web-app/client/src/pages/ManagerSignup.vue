@@ -1,0 +1,201 @@
+<template>
+  <div class="ManagerSignup">
+    <h2 class="pb-4">{{title}}</h2>
+
+    <b-card
+      header="Manager Signup"
+      header-tag="h5"
+      border-variant="success"
+      header-border-variant="success"
+      align="left"
+    >
+      <b-container fluid>
+        <b-form @submit.prevent="signup">
+          <b-row class="my-3">
+            <b-col sm="2">
+              <label for="manager-id">Id :</label>
+            </b-col>
+            <b-col sm="7">
+              <b-form-input
+                id="manager-id"
+                v-model="registerData.id"
+                :state="idState"
+                aria-describedby="input-live-feedback"
+                placeholder="Enter your Id"
+                trim
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback id="id-live-feedback">Enter at least 6 letters and Check Id</b-form-invalid-feedback>
+            </b-col>
+            <b-col sm="3">
+              <b-button @click="checkIdExists" variant="primary">Check Id</b-button>
+            </b-col>
+          </b-row>
+
+          <b-row class="my-3">
+            <b-col sm="3">
+              <label for="manager-departments">Departments :</label>
+            </b-col>
+            <b-col sm="6">
+              <b-form-input
+                id="manager-departments"
+                v-model="registerData.departments"
+                placeholder="Enter your Departments separated by commas"
+                trim
+                required
+              ></b-form-input>
+            </b-col>
+          </b-row>
+
+          <b-row class="my-3" align-v="center">
+            <b-col sm="3">
+              <label for="manager-password">Password :</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input
+                type="password"
+                id="manager-password"
+                v-model="registerData.password"
+                :state="passwordState"
+                aria-describedby="input-live-feedback"
+                placeholder="Enter your Password"
+                trim
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback id="password-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+            </b-col>
+          </b-row>
+
+          <b-row class="my-3" align-v="center">
+            <b-col sm="3">
+              <label for="manager-password-confirm">Confirm :</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input
+                type="password"
+                id="manager-password-confirm"
+                v-model="registerData.passwordConfirm"
+                :state="passwordConfirmState"
+                placeholder="Enter your Password again"
+                trim
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback id="password-confirm-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+            </b-col>
+          </b-row>
+
+          <b-row class="my-4" align="center">
+            <b-col sm="1" offset-sm="4">
+              <b-button type="submit" variant="primary">Signup</b-button>
+            </b-col>
+            <b-col sm="1" offset-sm="1">
+              <b-button type="reset" variant="info">Reset</b-button>
+            </b-col>
+          </b-row>
+        </b-form>
+      </b-container>
+    </b-card>
+  </div>
+</template>
+
+<script>
+import api from "@/services/api.js";
+import userService from "@/services/userApi.js";
+import eventBus from "@/utils/eventBus.js";
+
+export default {
+  name: "ManagerSignup",
+  data() {
+    return {
+      title: "Register JNU survey manager",
+      idChecked: false,
+      registerData: {
+        id: "",
+        departments: "",
+        password: "",
+        passwordConfirm: ""
+      }
+    };
+  },
+  computed: {
+    idState() {
+      return this.registerData.id.length === 0
+        ? null
+        : this.registerData.id.length < 6 || !this.idChecked
+        ? false
+        : true;
+    },
+    passwordState() {
+      return this.registerData.password.length === 0
+        ? null
+        : this.registerData.password.length < 8
+        ? false
+        : true;
+    },
+    passwordConfirmState() {
+      return this.registerData.passwordConfirm.length === 0
+        ? null
+        : this.registerData.passwordConfirm.length < 8
+        ? false
+        : true;
+    }
+  },
+  methods: {
+    async checkIdExists() {
+      eventBus.$emit("runSpinner");
+
+      try {
+        const apiRes = await userService.checkExistence(
+          "manager",
+          this.registerData.id
+        );
+        const apiData = api.getResultData(apiRes);
+
+        if (apiData.userExists) {
+          alert("Id already exists");
+          this.idChecked = false;
+        } else {
+          this.idChecked = true;
+        }
+      } catch (err) {
+        console.log(api.getErrorMsg(err));
+        alert("Check id fail");
+      } finally {
+        eventBus.$emit("hideSpinner");
+      }
+    },
+
+    async signup() {
+      eventBus.$emit("runSpinner");
+
+      try {
+        if (!this.idChecked) {
+          alert("Check your id first");
+          return;
+        }
+        if (this.registerData.password !== this.registerData.passwordConfirm) {
+          alert("Password confirm mismatch");
+          return;
+        }
+
+        let departments = this.registerData.departments.split(",");
+        departments = departments.map(department => department.trim());
+        await userService.signup(
+          "manager",
+          this.registerData.id,
+          this.registerData.password,
+          "manager",
+          departments
+        );
+
+        this.$router.push("/Signin");
+      } catch (err) {
+        console.log(api.getErrorMsg(err));
+        alert("Signup fail");
+      } finally {
+        eventBus.$emit("hideSpinner");
+      }
+    }
+  }
+};
+</script>

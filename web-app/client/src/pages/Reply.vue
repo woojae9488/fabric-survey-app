@@ -30,7 +30,7 @@ import api from "@/services/api.js";
 import surveyService from "@/services/surveyApi.js";
 import replyService from "@/services/replyApi.js";
 import eventBus from "@/utils/eventBus.js";
-import BFormReply from "@/pages/components/BFormReply.vue";
+import BFormReply from "@/components/BFormReply.vue";
 
 export default {
   name: "Reply",
@@ -50,7 +50,7 @@ export default {
       this.questions = surveyData.questions;
       this.surveyInfo.surveyKey = surveyData.surveyKey;
 
-      await this.overWriteExistReply();
+      await this.overwriteExistReply();
     } catch (err) {
       console.log(api.getErrorMsg(err));
       alert("Query survey data fail");
@@ -85,7 +85,7 @@ export default {
         this.$router.push("/SurveyList");
       }
     },
-    async overWriteExistReply() {
+    async overwriteExistReply() {
       try {
         const replyRes = await replyService.query(
           this.department,

@@ -3,7 +3,7 @@
     <h2 class="pb-4">{{title}}</h2>
 
     <b-card
-      header="Signup"
+      header="Student Signup"
       header-tag="h5"
       border-variant="success"
       header-border-variant="success"
@@ -57,7 +57,7 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="user-password">PASSWORD :</label>
+              <label for="user-password">Password :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input
@@ -76,7 +76,7 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="user-password-confirm">CONFIRM :</label>
+              <label for="user-password-confirm">Confirm :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input
@@ -147,11 +147,11 @@ export default {
         : true;
     },
     checkCardData() {
-      return (
+      return Boolean(
         this.registerData.role &&
-        this.registerData.id &&
-        this.registerData.name &&
-        this.registerData.department
+          this.registerData.id &&
+          this.registerData.name &&
+          this.registerData.department
       );
     }
   },

@@ -4,7 +4,7 @@ export default {
     instance() {
         return axios.create({
             baseURL: 'http://localhost:8090',
-            timeout: 6000,
+            timeout: 7000,
             headers: { 'Content-Type': 'application/json' }
         })
     },
@@ -23,6 +23,18 @@ export default {
 
     getData(key) {
         return JSON.parse(localStorage.getItem(key));
+    },
+
+    clearData(key = null) {
+        if (key) {
+            if (Array.isArray(key)) {
+                key.forEach(k => localStorage.removeItem(k));
+            } else {
+                localStorage.removeItem(key);
+            }
+        } else {
+            localStorage.clear();
+        }
     },
 
     getResultData(apiResult) {

@@ -13,9 +13,34 @@ exports.signup = async (req, res, _next) => {
 
     let modelRes;
     if (role === 'manager') {
+        const token = req.headers['x-access-token'];
+        const tokenRes = await authModel.certifyUser(token);
+        if (tokenRes.status !== 200 || tokenRes.data.name !== 'manager') {
+            return apiResponse.unauthorized(res);
+        }
+
         modelRes = await authModel.signup(true, { id, password, departments });
     } else if (role === 'student') {
         modelRes = await authModel.signup(false, { id, password, name, departments });
+    } else {
+        return apiResponse.badRequest(res);
+    }
+
+    return apiResponse.send(res, modelRes);
+};
+
+exports.checkExistence = async (req, res, _next) => {
+    const { role, uid } = req.params;
+
+    if (!uid) {
+        return apiResponse.badRequest(res);
+    }
+
+    let modelRes;
+    if (role === 'manager') {
+        modelRes = await authModel.checkExistence(true, { uid });
+    } else if (role === 'student') {
+        modelRes = await authModel.checkExistence(false, { uid });
     } else {
         return apiResponse.badRequest(res);
     }
