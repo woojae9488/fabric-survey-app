@@ -1,6 +1,6 @@
 <template>
   <div class="StudentSignup">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
       header="Student Signup"
@@ -31,25 +31,31 @@
 
           <b-row class="my-4" align-v="center">
             <b-col sm="5">
-              <b-img v-if="studentCardSrcState" :src="studentCardSrc" width="300" thumbnail fulid></b-img>
+              <b-img
+                v-if="studentCardSrcState"
+                :src="studentCardSrc"
+                width="300"
+                thumbnail
+                fulid
+              ></b-img>
             </b-col>
             <b-col sm="7">
               <b-table-simple v-if="checkCardData">
                 <b-tr>
                   <b-th>role</b-th>
-                  <b-td>{{registerData.role}}</b-td>
+                  <b-td>{{ registerData.role }}</b-td>
                 </b-tr>
                 <b-tr>
                   <b-th>id</b-th>
-                  <b-td>{{registerData.id}}</b-td>
+                  <b-td>{{ registerData.id }}</b-td>
                 </b-tr>
                 <b-tr>
                   <b-th>name</b-th>
-                  <b-td>{{registerData.name}}</b-td>
+                  <b-td>{{ registerData.name }}</b-td>
                 </b-tr>
                 <b-tr>
                   <b-th>department</b-th>
-                  <b-td>{{registerData.department}}</b-td>
+                  <b-td>{{ registerData.department }}</b-td>
                 </b-tr>
               </b-table-simple>
             </b-col>
@@ -70,7 +76,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="password-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="password-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -88,7 +96,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="password-confirm-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="password-confirm-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -107,25 +117,25 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import userService from "@/services/userApi.js";
-import eventBus from "@/utils/eventBus.js";
+import api from '@/services/api';
+import userService from '@/services/userApi';
+import eventBus from '@/utils/eventBus';
 
 export default {
-  name: "StudentSignup",
+  name: 'StudentSignup',
   data() {
     return {
-      title: "Register your JNU identity",
+      title: 'Register your JNU identity',
       studentCardFile: null,
-      studentCardSrc: "",
+      studentCardSrc: '',
       registerData: {
-        role: "",
-        id: "",
-        name: "",
-        department: "",
-        password: "",
-        passwordConfirm: ""
-      }
+        role: '',
+        id: '',
+        name: '',
+        department: '',
+        password: '',
+        passwordConfirm: '',
+      },
     };
   },
   computed: {
@@ -135,29 +145,25 @@ export default {
     passwordState() {
       return this.registerData.password.length === 0
         ? null
-        : this.registerData.password.length < 8
-        ? false
-        : true;
+        : !(this.registerData.password.length < 8);
     },
     passwordConfirmState() {
       return this.registerData.passwordConfirm.length === 0
         ? null
-        : this.registerData.passwordConfirm.length < 8
-        ? false
-        : true;
+        : !(this.registerData.passwordConfirm.length < 8);
     },
     checkCardData() {
       return Boolean(
         this.registerData.role &&
           this.registerData.id &&
           this.registerData.name &&
-          this.registerData.department
+          this.registerData.department,
       );
-    }
+    },
   },
   methods: {
     async showImgPreview(event) {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       const imgFile = event.target.files[0];
       const reader = new FileReader();
@@ -165,11 +171,8 @@ export default {
       reader.onload = async e => {
         try {
           this.studentCardSrc = e.target.result;
-          const cardData = await new Object(
-            JSON.parse(
-              '{"role":"student","id":"200000","name":"ooo","department":"oooooooo"}'
-            )
-          ); // hack: need openCV recognition
+          const cardRes = await userService.recognizeCard(this.studentCardSrc);
+          const cardData = api.getResultData(cardRes);
 
           this.registerData.role = cardData.role;
           this.registerData.id = cardData.id;
@@ -177,20 +180,20 @@ export default {
           this.registerData.department = cardData.department;
         } catch (err) {
           console.log(api.getErrorMsg(err));
-          alert("Read card data fail");
+          alert('Recongnize card data fail');
         } finally {
-          eventBus.$emit("hideSpinner");
+          eventBus.$emit('hideSpinner');
         }
       };
       reader.readAsDataURL(imgFile);
     },
 
     async signup() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       try {
         if (this.registerData.password !== this.registerData.passwordConfirm) {
-          alert("Password confirm mismatch");
+          alert('Password confirm mismatch');
           return;
         }
 
@@ -199,17 +202,17 @@ export default {
           this.registerData.id,
           this.registerData.password,
           this.registerData.name,
-          ["jnu", this.registerData.department]
+          ['jnu', this.registerData.department],
         );
 
-        this.$router.push("/Signin");
+        this.$router.push('/Signin');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Signup fail");
+        alert('Signup fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
-    }
-  }
+    },
+  },
 };
 </script>

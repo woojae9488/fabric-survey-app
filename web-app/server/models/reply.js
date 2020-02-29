@@ -1,9 +1,7 @@
-'use strict';
-
 const network = require('../fabric/network.js');
 const apiResponse = require('../utils/apiResponse.js');
 
-exports.respond = async (information) => {
+exports.respond = async information => {
     const { id, reply } = information;
 
     const networkObj = await network.connect(false, id);
@@ -18,7 +16,7 @@ exports.respond = async (information) => {
     return apiResponse.createModelRes(200, 'Success');
 };
 
-exports.revise = async (information) => {
+exports.revise = async information => {
     const { id, reply } = information;
 
     const networkObj = await network.connect(false, id);
@@ -48,7 +46,7 @@ exports.query = async (isManager, information) => {
     return apiResponse.createModelRes(200, 'Success', contractRes);
 };
 
-exports.queryAll = async (information) => {
+exports.queryAll = async information => {
     const { id, department, surveyCreatedAt } = information;
 
     const networkObj = await network.connect(true, id);
@@ -63,12 +61,18 @@ exports.queryAll = async (information) => {
     return apiResponse.createModelRes(200, 'Success', contractRes);
 };
 
-exports.queryAllByRange = async (information) => {
+exports.queryAllByRange = async information => {
     const { id, department, surveyCreatedAt, startStudentID, endStudentID } = information;
 
     const networkObj = await network.connect(true, id);
-    const contractRes = await network.query(networkObj, 'queryRepliesByRange',
-        department, surveyCreatedAt, startStudentID, endStudentID);
+    const contractRes = await network.query(
+        networkObj,
+        'queryRepliesByRange',
+        department,
+        surveyCreatedAt,
+        startStudentID,
+        endStudentID,
+    );
 
     const error = networkObj.error || contractRes.error;
     if (error) {
@@ -79,12 +83,20 @@ exports.queryAllByRange = async (information) => {
     return apiResponse.createModelRes(200, 'Success', contractRes);
 };
 
-exports.queryPageByRange = async (information) => {
+exports.queryPageByRange = async information => {
     const { id, department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID } = information;
 
     const networkObj = await network.connect(true, id);
-    const contractRes = await network.query(networkObj, 'queryRepliesByRangeWithPagination',
-        department, surveyCreatedAt, startStudentID, endStudentID, pageSize, bookmarkStudentID);
+    const contractRes = await network.query(
+        networkObj,
+        'queryRepliesByRangeWithPagination',
+        department,
+        surveyCreatedAt,
+        startStudentID,
+        endStudentID,
+        pageSize,
+        bookmarkStudentID,
+    );
 
     const error = networkObj.error || contractRes.error;
     if (error) {

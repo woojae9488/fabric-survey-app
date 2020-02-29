@@ -1,8 +1,4 @@
-
-'use strict';
-
 class PrivateData {
-
     constructor(dataClass, keyParts) {
         this.class = dataClass;
         keyParts.unshift(this.class);
@@ -31,11 +27,11 @@ class PrivateData {
 
     static deserialize(data, supportedClasses) {
         const json = JSON.parse(data);
-        const objClass = supportedClasses[json.class];
-        if (!objClass) {
+        const ObjClass = supportedClasses[json.class];
+        if (!ObjClass) {
             throw new Error(`Unknown class of ${json.class}`);
         }
-        const object = new (objClass)(json);
+        const object = new ObjClass(json);
 
         return object;
     }
@@ -47,7 +43,6 @@ class PrivateData {
     static splitKey(key) {
         return key.split(':');
     }
-
 }
 
 module.exports = PrivateData;

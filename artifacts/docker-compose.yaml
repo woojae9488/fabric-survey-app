@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 volumes:
   orderer.jnu.com:
@@ -13,7 +13,7 @@ networks:
 services:
   orderer.jnu.com:
     extends:
-      file:   base/docker-compose-base.yaml
+      file: base/docker-compose-base.yaml
       service: orderer.jnu.com
     container_name: orderer.jnu.com
     networks:
@@ -22,7 +22,7 @@ services:
   peer0.manager.jnu.com:
     container_name: peer0.manager.jnu.com
     extends:
-      file:  base/docker-compose-base.yaml
+      file: base/docker-compose-base.yaml
       service: peer0.manager.jnu.com
     networks:
       - jnu_hlfn
@@ -30,7 +30,7 @@ services:
   peer1.manager.jnu.com:
     container_name: peer1.manager.jnu.com
     extends:
-      file:  base/docker-compose-base.yaml
+      file: base/docker-compose-base.yaml
       service: peer1.manager.jnu.com
     networks:
       - jnu_hlfn
@@ -38,7 +38,7 @@ services:
   peer0.student.jnu.com:
     container_name: peer0.student.jnu.com
     extends:
-      file:  base/docker-compose-base.yaml
+      file: base/docker-compose-base.yaml
       service: peer0.student.jnu.com
     networks:
       - jnu_hlfn
@@ -46,7 +46,7 @@ services:
   peer1.student.jnu.com:
     container_name: peer1.student.jnu.com
     extends:
-      file:  base/docker-compose-base.yaml
+      file: base/docker-compose-base.yaml
       service: peer1.student.jnu.com
     networks:
       - jnu_hlfn
@@ -107,11 +107,11 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
-        - /var/run/:/host/var/run/
-        - ../chaincode/:/opt/gopath/src/github.com/chaincode/
-        - ./network/crypto-config/:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
-        - ../scripts/:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-        - ./network/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/
+      - /var/run/:/host/var/run/
+      - ../chaincode/:/opt/gopath/src/github.com/chaincode/
+      - ./network/crypto-config/:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+      - ../scripts/:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+      - ./network/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/
     depends_on:
       - orderer.jnu.com
       - peer0.manager.jnu.com

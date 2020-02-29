@@ -1,5 +1,3 @@
-'use strict';
-
 const router = require('express').Router();
 
 const authRouter = require('./auth.js');

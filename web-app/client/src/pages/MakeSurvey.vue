@@ -1,6 +1,6 @@
 <template>
   <div class="MakeSurvey">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <b-form @submit.prevent="registerSurvey">
       <b-container fluid>
@@ -81,7 +81,7 @@
           </b-col>
         </b-row>
 
-        <b-row class="my-2" v-for="(question,index) in questions" :key="index" align-v="center">
+        <b-row class="my-2" v-for="(question, index) in questions" :key="index" align-v="center">
           <b-col sm="2">
             <b-container fluid>
               <b-row class="mb-1" align-h="center">
@@ -91,7 +91,8 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >Up</b-button>
+                  >Up</b-button
+                >
               </b-row>
               <b-row class="mt-1" align-h="center">
                 <b-button
@@ -100,7 +101,8 @@
                   variant="outline-info"
                   size="sm"
                   pill
-                >Down</b-button>
+                  >Down</b-button
+                >
               </b-row>
             </b-container>
           </b-col>
@@ -110,7 +112,9 @@
           </b-col>
 
           <b-col sm="2">
-            <b-button :name="index" @click="removeQuestion" variant="outline-danger" pill>Delete</b-button>
+            <b-button :name="index" @click="removeQuestion" variant="outline-danger" pill
+              >Delete</b-button
+            >
           </b-col>
         </b-row>
       </b-container>
@@ -120,7 +124,7 @@
           <b-button @click="toggleMaker" variant="info">Add Question</b-button>
         </b-row>
         <b-row v-if="isQuestionExist" class="my-3" align-h="center">
-          <b-button type="submit" variant="success">{{submitButtonStr}}</b-button>
+          <b-button type="submit" variant="success">{{ submitButtonStr }}</b-button>
         </b-row>
       </b-container>
 
@@ -164,8 +168,8 @@
             <b-container v-if="isOptionalType" fluid>
               <template v-for="(content, index) in maker.contents">
                 <b-row :key="content" class="my-1">
-                  <b-col sm="4">Content {{index + 1}}</b-col>
-                  <b-col sm="5">{{content}}</b-col>
+                  <b-col sm="4">Content {{ index + 1 }}</b-col>
+                  <b-col sm="5">{{ content }}</b-col>
                   <b-col sm="3">
                     <b-button
                       :name="index"
@@ -173,7 +177,8 @@
                       variant="outline-danger"
                       size="sm"
                       pill
-                    >Delete</b-button>
+                      >Delete</b-button
+                    >
                   </b-col>
                 </b-row>
               </template>
@@ -211,49 +216,46 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import surveyService from "@/services/surveyApi.js";
-import eventBus from "@/utils/eventBus.js";
-import BSurveyContent from "@/components/BSurveyContent.vue";
+import api from '@/services/api';
+import surveyService from '@/services/surveyApi';
+import eventBus from '@/utils/eventBus';
+import BSurveyContent from '@/components/BSurveyContent.vue';
 
 export default {
-  name: "MakeSurvey",
-  props: ["department", "createdAt"],
+  name: 'MakeSurvey',
+  props: ['department', 'createdAt'],
   components: { BSurveyContent },
   async created() {
     if (this.isSurveyExist) {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
       try {
-        const apiRes = await surveyService.query(
-          this.department,
-          this.createdAt
-        );
+        const apiRes = await surveyService.query(this.department, this.createdAt);
         const apiData = api.getResultData(apiRes);
         this.overwriteExistData(apiData);
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Query exist survey fail");
+        alert('Query exist survey fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
     }
 
-    this.userData = api.getData("user");
+    this.userData = api.getData('user');
   },
   data() {
     return {
-      title: "Make your Survey",
+      title: 'Make your Survey',
       isMakerHide: true,
       userData: {},
       surveyInfo: {},
       questions: [],
       maker: {
-        title: "",
-        type: "",
-        typeOptions: ["text", "textarea", "radio", "checkbox", "select"],
-        newContent: "",
-        contents: []
-      }
+        title: '',
+        type: '',
+        typeOptions: ['text', 'textarea', 'radio', 'checkbox', 'select'],
+        newContent: '',
+        contents: [],
+      },
     };
   },
   computed: {
@@ -267,8 +269,8 @@ export default {
       return Boolean(this.department && this.createdAt);
     },
     submitButtonStr() {
-      return Boolean(this.department && this.createdAt) ? "Update" : "Register";
-    }
+      return this.department && this.createdAt ? 'Update' : 'Register';
+    },
   },
   methods: {
     overwriteExistData(data) {
@@ -296,13 +298,13 @@ export default {
       const question = {
         title: this.maker.title,
         type: this.maker.type,
-        contents: this.maker.contents
+        contents: this.maker.contents,
       };
       this.questions.push(question);
 
-      this.maker.title = "";
-      this.maker.type = "";
-      this.maker.newContent = "";
+      this.maker.title = '';
+      this.maker.type = '';
+      this.maker.newContent = '';
       this.maker.contents = [];
       this.toggleMaker();
     },
@@ -314,7 +316,7 @@ export default {
 
     addContent() {
       this.maker.contents.push(this.maker.newContent);
-      this.maker.newContent = "";
+      this.maker.newContent = '';
     },
 
     deleteContent(event) {
@@ -323,8 +325,8 @@ export default {
     },
 
     moveUpQuestion(event) {
-      const index = event.target.name;
-      if (index == 0) {
+      const index = parseInt(event.target.name, 10);
+      if (index === 0) {
         return;
       }
       const question = this.questions.splice(index, 1)[0];
@@ -332,8 +334,8 @@ export default {
     },
 
     moveDownQuestion(event) {
-      const index = event.target.name;
-      if (index == this.questions.length - 1) {
+      const index = parseInt(event.target.name, 10);
+      if (index === this.questions.length - 1) {
         return;
       }
       const question = this.questions.splice(index, 1)[0];
@@ -341,18 +343,14 @@ export default {
     },
 
     async registerSurvey() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       const start = `${this.surveyInfo.startDate} ${this.surveyInfo.startTime}`;
       const finish = `${this.surveyInfo.finishDate} ${this.surveyInfo.finishTime}`;
       this.surveyInfo.start = new Date(start).getTime();
       this.surveyInfo.finish = new Date(finish).getTime();
 
-      const survey = surveyService.makeSurvey(
-        this.userData.id,
-        this.surveyInfo,
-        this.questions
-      );
+      const survey = surveyService.makeSurvey(this.userData.id, this.surveyInfo, this.questions);
 
       try {
         if (this.isSurveyExist) {
@@ -361,14 +359,14 @@ export default {
           await surveyService.register(survey);
         }
 
-        this.$router.push("/SurveyList");
+        this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Make survey fail");
+        alert('Make survey fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
-    }
-  }
+    },
+  },
 };
 </script>

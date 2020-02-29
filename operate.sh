@@ -4,234 +4,229 @@ export VERBOSE=false
 
 # Print the usage message
 function printHelp() {
-  echo "Usage: "
-  echo "  operate.sh <mode>"
-  echo "    <mode> - one of 'up', 'down', 'restart', 'generate' or 'upgrade'"
-  echo "      - 'up' - bring up the network with docker-compose up"
-  echo "      - 'down' - clear the network with docker-compose down"
-  echo "      - 'restart' - restart the network"
-  echo "      - 'generate' - generate required certificates and genesis block"
-  echo "  operate.sh -h (print this message)"
+    echo "Usage: "
+    echo "  operate.sh <mode>"
+    echo "    <mode> - one of 'up', 'down', 'restart', 'generate'"
+    echo "      - 'up' - bring up the network with docker-compose up"
+    echo "      - 'down' - clear the network with docker-compose down"
+    echo "      - 'restart' - restart the network"
+    echo "      - 'generate' - generate required certificates and genesis block"
+    echo "  operate.sh -h (print this message)"
 }
 
 # Ask user for confirmation to proceed
 function askProceed() {
-  read -p "Operate $1 the JNU Survey Network. Continue? [Y/n] " ans
-  case "$ans" in
-  y | Y | "")
-    echo "proceeding ..."
-    ;;
-  n | N)
-    echo "exiting..."
-    exit 1
-    ;;
-  *)
-    echo "invalid response"
-    askProceed
-    ;;
-  esac
+    read -p "Operate $1 the JNU Survey Network. Continue? [Y/n] " ans
+    case $ans in
+    y | Y | "")
+        echo "proceeding ..."
+        ;;
+    n | N)
+        echo "exiting..."
+        exit 1
+        ;;
+    *)
+        echo "invalid response"
+        askProceed
+        ;;
+    esac
 }
 
 # Obtain CONTAINER_IDS and remove them
 function clearContainers() {
-  CONTAINER_IDS=$(docker ps -a | awk '($2 ~ /dev-peer.*.surveycc.*/) {print $1}')
-  if [ -z "$CONTAINER_IDS" -o "$CONTAINER_IDS" == " " ]; then
-    echo "---- No containers available for deletion ----"
-  else
-    docker rm -f $CONTAINER_IDS
-  fi
+    AWK_ARG="'(\$2 ~ /dev-peer.*.$CC_NAME.*/) {print \$1}'"
+    CONTAINER_IDS=$(docker ps -a | awk $AWK_ARG)
+    if [ -z $CONTAINER_IDS -o $CONTAINER_IDS == " " ]; then
+        echo "---- No containers available for deletion ----"
+    else
+        docker rm -f $CONTAINER_IDS
+    fi
 }
 
 # Delete any images that were generated as a part of this setup
-# specifically the following images are often left behind:
 function removeUnwantedImages() {
-  DOCKER_IMAGE_IDS=$(docker images | awk '($1 ~ /dev-peer.*.surveycc.*/) {print $3}')
-  if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" == " " ]; then
-    echo "---- No images available for deletion ----"
-  else
-    docker rmi -f $DOCKER_IMAGE_IDS
-  fi
+    AWK_ARG="'(\$1 ~ /dev-peer.*.$CC_NAME.*/) {print \$3}'"
+    DOCKER_IMAGE_IDS=$(docker images | awk $AWK_ARG)
+    if [ -z $DOCKER_IMAGE_IDS -o $DOCKER_IMAGE_IDS == " " ]; then
+        echo "---- No images available for deletion ----"
+    else
+        docker rmi -f $DOCKER_IMAGE_IDS
+    fi
 }
 
 # Do some basic sanity checking to make sure that the appropriate versions of fabric
-# binaries/images are available.  In the future, additional checking for the presence
-# of go or other items could be added.
 function checkPrereqs() {
-  # Versions of fabric known not to work with this release of first-network
-  BLACKLISTED_VERSIONS="^1\.0\. ^1\.1\.0-preview ^1\.1\.0-alpha"
-  LOCAL_VERSION=$(configtxlator version | sed -ne 's/ Version: //p')
-  DOCKER_IMAGE_VERSION=$(docker run --rm hyperledger/fabric-tools:$IMAGETAG peer version | sed -ne 's/ Version: //p' | head -1)
+    BLACKLISTED_VERSIONS="^1\.0\. ^1\.1\.0-preview ^1\.1\.0-alpha"
+    LOCAL_VERSION=$(configtxlator version | sed -ne 's/ Version: //p')
+    DOCKER_IMAGE_VERSION=$(docker run --rm hyperledger/fabric-tools:$IMAGETAG peer version | sed -ne 's/ Version: //p' | head -1)
 
-  echo "LOCAL_VERSION=$LOCAL_VERSION"
-  echo "DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION"
+    echo "LOCAL_VERSION=$LOCAL_VERSION"
+    echo "DOCKER_IMAGE_VERSION=$DOCKER_IMAGE_VERSION"
 
-  if [ "$LOCAL_VERSION" != "$DOCKER_IMAGE_VERSION" ]; then
-    echo "=================== WARNING ==================="
-    echo "  Local fabric binaries and docker images are  "
-    echo "  out of  sync. This may cause problems.       "
-    echo "==============================================="
-  fi
-
-  for UNSUPPORTED_VERSION in $BLACKLISTED_VERSIONS; do
-    echo "$LOCAL_VERSION" | grep -q $UNSUPPORTED_VERSION
-    if [ $? -eq 0 ]; then
-      echo "ERROR! Local Fabric binary version of $LOCAL_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
-      exit 1
+    if [ $LOCAL_VERSION != $DOCKER_IMAGE_VERSION ]; then
+        echo "=================== WARNING ==================="
+        echo "  Local fabric binaries and docker images are  "
+        echo "  out of  sync. This may cause problems.       "
+        echo "==============================================="
     fi
 
-    echo "$DOCKER_IMAGE_VERSION" | grep -q $UNSUPPORTED_VERSION
-    if [ $? -eq 0 ]; then
-      echo "ERROR! Fabric Docker image version of $DOCKER_IMAGE_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
-      exit 1
-    fi
-  done
+    for UNSUPPORTED_VERSION in $BLACKLISTED_VERSIONS; do
+        echo $LOCAL_VERSION | grep -q $UNSUPPORTED_VERSION
+        if [ $? -eq 0 ]; then
+            echo "ERROR! Local Fabric binary version of $LOCAL_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
+            exit 1
+        fi
+
+        echo $DOCKER_IMAGE_VERSION | grep -q $UNSUPPORTED_VERSION
+        if [ $? -eq 0 ]; then
+            echo "ERROR! Fabric Docker image version of $DOCKER_IMAGE_VERSION does not match this newer version of BYFN and is unsupported. Either move to a later version of Fabric or checkout an earlier version of fabric-samples."
+            exit 1
+        fi
+    done
 }
 
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp() {
-  if [ ! -d "./artifacts/bin" ]; then
-    mkdir ./artifacts/bin
-    cp ../fabric-samples/bin/* ./artifacts/bin/
-  fi
-  if [ ! -x "scripts/script.sh" -a ! -x "scripts/utils.sh" ]; then
-    chmod 777 scripts/*
-  fi
+    checkPrereqs
+    if [ ! -d "./artifacts/bin" ]; then
+        mkdir ./artifacts/bin
+        cp ../fabric-samples/bin/* ./artifacts/bin/
+    fi
+    if [ ! -x "scripts/script.sh" -o ! -x "scripts/utils.sh" ]; then
+        chmod 777 scripts/*
+    fi
+    if [ ! -d "./artifacts/network/crypto-config" ]; then
+        generateCerts
+        generateChannelArtifacts
+    fi
 
-  checkPrereqs
-  if [ ! -d "./artifacts/network/crypto-config" ]; then
-    generateCerts
-    generateChannelArtifacts
-  fi
+    export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
+    export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
+    docker-compose -f $COMPOSE_FILE up -d 2>&1
+    if [ $? -ne 0 ]; then
+        echo "ERROR !!!! Unable to start network"
+        exit 1
+    fi
 
-  export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
-  export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
-  docker-compose -f $COMPOSE_FILE up -d 2>&1
-  if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to start network"
-    exit 1
-  fi
-
-  # now run the end to end script
-  docker exec cli scripts/script.sh
-  if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Test failed"
-    exit 1
-  fi
+    # now run the end to end script
+    docker exec cli scripts/script.sh
+    if [ $? -ne 0 ]; then
+        echo "ERROR !!!! Test failed"
+        exit 1
+    fi
 }
 
 # Tear down running network
 function networkDown() {
-  export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
-  export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
-  docker-compose -f $COMPOSE_FILE down --volumes --remove-orphans
+    export MANAGER_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/manager.jnu.com/ca && ls *_sk)
+    export STUDENT_CA_PRIVATE_KEY=$(cd ./artifacts/network/crypto-config/peerOrganizations/student.jnu.com/ca && ls *_sk)
+    docker-compose -f $COMPOSE_FILE down --volumes --remove-orphans
 
-  if [ "$MODE" != "restart" ]; then
-    docker run -v $PWD:/tmp/jnu_hlfn --rm hyperledger/fabric-tools:$IMAGETAG rm -Rf /tmp/jnu_hlfn/ledgers-backup
-    #Cleanup the chaincode containers
-    clearContainers
-    #Cleanup images
-    removeUnwantedImages
-    # remove orderer block and other channel configuration transactions and certs
-    rm -rf artifacts/network/*.block artifacts/network/*.tx artifacts/network/crypto-config 
-  fi
+    if [ $MODE != "restart" ]; then
+        docker run -v $PWD:/tmp/jnu_hlfn --rm hyperledger/fabric-tools:$IMAGETAG rm -rf /tmp/jnu_hlfn/ledgers-backup
+        clearContainers
+        removeUnwantedImages
+        rm -rf ./artifacts/network/*.block ./artifacts/network/*.tx ./artifacts/network/crypto-config/
+    fi
 }
 
 # Generates Org certs using cryptogen tool
 function generateCerts() {
-  which cryptogen
-  if [ "$?" -ne 0 ]; then
-    echo "cryptogen tool not found. exiting"
-    exit 1
-  fi
-  echo
-  echo "######################################################################"
-  echo "########### Generate certificates using cryptogen tool ###############"
-  echo "######################################################################"
+    which cryptogen
+    if [ $? -ne 0 ]; then
+        echo "cryptogen tool not found. exiting"
+        exit 1
+    fi
+    echo
+    echo "######################################################################"
+    echo "########### Generate certificates using cryptogen tool ###############"
+    echo "######################################################################"
 
-  if [ -d "./artifacts/network/crypto-config" ]; then
-    rm -Rf ./artifacts/network/crypto-config
-  fi
-  set -x
-  cryptogen generate --config=./artifacts/crypto-config.yaml --output=./artifacts/network/crypto-config
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate certificates..."
-    exit 1
-  fi
-  echo
+    if [ -d "./artifacts/network/crypto-config" ]; then
+        rm -rf ./artifacts/network/crypto-config/
+    fi
+    set -x
+    cryptogen generate --config=./artifacts/crypto-config.yaml --output=./artifacts/network/crypto-config
+    res=$?
+    set +x
+    if [ $res -ne 0 ]; then
+        echo "Failed to generate certificates..."
+        exit 1
+    fi
+    echo
 }
 
 function generateChannelArtifacts() {
-  which configtxgen
-  if [ "$?" -ne 0 ]; then
-    echo "configtxgen tool not found. exiting"
-    exit 1
-  fi
+    which configtxgen
+    if [ $? -ne 0 ]; then
+        echo "configtxgen tool not found. exiting"
+        exit 1
+    fi
 
-  echo "######################################################################"
-  echo "###############  Generating Orderer Genesis block ####################"
-  echo "######################################################################"
-  echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
-  set -x
-  if [ "$CONSENSUS_TYPE" == "solo" ]; then
-    configtxgen -profile JNUOrdererGenesis -channelID jnu-sys-channel -outputBlock ./artifacts/network/genesis.block
-  else
+    echo "######################################################################"
+    echo "###############  Generating Orderer Genesis block ####################"
+    echo "######################################################################"
+    echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
+    set -x
+    if [ $CONSENSUS_TYPE == "solo" ]; then
+        configtxgen -profile JNUOrdererGenesis -channelID jnu-sys-channel -outputBlock ./artifacts/network/genesis.block
+    else
+        set +x
+        echo "unrecognized CONSESUS_TYPE='$CONSENSUS_TYPE'. exiting"
+        exit 1
+    fi
+    res=$?
     set +x
-    echo "unrecognized CONSESUS_TYPE='$CONSENSUS_TYPE'. exiting"
-    exit 1
-  fi
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate orderer genesis block..."
-    exit 1
-  fi
-  echo
-  echo "######################################################################"
-  echo "#####  Generating channel configuration transaction: channel.tx  #####"
-  echo "######################################################################"
-  set -x
-  configtxgen -profile JNUChannel -outputCreateChannelTx ./artifacts/network/channel.tx -channelID $CHANNEL_NAME
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate channel configuration transaction..."
-    exit 1
-  fi
+    if [ $res -ne 0 ]; then
+        echo "Failed to generate orderer genesis block..."
+        exit 1
+    fi
+    echo
+    echo "######################################################################"
+    echo "#####  Generating channel configuration transaction: channel.tx  #####"
+    echo "######################################################################"
+    set -x
+    configtxgen -profile JNUChannel -outputCreateChannelTx ./artifacts/network/channel.tx -channelID $CHANNEL_NAME
+    res=$?
+    set +x
+    if [ $res -ne 0 ]; then
+        echo "Failed to generate channel configuration transaction..."
+        exit 1
+    fi
 
-  echo
-  echo "######################################################################"
-  echo "########    Generating anchor peer update for ManagerMSP   ###########"
-  echo "######################################################################"
-  set -x
-  configtxgen -profile JNUChannel -outputAnchorPeersUpdate ./artifacts/network/ManagerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ManagerMSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate anchor peer update for ManagerMSP..."
-    exit 1
-  fi
+    echo
+    echo "######################################################################"
+    echo "########    Generating anchor peer update for ManagerMSP   ###########"
+    echo "######################################################################"
+    set -x
+    configtxgen -profile JNUChannel -outputAnchorPeersUpdate ./artifacts/network/ManagerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg ManagerMSP
+    res=$?
+    set +x
+    if [ $res -ne 0 ]; then
+        echo "Failed to generate anchor peer update for ManagerMSP..."
+        exit 1
+    fi
 
-  echo
-  echo "######################################################################"
-  echo "########    Generating anchor peer update for StudentMSP   ###########"
-  echo "######################################################################"
-  set -x
-  configtxgen -profile JNUChannel -outputAnchorPeersUpdate \
-    ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate anchor peer update for StudentMSP..."
-    exit 1
-  fi
-  echo
+    echo
+    echo "######################################################################"
+    echo "########    Generating anchor peer update for StudentMSP   ###########"
+    echo "######################################################################"
+    set -x
+    configtxgen -profile JNUChannel -outputAnchorPeersUpdate \
+        ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
+    res=$?
+    set +x
+    if [ $res -ne 0 ]; then
+        echo "Failed to generate anchor peer update for StudentMSP..."
+        exit 1
+    fi
+    echo
 }
 
 # Obtain the OS and Architecture string that will be used to select the correct
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
 CHANNEL_NAME="surveynet"
+CC_NAME="surveycc"
 COMPOSE_FILE=./artifacts/docker-compose.yaml
 IMAGETAG="1.4"
 CONSENSUS_TYPE="solo"
@@ -239,25 +234,31 @@ CONSENSUS_TYPE="solo"
 MODE=$1
 shift
 
-if [ "${MODE}" == "help" ]; then
-  printHelp
-  exit 1
+if [ $MODE == "help" ]; then
+    printHelp
+    exit 1
 fi
 
 askProceed $MODE
 
 #Create the network using docker compose
-if [ "${MODE}" == "up" ]; then
-  networkUp
-elif [ "${MODE}" == "down" ]; then ## Clear the network
-  networkDown
-elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
-  generateCerts
-  generateChannelArtifacts
-elif [ "${MODE}" == "restart" ]; then ## Restart the network
-  networkDown
-  networkUp
-else
-  printHelp
-  exit 1
-fi
+case $MODE in
+"up")
+    networkUp
+    ;;
+"down")
+    networkDown
+    ;;
+"generate")
+    generateCerts
+    generateChannelArtifacts
+    ;;
+"restart")
+    networkDown
+    networkUp
+    ;;
+*)
+    printHelp
+    exit 1
+    ;;
+esac

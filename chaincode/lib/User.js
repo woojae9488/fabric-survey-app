@@ -1,11 +1,7 @@
-
-'use strict';
-
-const PrivateData = require('../ledger-api/PrivateData.js');
 const crypto = require('crypto');
+const PrivateData = require('../ledger-api/PrivateData.js');
 
 class User extends PrivateData {
-
     constructor(obj) {
         super(User.getClass(), [obj.id]);
         Object.assign(this, obj);
@@ -56,11 +52,14 @@ class User extends PrivateData {
     }
 
     static makeSalt() {
-        return Math.round(new Date().valueOf() * Math.random()) + '';
+        return `${Math.round(new Date().valueOf() * Math.random())}`;
     }
 
     static encryptPassword(password, salt) {
-        return crypto.createHmac('sha1', salt).update(password).digest('hex');
+        return crypto
+            .createHmac('sha1', salt)
+            .update(password)
+            .digest('hex');
     }
 
     authenticate(password) {

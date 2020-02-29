@@ -1,6 +1,6 @@
 <template>
   <div class="SurveyList">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <template v-if="isManager">
       <b-container fluid>
@@ -59,68 +59,69 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import userService from "@/services/userApi.js";
-import surveyService from "@/services/surveyApi.js";
-import eventBus from "@/utils/eventBus.js";
+import api from '@/services/api';
+import surveyService from '@/services/surveyApi';
+import eventBus from '@/utils/eventBus';
 
 export default {
-  name: "SurveyList",
+  name: 'SurveyList',
   async created() {
-    eventBus.$emit("runSpinner");
+    eventBus.$emit('runSpinner');
 
-    this.userData = api.getData("user");
-    this.userData.role = api.getData("role");
+    this.userData = api.getData('user');
+    this.userData.role = api.getData('role');
     await this.initSurveyLists();
 
-    eventBus.$emit("hideSpinner");
+    eventBus.$emit('hideSpinner');
   },
   data() {
     return {
-      title: "Survey List",
+      title: 'Survey List',
       userData: {},
       surveyInfos: {
         indexs: [],
-        lists: []
+        lists: [],
       },
-      surveyState: ["registered", "surveying", "finished"],
+      surveyState: ['registered', 'surveying', 'finished'],
       surveyTable: {
         index: 0,
         totalRows: 1,
         perPage: 7,
         currentPage: 1,
         fields: [
-          { key: "currentState", sortable: true },
-          { key: "title", sortable: false },
-          { key: "startDate", sortable: true },
-          { key: "finishDate", sortable: true }
-        ]
-      }
+          { key: 'currentState', sortable: true },
+          { key: 'title', sortable: false },
+          { key: 'startDate', sortable: true },
+          { key: 'finishDate', sortable: true },
+        ],
+      },
     };
   },
   computed: {
     isStudent() {
-      return this.userData.role === "student";
+      return this.userData.role === 'student';
     },
     isManager() {
-      return this.userData.role === "manager";
-    }
+      return this.userData.role === 'manager';
+    },
   },
   methods: {
     async initSurveyLists() {
       try {
-        for (const department of this.userData.departments) {
+        this.userData.departments.reduce(async (prevPromise, department) => {
+          await prevPromise;
+
           const apiRes = await surveyService.queryList(department);
           const apiData = api.getResultData(apiRes);
           const rowData = this.changeInfosToRows(apiData);
           this.surveyInfos.indexs.push(department);
           this.surveyInfos.lists.push(rowData);
-        }
+        }, Promise.resolve());
 
         this.surveyTable.totalRows = this.surveyInfos.lists[0].length;
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Loading survey list fail");
+        alert('Loading survey list fail');
       }
     },
 
@@ -142,37 +143,33 @@ export default {
     },
 
     changeInfosToRows(infos) {
-      for (const info of infos) {
-        info.path = `/${info.department}/${info.createdAt}`;
-        for (const key in info) {
-          if (key === "currentState") {
-            info[key] = this.surveyState[info[key] - 1];
-          } else if (key === "startDate" || key === "finishDate") {
-            info[key] = this.getFormatedDate(info[key]);
+      const rowData = [];
+      const keys = Object.keys(infos[0]);
+
+      infos.forEach(info => {
+        const row = {};
+        keys.forEach(key => {
+          if (key === 'currentState') {
+            row[key] = this.surveyState[info[key] - 1];
+          } else if (key === 'startDate' || key === 'finishDate') {
+            row[key] = this.getFormatedDate(info[key]);
+          } else {
+            row[key] = info[key];
           }
-        }
-      }
-      return infos;
+        });
+        rowData.push(row);
+      });
+
+      return rowData;
     },
 
     getFormatedDate(time) {
       // yy.MM.dd HH:mm
       const d = new Date(time);
-      const minute =
-        d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
-        
-      return (
-        d.getFullYear() +
-        "." +
-        (d.getMonth() + 1) +
-        "." +
-        d.getDate() +
-        " " +
-        d.getHours() +
-        ":" +
-        minute
-      );
-    }
-  }
+      const minute = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+
+      return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} ${d.getHours()}:${minute}`;
+    },
+  },
 };
 </script>

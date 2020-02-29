@@ -1,5 +1,3 @@
-'use strict';
-
 const replyRouter = require('express').Router();
 const controller = require('../controllers/reply.js');
 const authMiddleware = require('../middlewares/auth.js');

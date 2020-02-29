@@ -1,12 +1,8 @@
-
-'use strict';
-
 const State = require('../ledger-api/State.js');
 const SurveyInfo = require('./SurveyInfo.js');
 const SurveyQuestion = require('./SurveyQuestion.js');
 
 class Survey {
-
     constructor(obj) {
         const surveyInfoKey = obj.surveyInfo.getKey();
         this.surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
@@ -39,9 +35,9 @@ class Survey {
 
         const questions = [];
         const jsonQuestions = json.questions;
-        for (const jsonQuestion of jsonQuestions) {
+        jsonQuestions.forEach(jsonQuestion => {
             questions.push(new SurveyQuestion(jsonQuestion));
-        }
+        });
 
         return new Survey({ surveyInfo, questions });
     }
@@ -75,7 +71,6 @@ class Survey {
         const question = SurveyQuestion.createInstance(this.surveyKey, questionNum, title, type, contents);
         this.questions.push(question);
     }
-
 }
 
 module.exports = Survey;

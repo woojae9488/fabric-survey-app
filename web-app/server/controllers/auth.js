@@ -1,9 +1,7 @@
-'use strict';
-
 const authModel = require('../models/auth.js');
 const apiResponse = require('../utils/apiResponse.js');
 
-exports.signup = async (req, res, _next) => {
+exports.signup = async (req, res) => {
     const { id, password, name, departments } = req.body;
     const { role } = req.params;
 
@@ -29,7 +27,7 @@ exports.signup = async (req, res, _next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.checkExistence = async (req, res, _next) => {
+exports.checkExistence = async (req, res) => {
     const { role, uid } = req.params;
 
     if (!uid) {
@@ -48,7 +46,7 @@ exports.checkExistence = async (req, res, _next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.signin = async (req, res, _next) => {
+exports.signin = async (req, res) => {
     const { id, password } = req.body;
     const { role } = req.params;
 
@@ -68,7 +66,7 @@ exports.signin = async (req, res, _next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.changeInfo = async (req, res, _next) => {
+exports.changeInfo = async (req, res) => {
     const { id, newPassword, newName, newDepartments } = req.body;
     const { role, uid } = req.params;
 
@@ -88,7 +86,7 @@ exports.changeInfo = async (req, res, _next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.signout = async (req, res, _next) => {
+exports.signout = async (req, res) => {
     const { id, password } = req.body;
     const { role, uid } = req.params;
 
@@ -108,7 +106,7 @@ exports.signout = async (req, res, _next) => {
     return apiResponse.send(res, modelRes);
 };
 
-exports.certifyUser = async (req, res, _next) => {
+exports.certifyUser = async (req, res) => {
     const token = req.headers['x-access-token'];
     const { role } = req.params;
 
@@ -116,11 +114,11 @@ exports.certifyUser = async (req, res, _next) => {
         return apiResponse.badRequest(res);
     }
 
-    let modelRes = await authModel.certifyUser(token);
+    const modelRes = await authModel.certifyUser(token);
     return apiResponse.send(res, modelRes);
-}
+};
 
-exports.reissueAccessToken = async (req, res, _next) => {
+exports.reissueAccessToken = async (req, res) => {
     const refreshToken = req.headers['x-refresh-token'];
     const { role } = req.params;
 
@@ -138,4 +136,4 @@ exports.reissueAccessToken = async (req, res, _next) => {
     }
 
     return apiResponse.send(res, modelRes);
-}
+};

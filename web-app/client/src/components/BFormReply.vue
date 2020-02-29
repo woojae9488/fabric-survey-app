@@ -2,7 +2,7 @@
   <div class="BFormReply">
     <b-card border-variant="info" header-border-variant="info">
       <b-container fluid>
-        <b-row class="my-2">{{number}}. {{question.title}}</b-row>
+        <b-row class="my-2">{{ number }}. {{ question.title }}</b-row>
 
         <b-row v-if="isText">
           <b-col sm="2">
@@ -87,37 +87,37 @@
 
 <script>
 export default {
-  name: "b-form-reply",
+  name: 'b-form-reply',
   props: {
     number: {
       type: Number,
-      required: true
+      required: true,
     },
     question: {
       type: Object,
-      required: true
+      required: true,
     },
     result: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     isText() {
-      return this.question.type === "text";
+      return this.question.type === 'text';
     },
     isTextArea() {
-      return this.question.type === "textarea";
+      return this.question.type === 'textarea';
     },
     isRadio() {
-      return this.question.type === "radio";
+      return this.question.type === 'radio';
     },
     isCheckBox() {
-      return this.question.type === "checkbox";
+      return this.question.type === 'checkbox';
     },
     isSelect() {
-      return this.question.type === "select";
-    }
-  }
+      return this.question.type === 'select';
+    },
+  },
 };
 </script>

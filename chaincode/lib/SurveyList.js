@@ -1,13 +1,9 @@
-
-'use strict';
-
 const StateList = require('../ledger-api/StateList.js');
 const Survey = require('./Survey.js');
 const SurveyInfo = require('./SurveyInfo.js');
 const SurveyQuestion = require('./SurveyQuestion.js');
 
 class SurveyList extends StateList {
-
     constructor(ctx) {
         super(ctx);
         this.use(SurveyInfo);
@@ -19,9 +15,8 @@ class SurveyList extends StateList {
         const questions = survey.getQuestions();
 
         await this.addState(surveyInfo);
-        for (const question of questions) {
-            await this.addState(question);
-        }
+        const promises = questions.map(question => this.addState(question));
+        await Promise.all(promises);
     }
 
     async getSurvey(surveyInfoKey) {
@@ -65,9 +60,8 @@ class SurveyList extends StateList {
 
         await this.updateState(surveyInfo);
         await this.deleteQuestions(surveyKey);
-        for (const question of questions) {
-            await this.addState(question);
-        }
+        const promises = questions.map(question => this.addState(question));
+        await Promise.all(promises);
     }
 
     async updateSurveyInfo(surveyInfoKey) {
@@ -78,9 +72,8 @@ class SurveyList extends StateList {
         const questionsKey = SurveyQuestion.makeKey([surveyKey]);
         const questions = await this.getStatesByPartialKey(questionsKey);
 
-        for (const question of questions) {
-            await this.deleteState(question.getKey());
-        }
+        const promises = questions.map(question => this.deleteState(question.getKey()));
+        await Promise.all(promises);
     }
 
     static makeSurveyBookmark(department, createdAt) {
@@ -93,7 +86,7 @@ class SurveyList extends StateList {
     }
 
     async setSurveyEvent(action, surveyInfo) {
-        const eventName = 'survey' + action + 'Event';
+        const eventName = `survey${action}Event`;
         await this.setEvent(eventName, surveyInfo);
     }
 }

@@ -1,12 +1,8 @@
-
-'use strict';
-
 /**
  * State class. States have a class, unique key, and a lifecycle current state
  * the current state is determined by the specific subclass
  */
 class State {
-
     /**
      * @param {String|Object} class  An indentifiable class of the instance
      * @param {keyParts[]} elements to pull together to make a key for the objects
@@ -53,11 +49,11 @@ class State {
      */
     static deserialize(data, supportedClasses) {
         const json = JSON.parse(data);
-        const objClass = supportedClasses[json.class];
-        if (!objClass) {
+        const ObjClass = supportedClasses[json.class];
+        if (!ObjClass) {
             throw new Error(`Unknown class of ${json.class}`);
         }
-        const object = new (objClass)(json);
+        const object = new ObjClass(json);
 
         return object;
     }

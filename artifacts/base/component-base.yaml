@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 services:
   peer-base:
@@ -34,4 +34,3 @@ services:
       - ORDERER_KAFKA_VERBOSE=true
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
-

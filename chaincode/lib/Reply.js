@@ -1,12 +1,8 @@
-
-'use strict';
-
 const State = require('../ledger-api/State.js');
 const ReplyInfo = require('./ReplyInfo.js');
 const ReplyResult = require('./ReplyResult.js');
 
 class Reply {
-
     constructor(obj) {
         const replyInfoKey = obj.replyInfo.getKey();
         this.replyKey = Reply.makeReplyKeyByInfoKey(replyInfoKey);
@@ -39,9 +35,9 @@ class Reply {
 
         const results = [];
         const jsonResults = json.results;
-        for (const jsonResult of jsonResults) {
+        jsonResults.forEach(jsonResult => {
             results.push(new ReplyResult(jsonResult));
-        }
+        });
 
         return new Reply({ replyInfo, results });
     }
@@ -75,7 +71,6 @@ class Reply {
         const result = ReplyResult.createInstance(this.replyKey, resultNum, answers);
         this.results.push(result);
     }
-
 }
 
 module.exports = Reply;

@@ -26,27 +26,27 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import eventBus from "@/utils/eventBus.js";
-import VueInstantLoadingSpinner from "vue-instant-loading-spinner/src/components/VueInstantLoadingSpinner.vue";
+import api from '@/services/api';
+import eventBus from '@/utils/eventBus';
+import VueInstantLoadingSpinner from 'vue-instant-loading-spinner/src/components/VueInstantLoadingSpinner.vue';
 
 export default {
-  name: "app",
+  name: 'app',
   created() {
-    if (api.getData("accessToken") && api.getData("refreshToken")) {
+    if (api.getData('accessToken') && api.getData('refreshToken')) {
       this.isLogined = true;
     }
   },
   mounted() {
-    eventBus.$on("runSpinner", this.runSpinner);
-    eventBus.$on("hideSpinner", this.hideSpinner);
+    eventBus.$on('runSpinner', this.runSpinner);
+    eventBus.$on('hideSpinner', this.hideSpinner);
   },
   components: {
-    VueInstantLoadingSpinner
+    VueInstantLoadingSpinner,
   },
   data() {
     return {
-      isLogined: true
+      isLogined: true,
     };
   },
   methods: {
@@ -58,8 +58,8 @@ export default {
     },
     logout() {
       api.clearData();
-      this.$router.push("/");
-    }
-  }
+      this.$router.push('/');
+    },
+  },
 };
 </script>

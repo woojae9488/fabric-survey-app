@@ -1,5 +1,3 @@
-'use strict';
-
 const authenticateUtil = require('../utils/authenticate');
 const apiResponse = require('../utils/apiResponse.js');
 
@@ -15,7 +13,7 @@ module.exports = async (req, res, next) => {
         req.body.id = result.id;
         req.body.name = result.name;
         req.body.departments = result.departments;
-        next();
+        return next();
     } catch (err) {
         return apiResponse.unauthorized(res, err.toString());
     }

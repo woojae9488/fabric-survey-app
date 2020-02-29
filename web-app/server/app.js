@@ -1,6 +1,5 @@
-'use strict';
-
 require('dotenv').config();
+
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
@@ -25,7 +24,7 @@ async function main() {
     app.use(cors());
 
     app.use('/', router);
-    app.use((_req, res, _next) => {
+    app.use((_req, res) => {
         return apiResponse.notFound(res);
     });
 

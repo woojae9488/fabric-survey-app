@@ -1,6 +1,6 @@
 <template>
   <div class="Signin">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
       header="Signin"
@@ -73,57 +73,57 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import userService from "@/services/userApi.js";
-import eventBus from "@/utils/eventBus.js";
+import api from '@/services/api';
+import userService from '@/services/userApi';
+import eventBus from '@/utils/eventBus';
 
 export default {
-  name: "Signin",
+  name: 'Signin',
   created() {
-    if (api.getData("accessToken") && api.getData("refreshToken")) {
-      this.$router.push("/SurveyList");
+    if (api.getData('accessToken') && api.getData('refreshToken')) {
+      this.$router.push('/SurveyList');
     }
   },
   data() {
     return {
-      title: "Welcome to JNU Survey App",
-      roleOptions: ["student", "manager"],
+      title: 'Welcome to JNU Survey App',
+      roleOptions: ['student', 'manager'],
       loginData: {
-        role: "student",
-        id: "",
-        password: ""
-      }
+        role: 'student',
+        id: '',
+        password: '',
+      },
     };
   },
   computed: {
     isStudent() {
-      return this.loginData.role === "student";
-    }
+      return this.loginData.role === 'student';
+    },
   },
   methods: {
     async signin() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       try {
         const apiRes = await userService.signin(
           this.loginData.role,
           this.loginData.id,
-          this.loginData.password
+          this.loginData.password,
         );
 
         const apiData = api.getResultData(apiRes);
-        api.setData("role", this.loginData.role);
-        api.setData("accessToken", apiData.accessToken);
-        api.setData("refreshToken", apiData.refreshToken);
+        api.setData('role', this.loginData.role);
+        api.setData('accessToken', apiData.accessToken);
+        api.setData('refreshToken', apiData.refreshToken);
 
-        this.$router.push("/SurveyList");
+        this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Signin fail");
+        alert('Signin fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
-    }
-  }
+    },
+  },
 };
 </script>

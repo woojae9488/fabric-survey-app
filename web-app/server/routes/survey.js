@@ -1,5 +1,3 @@
-'use strict';
-
 const surveyRouter = require('express').Router();
 const controller = require('../controllers/survey.js');
 const authMiddleware = require('../middlewares/auth.js');

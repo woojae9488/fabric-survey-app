@@ -56,19 +56,19 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import surveyService from "@/services/surveyApi.js";
-import eventBus from "@/utils/eventBus.js";
-import BSurveyContent from "@/components/BSurveyContent.vue";
+import api from '@/services/api.js';
+import surveyService from '@/services/surveyApi.js';
+import eventBus from '@/utils/eventBus.js';
+import BSurveyContent from '@/components/BSurveyContent.vue';
 
 export default {
-  name: "Survey",
-  props: ["department", "createdAt"],
+  name: 'Survey',
+  props: ['department', 'createdAt'],
   components: { BSurveyContent },
   async created() {
-    eventBus.$emit("runSpinner");
+    eventBus.$emit('runSpinner');
 
-    this.userData = api.getDate("user");
+    this.userData = api.getDate('user');
     try {
       const apiRes = await surveyService.query(this.department, this.createdAt);
       const apiData = api.getResultData(apiRes);
@@ -76,41 +76,41 @@ export default {
       this.questions = apiData.questions;
     } catch (err) {
       console.log(api.getErrorMsg(err));
-      alert("Loading survey data fail");
+      alert('Loading survey data fail');
     } finally {
-      eventBus.$emit("hideSpinner");
+      eventBus.$emit('hideSpinner');
     }
   },
   data() {
     return {
-      title: "Survey",
+      title: 'Survey',
       userData: {},
       surveyInfo: {},
-      questions: []
+      questions: [],
     };
   },
   computed: {
     isSurveyOwner() {
       return this.userData.id === this.surveyInfo.managerID;
-    }
+    },
   },
   methods: {
     async removeSurvey() {
-      const check = confirm("Are you sure you want to remove survey?");
+      const check = confirm('Are you sure you want to remove survey?');
       if (check) {
         try {
           await surveyService.remove(this.department, this.createdAt);
-          this.$router.push("/SurveyList");
+          this.$router.push('/SurveyList');
         } catch (err) {
           console.log(api.getErrorMsg(err));
-          alert("Remove survey fail");
+          alert('Remove survey fail');
         }
       }
     },
 
     getDateStr(date) {
       return new Date(date).toLocaleString();
-    }
-  }
+    },
+  },
 };
 </script>

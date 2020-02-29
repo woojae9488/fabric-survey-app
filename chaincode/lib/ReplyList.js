@@ -1,13 +1,9 @@
-
-'use strict';
-
 const StateList = require('../ledger-api/StateList.js');
 const Reply = require('./Reply.js');
 const ReplyInfo = require('./ReplyInfo.js');
 const ReplyResult = require('./ReplyResult.js');
 
 class ReplyList extends StateList {
-
     constructor(ctx) {
         super(ctx);
         this.use(ReplyInfo);
@@ -19,10 +15,8 @@ class ReplyList extends StateList {
         const results = reply.getResults();
 
         await this.addState(replyInfo);
-
-        for (const result of results) {
-            await this.addState(result);
-        }
+        const promises = results.map(result => this.addState(result));
+        await Promise.all(promises);
     }
 
     async getReply(replyInfoKey) {
@@ -45,12 +39,14 @@ class ReplyList extends StateList {
         const replyInfosKey = ReplyInfo.makeKey([surveyKey]);
         const replyInfos = await this.getStatesByPartialKey(replyInfosKey);
 
-        for (const replyInfo of replyInfos) {
+        replyInfos.reduce(async (prevPromise, replyInfo) => {
+            await prevPromise;
+
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        }, Promise.resolve());
 
         return replies;
     }
@@ -59,12 +55,14 @@ class ReplyList extends StateList {
         const replies = [];
 
         const replyInfos = await this.getStatesByRange(replyInfoStart, replyInfoEnd);
-        for (const replyInfo of replyInfos) {
+        replyInfos.reduce(async (prevPromise, replyInfo) => {
+            await prevPromise;
+
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        }, Promise.resolve());
 
         return replies;
     }
@@ -72,13 +70,20 @@ class ReplyList extends StateList {
     async getRepliesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark) {
         const replies = [];
 
-        const replyInfos = await this.getStatesByRangeWithPagination(replyInfoStart, replyInfoEnd, pageSize, replyBookmark);
-        for (const replyInfo of replyInfos) {
+        const replyInfos = await this.getStatesByRangeWithPagination(
+            replyInfoStart,
+            replyInfoEnd,
+            pageSize,
+            replyBookmark,
+        );
+        replyInfos.reduce(async (prevPromise, replyInfo) => {
+            await prevPromise;
+
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
             const resultsKey = ReplyResult.makeKey([replyKey]);
             const results = await this.getStatesByPartialKey(resultsKey);
             replies.push(new Reply({ replyInfo, results }));
-        }
+        }, Promise.resolve());
 
         return replies;
     }
@@ -90,19 +95,16 @@ class ReplyList extends StateList {
 
         await this.updateState(replyInfo);
         await this.deleteResults(replyKey);
-
-        for (const result of results) {
-            await this.addState(result);
-        }
+        const promises = results.map(result => this.addState(result));
+        await Promise.all(promises);
     }
 
     async deleteResults(replyKey) {
         const resultsKey = ReplyResult.makeKey([replyKey]);
         const results = await this.getStatesByPartialKey(resultsKey);
 
-        for (const result of results) {
-            await this.deleteState(result.getKey());
-        }
+        const promises = results.map(result => this.deleteState(result.getKey()));
+        await Promise.all(promises);
     }
 
     static makeReplyBookmark(surveyKey, studentID) {

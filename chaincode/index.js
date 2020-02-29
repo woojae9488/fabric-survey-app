@@ -1,6 +1,3 @@
-
-'use strict';
-
 const SurveyContract = require('./lib/SurveyContract.js');
 
 module.exports.SurveyContract = SurveyContract;

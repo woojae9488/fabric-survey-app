@@ -1,6 +1,3 @@
-
-'use strict';
-
 const State = require('../ledger-api/State.js');
 
 /**
@@ -10,7 +7,6 @@ const State = require('../ledger-api/State.js');
  * Class Name Marked by DNS : org.jnu.surveyquestion
  */
 class SurveyQuestion extends State {
-
     constructor(obj) {
         super(SurveyQuestion.getClass(), [obj.surveyKey, obj.questionNum]);
         Object.assign(this, obj);

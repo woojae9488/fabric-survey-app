@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 services:
   orderer.jnu.com:
@@ -7,10 +7,10 @@ services:
       file: component-base.yaml
       service: orderer-base
     volumes:
-    - ../network/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-    - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp:/var/hyperledger/orderer/msp
-    - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/tls:/var/hyperledger/orderer/tls
-    - orderer.jnu.com:/var/hyperledger/production/orderer
+      - ../network/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp:/var/hyperledger/orderer/msp
+      - ../network/crypto-config/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/tls:/var/hyperledger/orderer/tls
+      - orderer.jnu.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
 
@@ -29,10 +29,10 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.manager.jnu.com:7051
       - CORE_PEER_LOCALMSPID=ManagerMSP
     volumes:
-        - /var/run/:/host/var/run/
-        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/msp:/etc/hyperledger/fabric/msp
-        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls:/etc/hyperledger/fabric/tls
-        - peer0.manager.jnu.com:/var/hyperledger/production
+      - /var/run/:/host/var/run/
+      - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/msp:/etc/hyperledger/fabric/msp
+      - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.manager.jnu.com:/var/hyperledger/production
     ports:
       - 7051:7051
       - 7053:7053
@@ -52,10 +52,10 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.manager.jnu.com:8051
       - CORE_PEER_LOCALMSPID=ManagerMSP
     volumes:
-        - /var/run/:/host/var/run/
-        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp:/etc/hyperledger/fabric/msp
-        - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/tls:/etc/hyperledger/fabric/tls
-        - peer1.manager.jnu.com:/var/hyperledger/production
+      - /var/run/:/host/var/run/
+      - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp:/etc/hyperledger/fabric/msp
+      - ../network/crypto-config/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/tls:/etc/hyperledger/fabric/tls
+      - peer1.manager.jnu.com:/var/hyperledger/production
     ports:
       - 8051:8051
       - 8053:8053
@@ -75,10 +75,10 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.student.jnu.com:9051
       - CORE_PEER_LOCALMSPID=StudentMSP
     volumes:
-        - /var/run/:/host/var/run/
-        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/msp:/etc/hyperledger/fabric/msp
-        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/tls:/etc/hyperledger/fabric/tls
-        - peer0.student.jnu.com:/var/hyperledger/production
+      - /var/run/:/host/var/run/
+      - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/msp:/etc/hyperledger/fabric/msp
+      - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.student.jnu.com:/var/hyperledger/production
     ports:
       - 9051:9051
       - 9053:9053
@@ -98,10 +98,10 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.student.jnu.com:10051
       - CORE_PEER_LOCALMSPID=StudentMSP
     volumes:
-        - /var/run/:/host/var/run/
-        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp:/etc/hyperledger/fabric/msp
-        - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/tls:/etc/hyperledger/fabric/tls
-        - peer1.student.jnu.com:/var/hyperledger/production
+      - /var/run/:/host/var/run/
+      - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp:/etc/hyperledger/fabric/msp
+      - ../network/crypto-config/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/tls:/etc/hyperledger/fabric/tls
+      - peer1.student.jnu.com:/var/hyperledger/production
     ports:
       - 10051:10051
       - 10053:10053

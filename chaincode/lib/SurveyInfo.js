@@ -1,13 +1,10 @@
-
-'use strict';
-
 const State = require('../ledger-api/State.js');
 
 const surveyState = {
     REGISTERED: 1,
     SURVEYING: 2,
     FINISHED: 3,
-    REMOVED: 4
+    REMOVED: 4,
 };
 
 /**
@@ -17,7 +14,6 @@ const surveyState = {
  * Class Name Marked by DNS : org.jnu.surveyinfo
  */
 class SurveyInfo extends State {
-
     constructor(obj) {
         super(SurveyInfo.getClass(), [obj.department, obj.createdAt]);
         this.currentState = null;
@@ -59,7 +55,6 @@ class SurveyInfo extends State {
     setUpdatedAt(newTime) {
         this.updatedAt = newTime;
     }
-
 
     setRegistered() {
         this.currentState = surveyState.REGISTERED;

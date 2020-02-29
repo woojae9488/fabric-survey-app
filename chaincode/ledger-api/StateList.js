@@ -1,6 +1,3 @@
-
-'use strict';
-
 const State = require('./State.js');
 
 /**
@@ -10,7 +7,6 @@ const State = require('./State.js');
  * for parallel transactions on different states.
  */
 class StateList {
-
     /**
      * Store Fabric context for subsequent API access, and name of list
      */
@@ -43,9 +39,8 @@ class StateList {
         if (data.toString()) {
             const state = State.deserialize(data, this.supportedClasses);
             return state;
-        } else {
-            return null;
         }
+        return null;
     }
 
     async getStatesByPartialKey(partialKey) {
@@ -57,7 +52,12 @@ class StateList {
 
     async getStatesByPartialKeyWithPagination(partialKey, pageSize, bookmark) {
         const { objectType, attributes } = StateList.getCompositeKeyMaterial(State.splitKey(partialKey));
-        const { iterator } = await this.ctx.stub.getStateByPartialCompositeKeyWithPagination(objectType, attributes, pageSize, bookmark);
+        const { iterator } = await this.ctx.stub.getStateByPartialCompositeKeyWithPagination(
+            objectType,
+            attributes,
+            pageSize,
+            bookmark,
+        );
         const states = await this.getAllResults(iterator);
         return states;
     }
@@ -79,7 +79,12 @@ class StateList {
         const endMaterial = StateList.getCompositeKeyMaterial(State.splitKey(endKey));
         const ledgerEndKey = this.ctx.stub.createCompositeKey(endMaterial.objectType, endMaterial.attributes);
 
-        const { iterator } = await this.ctx.stub.getStateByRangeWithPagination(ledgerStartKey, ledgerEndKey, pageSize, bookmark);
+        const { iterator } = await this.ctx.stub.getStateByRangeWithPagination(
+            ledgerStartKey,
+            ledgerEndKey,
+            pageSize,
+            bookmark,
+        );
         const states = await this.getAllResults(iterator);
         return states;
     }
@@ -106,6 +111,7 @@ class StateList {
     async getAllResults(iterator) {
         const results = [];
 
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const data = await iterator.next();
             if (data.value) {
@@ -141,7 +147,6 @@ class StateList {
         const attributes = splitKeys;
         return { objectType, attributes };
     }
-
 }
 
 module.exports = StateList;

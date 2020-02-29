@@ -1,6 +1,6 @@
 <template>
   <div class="ManagerSignup">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
       header="Manager Signup"
@@ -25,7 +25,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="id-live-feedback">Enter at least 6 letters and Check Id</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="id-live-feedback"
+                >Enter at least 6 letters and Check Id</b-form-invalid-feedback
+              >
             </b-col>
             <b-col sm="3">
               <b-button @click="checkIdExists" variant="primary">Check Id</b-button>
@@ -62,7 +64,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="password-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="password-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -80,7 +84,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="password-confirm-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="password-confirm-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -99,103 +105,94 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import userService from "@/services/userApi.js";
-import eventBus from "@/utils/eventBus.js";
+import api from '@/services/api';
+import userService from '@/services/userApi';
+import eventBus from '@/utils/eventBus';
 
 export default {
-  name: "ManagerSignup",
+  name: 'ManagerSignup',
   data() {
     return {
-      title: "Register JNU survey manager",
+      title: 'Register JNU survey manager',
       idChecked: false,
       registerData: {
-        id: "",
-        departments: "",
-        password: "",
-        passwordConfirm: ""
-      }
+        id: '',
+        departments: '',
+        password: '',
+        passwordConfirm: '',
+      },
     };
   },
   computed: {
     idState() {
       return this.registerData.id.length === 0
         ? null
-        : this.registerData.id.length < 6 || !this.idChecked
-        ? false
-        : true;
+        : !(this.registerData.id.length < 6 || !this.idChecked);
     },
     passwordState() {
       return this.registerData.password.length === 0
         ? null
-        : this.registerData.password.length < 8
-        ? false
-        : true;
+        : !(this.registerData.password.length < 8);
     },
     passwordConfirmState() {
       return this.registerData.passwordConfirm.length === 0
         ? null
-        : this.registerData.passwordConfirm.length < 8
-        ? false
-        : true;
-    }
+        : !(this.registerData.passwordConfirm.length < 8);
+    },
   },
   methods: {
     async checkIdExists() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       try {
-        const apiRes = await userService.checkExistence(
-          "manager",
-          this.registerData.id
-        );
+        const apiRes = await userService.checkExistence('manager', this.registerData.id);
         const apiData = api.getResultData(apiRes);
 
         if (apiData.userExists) {
-          alert("Id already exists");
+          alert('Id already exists');
           this.idChecked = false;
         } else {
           this.idChecked = true;
         }
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Check id fail");
+        alert('Check id fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
     },
 
     async signup() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       try {
         if (!this.idChecked) {
-          alert("Check your id first");
+          alert('Check your id first');
           return;
         }
         if (this.registerData.password !== this.registerData.passwordConfirm) {
-          alert("Password confirm mismatch");
+          alert('Password confirm mismatch');
           return;
         }
 
-        let departments = this.registerData.departments.split(",");
+        let departments = this.registerData.departments.split(',');
         departments = departments.map(department => department.trim());
         await userService.signup(
-          "manager",
+          'manager',
           this.registerData.id,
           this.registerData.password,
-          "manager",
-          departments
+          'manager',
+          departments,
         );
 
-        this.$router.push("/Signin");
+        this.$router.push('/Signin');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Signup fail");
+        alert('Signup fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
-    }
-  }
+    },
+  },
 };
 </script>

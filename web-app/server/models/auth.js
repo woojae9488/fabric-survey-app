@@ -1,5 +1,3 @@
-'use strict';
-
 const network = require('../fabric/network.js');
 const authenticateUtil = require('../utils/authenticate.js');
 const apiResponse = require('../utils/apiResponse.js');
@@ -98,9 +96,9 @@ exports.signout = async (isManager, information) => {
     }
 
     return apiResponse.createModelRes(200, 'Success');
-}
+};
 
-exports.certifyUser = async (token) => {
+exports.certifyUser = async token => {
     try {
         const tokenRes = await authenticateUtil.certifyAccessToken(token);
 
@@ -113,7 +111,7 @@ exports.certifyUser = async (token) => {
 exports.reissueAccessToken = async (isManager, refreshToken) => {
     try {
         const decodedToken = await authenticateUtil.decodedRefreshToken(refreshToken);
-        const id = decodedToken.id;
+        const { id } = decodedToken;
 
         const networkObj = await network.connect(isManager, id);
         let contractRes;

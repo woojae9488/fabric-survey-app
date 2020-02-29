@@ -17,9 +17,7 @@
     },
     "channels": {
         "surveynet": {
-            "orderers": [
-                "orderer.jnu.com"
-            ],
+            "orderers": ["orderer.jnu.com"],
             "peers": {
                 "peer0.manager.jnu.com": {
                     "endorsingPeer": true,
@@ -39,13 +37,8 @@
     "organizations": {
         "ManagerOrg": {
             "mspid": "ManagerMSP",
-            "peers": [
-                "peer0.manager.jnu.com",
-                "peer1.manager.jnu.com"
-            ],
-            "certificateAuthorities": [
-                "ca.manager.jnu.com"
-            ]
+            "peers": ["peer0.manager.jnu.com", "peer1.manager.jnu.com"],
+            "certificateAuthorities": ["ca.manager.jnu.com"]
         }
     },
     "orderers": {

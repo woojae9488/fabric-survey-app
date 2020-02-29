@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
@@ -14,21 +12,21 @@ const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
 const managerConnection = JSON.parse(managerConnJSON);
 
 function getConnectionMaterial(isManager) {
-    let walletPath, connection, orgMSPID, caURL;
+    const connectionMaterial = {};
 
     if (isManager) {
-        walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
-        connection = managerConnection;
-        orgMSPID = process.env.MANAGER_MSP;
-        caURL = process.env.MANAGER_CA_ADDR;
+        connectionMaterial.walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
+        connectionMaterial.connection = managerConnection;
+        connectionMaterial.orgMSPID = process.env.MANAGER_MSP;
+        connectionMaterial.caURL = process.env.MANAGER_CA_ADDR;
     } else {
-        walletPath = path.join(process.cwd(), process.env.STUDENT_WALLET);
-        connection = studentConnection;
-        orgMSPID = process.env.STUDENT_MSP;
-        caURL = process.env.STUDENT_CA_ADDR;
+        connectionMaterial.walletPath = path.join(process.cwd(), process.env.STUDENT_WALLET);
+        connectionMaterial.connection = studentConnection;
+        connectionMaterial.orgMSPID = process.env.STUDENT_MSP;
+        connectionMaterial.caURL = process.env.STUDENT_CA_ADDR;
     }
 
-    return { walletPath, connection, orgMSPID, caURL };
+    return connectionMaterial;
 }
 
 exports.connect = async (isManager, userID) => {
@@ -45,18 +43,15 @@ exports.connect = async (isManager, userID) => {
         }
 
         await gateway.connect(connection, {
-            wallet, identity: userID,
-            discovery: { enabled: true, asLocalhost: true }
+            wallet,
+            identity: userID,
+            discovery: { enabled: true, asLocalhost: true },
         });
         const network = await gateway.getNetwork(process.env.CHANNEL);
         const contract = await network.getContract(process.env.CONTRACT);
         console.log('Connected to fabric network successly.');
 
-        const networkObj = {
-            gateway: gateway,
-            network: network,
-            contract: contract
-        };
+        const networkObj = { gateway, network, contract };
 
         return networkObj;
     } catch (err) {
@@ -64,13 +59,13 @@ exports.connect = async (isManager, userID) => {
         await gateway.disconnect();
         return { status: 500, error: err.toString() };
     }
-}
+};
 
 exports.query = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Query parameter: ${funcAndArgs}`);
-        funcAndArgs = funcAndArgs.map(elem => String(elem));
-        const response = await networkObj.contract.evaluateTransaction(...funcAndArgs);
+        const funcAndArgsStrings = funcAndArgs.map(elem => String(elem));
+        const response = await networkObj.contract.evaluateTransaction(...funcAndArgsStrings);
         console.log(`Transaction ${funcAndArgs} has been evaluated: ${response}`);
 
         return JSON.parse(response);
@@ -82,13 +77,13 @@ exports.query = async (networkObj, ...funcAndArgs) => {
             await networkObj.gateway.disconnect();
         }
     }
-}
+};
 
 exports.invoke = async (networkObj, ...funcAndArgs) => {
     try {
         console.log(`Invoke parameter: ${funcAndArgs}`);
-        funcAndArgs = funcAndArgs.map(elem => String(elem));
-        const response = await networkObj.contract.submitTransaction(...funcAndArgs);
+        const funcAndArgsStrings = funcAndArgs.map(elem => String(elem));
+        const response = await networkObj.contract.submitTransaction(...funcAndArgsStrings);
         console.log(`Transaction ${funcAndArgs} has been submitted: ${response}`);
 
         return JSON.parse(response);
@@ -100,9 +95,9 @@ exports.invoke = async (networkObj, ...funcAndArgs) => {
             await networkObj.gateway.disconnect();
         }
     }
-}
+};
 
-exports.enrollAdmin = async (isManager) => {
+exports.enrollAdmin = async isManager => {
     try {
         const { walletPath, orgMSPID, caURL } = getConnectionMaterial(isManager);
 
@@ -114,7 +109,10 @@ exports.enrollAdmin = async (isManager) => {
         }
 
         const ca = new FabricCAServices(caURL);
-        const enrollment = await ca.enroll({ enrollmentID: process.env.ADMIN, enrollmentSecret: process.env.ADMIN_SECRET });
+        const enrollment = await ca.enroll({
+            enrollmentID: process.env.ADMIN,
+            enrollmentSecret: process.env.ADMIN_SECRET,
+        });
         const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
         await wallet.import(process.env.ADMIN, identity);
         console.log(`Successfully enrolled admin user and imported it into the wallet`);
@@ -122,7 +120,7 @@ exports.enrollAdmin = async (isManager) => {
         console.error(`Failed to enroll admin user: ${err}`);
         process.exit(1);
     }
-}
+};
 
 exports.registerUser = async (isManager, userID) => {
     const gateway = new Gateway();
@@ -145,8 +143,9 @@ exports.registerUser = async (isManager, userID) => {
         }
 
         await gateway.connect(connection, {
-            wallet, identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: true }
+            wallet,
+            identity: process.env.ADMIN,
+            discovery: { enabled: true, asLocalhost: true },
         });
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
@@ -164,7 +163,7 @@ exports.registerUser = async (isManager, userID) => {
     } finally {
         await gateway.disconnect();
     }
-}
+};
 
 exports.checkUserExists = async (isManager, userID) => {
     try {
@@ -176,4 +175,4 @@ exports.checkUserExists = async (isManager, userID) => {
         console.error(`Failed to check user exists ${userID}: ${err}`);
         return { status: 500, error: err.toString() };
     }
-}
+};

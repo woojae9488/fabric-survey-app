@@ -1,5 +1,3 @@
-'use strict';
-
 const lowdb = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const nodeschedule = require('node-schedule');
@@ -33,32 +31,36 @@ async function finishSurvey(department, createdAt, surveyInfoKey) {
     }
     console.log(`Survey ${department}.${createdAt} finish!!`);
 
-    db.get('schedules').remove({ key: surveyInfoKey }).write();
+    db.get('schedules')
+        .remove({ key: surveyInfoKey })
+        .write();
     console.log(`Survey ${department}.${createdAt} removed!!`);
 }
 
 function reserveSurveyDate(surveyInfo) {
-    const department = surveyInfo.department;
-    const createdAt = surveyInfo.createdAt;
-    const surveyInfoKey = surveyInfo.key;
-    let startJob, finishJob;
+    const { department, createdAt, key } = surveyInfo;
+    const schedulejob = {};
 
     if (surveyInfo.startDate < Date.now()) {
         startSurvey(department, createdAt);
     } else {
-        const startDate = new Date(parseInt(surveyInfo.startDate));
-        startJob = nodeschedule.scheduleJob(startDate, () => { startSurvey(department, createdAt); });
+        const startDate = new Date(parseInt(surveyInfo.startDate, 10));
+        schedulejob.start = nodeschedule.scheduleJob(startDate, () => {
+            startSurvey(department, createdAt);
+        });
     }
 
     if (surveyInfo.finishDate < Date.now()) {
-        finishSurvey(department, createdAt, surveyInfoKey);
+        finishSurvey(department, createdAt, key);
     } else {
-        const finishDate = new Date(parseInt(surveyInfo.finishDate));
-        finishJob = nodeschedule.scheduleJob(finishDate, () => { finishSurvey(department, createdAt, surveyInfoKey); });
+        const finishDate = new Date(parseInt(surveyInfo.finishDate, 10));
+        schedulejob.finish = nodeschedule.scheduleJob(finishDate, () => {
+            finishSurvey(department, createdAt, key);
+        });
     }
 
-    console.log(`Reserve survey schedule successly: ${surveyInfoKey}`);
-    return { start: startJob, finish: finishJob };
+    console.log(`Reserve survey schedule successly: ${key}`);
+    return schedulejob;
 }
 
 function cancelSurveySchedule(scheduleJob) {
@@ -68,26 +70,26 @@ function cancelSurveySchedule(scheduleJob) {
 }
 
 exports.initSurveySchedule = () => {
-    console.log('Start to initialize survey schedule.');
     const surveyInfos = db.get('schedules').value();
 
-    for (const surveyInfo of surveyInfos) {
+    surveyInfos.forEach(surveyInfo => {
         console.log(`Survey schedule : ${surveyInfo.key}`);
         const scheduleJob = reserveSurveyDate(surveyInfo);
         scheduleJobs[surveyInfo.key] = scheduleJob;
-    }
-}
+    });
+    console.log('Finished initialize survey schedule.');
+};
 
-exports.addSurveySchedule = (surveyInfoBuffer) => {
+exports.addSurveySchedule = surveyInfoBuffer => {
     const surveyInfo = JSON.parse(surveyInfoBuffer);
     console.log(`Add survey schedule: ${surveyInfo.key}`);
 
     const scheduleJob = reserveSurveyDate(surveyInfo);
     scheduleJobs[surveyInfo.key] = scheduleJob;
     db.get('schedules').push(surveyInfo);
-}
+};
 
-exports.updateSurveySchedule = (surveyInfoBuffer) => {
+exports.updateSurveySchedule = surveyInfoBuffer => {
     const surveyInfo = JSON.parse(surveyInfoBuffer);
     console.log(`Update survey schedule: ${surveyInfo.key}`);
 
@@ -96,17 +98,22 @@ exports.updateSurveySchedule = (surveyInfoBuffer) => {
 
     const newScheduleJob = reserveSurveyDate(surveyInfo);
     scheduleJobs[surveyInfo.key] = newScheduleJob;
-    db.get('schedules').find({ key: surveyInfo.key }).assign({ surveyInfo }).write();
-}
+    db.get('schedules')
+        .find({ key: surveyInfo.key })
+        .assign({ surveyInfo })
+        .write();
+};
 
-exports.removeSurveySchedule = (surveyInfoBuffer) => {
+exports.removeSurveySchedule = surveyInfoBuffer => {
     const surveyInfo = JSON.parse(surveyInfoBuffer);
     console.log(`Remove survey schedule: ${surveyInfo.key}`);
 
     const scheduleJob = scheduleJobs[surveyInfo.key];
     cancelSurveySchedule(scheduleJob);
     delete scheduleJobs[surveyInfo.key];
-    db.get('schedules').remove({ key: surveyInfo.key }).write();
-}
+    db.get('schedules')
+        .remove({ key: surveyInfo.key })
+        .write();
+};
 
 exports.scheduleJobs = scheduleJobs;

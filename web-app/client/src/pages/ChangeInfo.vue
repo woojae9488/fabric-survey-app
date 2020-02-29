@@ -1,6 +1,6 @@
 <template>
   <div class="ChangeInfo">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
       header="Change User Information"
@@ -13,14 +13,14 @@
         <b-form @submit.prevent="changeInfo">
           <b-row class="my-2">
             <b-col sm="2">Id :</b-col>
-            <b-col sm="4">{{userData.id}}</b-col>
+            <b-col sm="4">{{ userData.id }}</b-col>
             <b-col sm="2">Name :</b-col>
-            <b-col sm="4">{{userData.name}}</b-col>
+            <b-col sm="4">{{ userData.name }}</b-col>
           </b-row>
 
           <b-row class="mt-2 mb-4">
             <b-col sm="3">Departments :</b-col>
-            <b-col sm="4">{{departmentsStr}}</b-col>
+            <b-col sm="4">{{ departmentsStr }}</b-col>
           </b-row>
 
           <b-row class="my-3" align-v="center">
@@ -29,16 +29,18 @@
             </b-col>
             <b-col sm="9">
               <b-form-input
-                type="password"
                 id="user-new-password"
                 v-model="changeData.password"
+                type="password"
                 :state="passwordState"
                 aria-describedby="input-live-feedback"
                 placeholder="Enter your New Password"
                 trim
                 required
-              ></b-form-input>
-              <b-form-invalid-feedback id="password-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              />
+              <b-form-invalid-feedback id="password-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -56,7 +58,9 @@
                 trim
                 required
               ></b-form-input>
-              <b-form-invalid-feedback id="password-confirm-live-feedback">Enter at least 8 letters</b-form-invalid-feedback>
+              <b-form-invalid-feedback id="password-confirm-live-feedback"
+                >Enter at least 8 letters</b-form-invalid-feedback
+              >
             </b-col>
           </b-row>
 
@@ -75,24 +79,24 @@
 </template>
 
 <script>
-import api from "@/services/api.js";
-import userService from "@/services/userApi.js";
-import eventBus from "@/utils/eventBus.js";
+import api from '@/services/api';
+import userService from '@/services/userApi';
+import eventBus from '@/utils/eventBus';
 
 export default {
-  name: "ChangeInfo",
+  name: 'ChangeInfo',
   created() {
-    this.userData = api.getData("user");
-    this.userData.role = api.getData("role");
+    this.userData = api.getData('user');
+    this.userData.role = api.getData('role');
   },
   data() {
     return {
-      title: "Change your information",
-      userData:{},
+      title: 'Change your information',
+      userData: {},
       changeData: {
-        password: "",
-        passwordConfirm: ""
-      }
+        password: '',
+        passwordConfirm: '',
+      },
     };
   },
   computed: {
@@ -100,27 +104,21 @@ export default {
       return String(this.userData.departments);
     },
     passwordState() {
-      return this.changeData.password.length === 0
-        ? null
-        : this.changeData.password.length < 8
-        ? false
-        : true;
+      return this.changeData.password.length === 0 ? null : !(this.changeData.password.length < 8);
     },
     passwordConfirmState() {
       return this.changeData.passwordConfirm.length === 0
         ? null
-        : this.changeData.passwordConfirm.length < 8
-        ? false
-        : true;
-    }
+        : !(this.changeData.passwordConfirm.length < 8);
+    },
   },
   methods: {
     async changeInfo() {
-      eventBus.$emit("runSpinner");
+      eventBus.$emit('runSpinner');
 
       try {
         if (this.changeData.password !== this.changeData.passwordConfirm) {
-          alert("Password confirm mismatch");
+          alert('Password confirm mismatch');
           return;
         }
 
@@ -129,18 +127,18 @@ export default {
           this.userData.id,
           this.changeData.password,
           this.userData.name,
-          this.userData.departments
+          this.userData.departments,
         );
 
         api.clearData();
-        this.$router.push("/Signin");
+        this.$router.push('/Signin');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert("Change information fail");
+        alert('Change information fail');
       } finally {
-        eventBus.$emit("hideSpinner");
+        eventBus.$emit('hideSpinner');
       }
-    }
-  }
+    },
+  },
 };
 </script>

@@ -1,5 +1,3 @@
-'use strict';
-
 const authRouter = require('express').Router();
 const controller = require('../controllers/auth.js');
 const authMiddleware = require('../middlewares/auth.js');
