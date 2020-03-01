@@ -42,9 +42,9 @@ npm run start
 **fabric-network 모듈 안에 있는 fabric-ca-client 모듈을 npm에서 받은 1.4.5 버전으로 변경**
 
 ```bash
-cd node-modules/fabric-network/
-rm -rf node-modules/fabric-ca-client/
-cp -r ../fabric-ca-client/ node-modules/
+cd node_modules/fabric-network/
+rm -rf node_modules/fabric-ca-client/
+cp -r ../fabric-ca-client/ node_modules/
 ```
 
 ### 카드 인식 서버 구동

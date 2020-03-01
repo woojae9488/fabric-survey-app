@@ -10,12 +10,14 @@
             <b-row v-for="result in results" :key="result.resultNum">{{ result.answers[0] }}</b-row>
           </template>
 
-          <template v-else>
-            <b-row class="my-1">Answers Count :</b-row>
-            <b-row v-for="content in question.contents" :key="content"
-              >{{ content }} : {{ getAnswerCount(content) }}</b-row
-            >
-          </template>
+          <b-row v-else>
+            <result-bar-chart
+              :labels="question.contents"
+              :datas="answerCnts"
+              :height="80"
+              :width="550"
+            ></result-bar-chart>
+          </b-row>
         </template>
 
         <b-row v-else class="my-1">No Answers</b-row>
@@ -25,6 +27,8 @@
 </template>
 
 <script>
+import ResultBarChart from '@/components/ResultBarChart';
+
 export default {
   name: 'b-question-result',
   props: {
@@ -40,6 +44,26 @@ export default {
       type: Array,
       required: true,
     },
+  },
+  components: { ResultBarChart },
+  created() {
+    if (!this.isSubjective) {
+      for (let i = 0; i < this.question.contents.length; i += 1) {
+        this.answerCnts.push(0);
+      }
+
+      this.results.forEach(result => {
+        result.answers.forEach(answer => {
+          const index = this.question.contents.indexOf(answer);
+          this.answerCnts[index] += 1;
+        });
+      });
+    }
+  },
+  data() {
+    return {
+      answerCnts: [],
+    };
   },
   computed: {
     isSubjective() {
@@ -57,11 +81,6 @@ export default {
     },
     resultsState() {
       return this.results.length > 0;
-    },
-  },
-  methods: {
-    getAnswerCount(content) {
-      return this.results.filter(r => r.answers.indexOf(content) + 1).length;
     },
   },
 };

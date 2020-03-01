@@ -116,9 +116,9 @@ export default {
 
       try {
         if (this.isReplyExist) {
-          await replyService.respond(reply);
-        } else {
           await replyService.revise(reply);
+        } else {
+          await replyService.respond(reply);
         }
 
         this.$router.push('/SurveyList');

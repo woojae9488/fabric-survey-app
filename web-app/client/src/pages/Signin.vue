@@ -26,7 +26,7 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="user-id">ID :</label>
+              <label for="user-id">Id :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input
@@ -41,7 +41,7 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="user-password">PASSWORD :</label>
+              <label for="user-password">Password :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input

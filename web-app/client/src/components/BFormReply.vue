@@ -60,7 +60,6 @@
               :id="`answer${number}`"
               v-model="result.answers"
               :options="question.contents"
-              required
             ></b-form-checkbox-group>
           </b-row>
         </template>

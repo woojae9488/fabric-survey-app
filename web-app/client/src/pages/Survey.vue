@@ -15,6 +15,7 @@
         </b-col>
         <b-col sm="1" offset-sm="6">
           <b-button
+            v-if="isRegisterdState"
             :to="`/MakeSurvey/${this.department}/${this.createdAt}`"
             class="mx-1"
             variant="outline-primary"
@@ -93,6 +94,9 @@ export default {
   computed: {
     isSurveyOwner() {
       return this.userData.id === this.surveyInfo.managerID;
+    },
+    isRegisterdState() {
+      return this.surveyInfo.currentState === 1;
     },
   },
   methods: {
