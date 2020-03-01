@@ -5,7 +5,7 @@ export default {
     return await api.instance().get(`/auth/users/${role}/${id}`);
   },
 
-  async recongnizeCard(imgData) {
+  async recognizeCard(imgData) {
     return await api.instance('http://localhost:8091').post('/studentcard', { imgData });
   },
 

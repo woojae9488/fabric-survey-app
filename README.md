@@ -4,7 +4,7 @@
 
 Hyperledger Fabric 관련 SW들 설치
 
-- python 3.7.0 ~
+- python 3.6.0 ~
 - node.js 8.9 ~ 9.0 --> 10.\*
 - NPM 5.6.0 ~ --> 6.\*
 - golang 1.11 ~
@@ -51,8 +51,8 @@ cp -r ../fabric-ca-client/ node-modules/
 
 ```bash
 cd web-app/card-recognize-api/
-pip install -r ./requirements.txt
-python app.py
+pip3 install -r ./requirements.txt
+python3 app.py
 ```
 
 ### 프론트엔드 서버 구동

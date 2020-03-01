@@ -15,6 +15,11 @@ function installPrereqs() {
     cd ../
     set -x
     apt-get update
+    apt-get install -y python3 python3-pip
+    # install for develop image processing
+    apt-get install -y python3-opencv libzbar0
+    apt-get install -y tesseract-ocr tesseract-ocr-kor
+    pip3 install --upgrade pip
     apt-get install -y nodejs npm
     npm install -g npm
     wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
@@ -44,6 +49,8 @@ function addEnvironments() {
 
 function checkPrereqs() {
     set -x
+    python3 --version
+    pip3 --version
     node -v
     npm -v
     go version

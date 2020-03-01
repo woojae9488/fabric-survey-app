@@ -39,7 +39,7 @@ class ReplyList extends StateList {
         const replyInfosKey = ReplyInfo.makeKey([surveyKey]);
         const replyInfos = await this.getStatesByPartialKey(replyInfosKey);
 
-        replyInfos.reduce(async (prevPromise, replyInfo) => {
+        await replyInfos.reduce(async (prevPromise, replyInfo) => {
             await prevPromise;
 
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
@@ -55,7 +55,7 @@ class ReplyList extends StateList {
         const replies = [];
 
         const replyInfos = await this.getStatesByRange(replyInfoStart, replyInfoEnd);
-        replyInfos.reduce(async (prevPromise, replyInfo) => {
+        await replyInfos.reduce(async (prevPromise, replyInfo) => {
             await prevPromise;
 
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());
@@ -76,7 +76,7 @@ class ReplyList extends StateList {
             pageSize,
             replyBookmark,
         );
-        replyInfos.reduce(async (prevPromise, replyInfo) => {
+        await replyInfos.reduce(async (prevPromise, replyInfo) => {
             await prevPromise;
 
             const replyKey = Reply.makeReplyKeyByInfoKey(replyInfo.getKey());

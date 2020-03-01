@@ -34,9 +34,9 @@ function askProceed() {
 
 # Obtain CONTAINER_IDS and remove them
 function clearContainers() {
-    AWK_ARG="'(\$2 ~ /dev-peer.*.$CC_NAME.*/) {print \$1}'"
-    CONTAINER_IDS=$(docker ps -a | awk $AWK_ARG)
-    if [ -z $CONTAINER_IDS -o $CONTAINER_IDS == " " ]; then
+    AWK_PATTERN="dev-peer.*.$CC_NAME.*"
+    CONTAINER_IDS=$(docker ps -a | awk -v PAT="$AWK_PATTERN" '($2 ~ PAT) {print $1}')
+    if [ -z "$CONTAINER_IDS" -o "$CONTAINER_IDS" == " " ]; then
         echo "---- No containers available for deletion ----"
     else
         docker rm -f $CONTAINER_IDS
@@ -45,9 +45,9 @@ function clearContainers() {
 
 # Delete any images that were generated as a part of this setup
 function removeUnwantedImages() {
-    AWK_ARG="'(\$1 ~ /dev-peer.*.$CC_NAME.*/) {print \$3}'"
-    DOCKER_IMAGE_IDS=$(docker images | awk $AWK_ARG)
-    if [ -z $DOCKER_IMAGE_IDS -o $DOCKER_IMAGE_IDS == " " ]; then
+    AWK_PATTERN="dev-peer.*.$CC_NAME.*"
+    DOCKER_IMAGE_IDS=$(docker images | awk -v PAT=$AWK_PATTERN '($1 ~ PAT) {print $3}')
+    if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" == " " ]; then
         echo "---- No images available for deletion ----"
     else
         docker rmi -f $DOCKER_IMAGE_IDS
@@ -87,7 +87,6 @@ function checkPrereqs() {
 
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp() {
-    checkPrereqs
     if [ ! -d "./artifacts/bin" ]; then
         mkdir ./artifacts/bin
         cp ../fabric-samples/bin/* ./artifacts/bin/
@@ -95,6 +94,8 @@ function networkUp() {
     if [ ! -x "scripts/script.sh" -o ! -x "scripts/utils.sh" ]; then
         chmod 777 scripts/*
     fi
+
+    checkPrereqs
     if [ ! -d "./artifacts/network/crypto-config" ]; then
         generateCerts
         generateChannelArtifacts

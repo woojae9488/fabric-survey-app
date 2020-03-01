@@ -1,6 +1,8 @@
 ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem
 PEER0_MANAGER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/ca.crt
+PEER1_MANAGER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/tls/ca.crt
 PEER0_STUDENT_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/tls/ca.crt
+PEER1_STUDENT_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/tls/ca.crt
 ORDERER_MSP=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/jnu.com/users/Admin@jnu.com/msp
 MANAGER_MSP=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/users/Admin@manager.jnu.com/msp
 STUDENT_MSP=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/student.jnu.com/users/Admin@student.jnu.com/msp
@@ -205,7 +207,7 @@ chaincodeInvoke() {
 
     case $FUNC in
     "manager")
-        ARGS='{"Args":["registerManager","admin","adminpw","[\"jnu\"]}'
+        ARGS='{"Args":["registerManager","admin","adminpw","[\"jnu\"]"]}'
         ;;
     "register")
         ARGS='{"Args":["register","{\"surveyKey\":\"jnu_0\",\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:jnu:0\",\"currentState\":null,\"department\":\"jnu\",\"createdAt\":0,\"managerID\":\"admin\",\"title\":\"test\",\"startDate\":0,\"finishDate\":0},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:jnu_0:0\",\"surveyKey\":\"jnu_0\",\"questionNum\":0,\"title\":\"test\",\"type\":\"text\",\"contents\":[]}]}"]}'

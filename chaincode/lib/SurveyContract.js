@@ -86,6 +86,7 @@ class SurveyContract extends Contract {
             );
         }
 
+        newSurveyInfo.setRegistered();
         newSurveyInfo.setUpdatedAt(Date.now());
         await ctx.surveyList.updateSurvey(newSurvey);
         await ctx.surveyList.setSurveyEvent('Update', newSurveyInfo);

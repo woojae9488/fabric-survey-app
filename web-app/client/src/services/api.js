@@ -18,22 +18,22 @@ export default {
   },
 
   setData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
+    sessionStorage.setItem(key, JSON.stringify(data));
   },
 
   getData(key) {
-    return JSON.parse(localStorage.getItem(key));
+    return JSON.parse(sessionStorage.getItem(key));
   },
 
   clearData(key = null) {
     if (key) {
       if (Array.isArray(key)) {
-        key.forEach(k => localStorage.removeItem(k));
+        key.forEach(k => sessionStorage.removeItem(k));
       } else {
-        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
       }
     } else {
-      localStorage.clear();
+      sessionStorage.clear();
     }
   },
 

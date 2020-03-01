@@ -3,7 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-form @submit.prevent="registerSurvey">
-      <b-container fluid>
+      <b-container v-if="createdFinish" fluid>
         <b-row class="my-2" align-v="center">
           <b-col sm="auto">
             <label for="survey-title">Survey Title :</label>
@@ -241,10 +241,12 @@ export default {
     }
 
     this.userData = api.getData('user');
+    this.createdFinish = true;
   },
   data() {
     return {
       title: 'Make your Survey',
+      createdFinish: false,
       isMakerHide: true,
       userData: {},
       surveyInfo: {},
@@ -273,21 +275,25 @@ export default {
     },
   },
   methods: {
+    splitDateJSON(dateBase) {
+      const timeMS = parseInt(dateBase, 10) + 540 * 60 * 1000;
+      const dateObj = new Date(timeMS);
+      const splits = dateObj.toJSON().split('T');
+      const date = splits[0];
+      const time = splits[1].slice(0, 5);
+      return { date, time };
+    },
+
     overwriteExistData(data) {
       this.surveyInfo = data.surveyInfo;
       this.questions = data.questions;
 
-      const start = new Date(this.surveyInfo.startDate);
-      const startDate = start.toLocaleDateString();
-      const startTime = start.toLocaleTimeString().substring(0, 5);
-      this.surveyInfo.startDate = startDate;
-      this.surveyInfo.startTime = startTime;
-
-      const finish = new Date(this.surveyInfo.finishDate);
-      const finishDate = finish.toLocaleDateString();
-      const finishTime = finish.toLocaleTimeString().substring(0, 5);
-      this.surveyInfo.finishDate = finishDate;
-      this.surveyInfo.finishTime = finishTime;
+      const start = this.splitDateJSON(this.surveyInfo.startDate);
+      this.surveyInfo.startDate = start.date;
+      this.surveyInfo.startTime = start.time;
+      const finish = this.splitDateJSON(this.surveyInfo.finishDate);
+      this.surveyInfo.finishDate = finish.date;
+      this.surveyInfo.finishTime = finish.time;
     },
 
     toggleMaker() {

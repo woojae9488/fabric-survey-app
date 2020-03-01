@@ -3,6 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
+      v-if="createdFinish"
       :header="surveyInfo.title"
       header-tag="h4"
       border-variant="info"
@@ -60,7 +61,16 @@ export default {
         this.replyUsers.push(reply.replyInfo.studentID);
         this.replyResults.push(reply.results);
       });
-      this.questionResults = this.transpose2DArray(this.replyResults);
+
+      if (this.replyUsersCnt > 0) {
+        this.questionResults = this.transpose2DArray(this.replyResults);
+      } else {
+        for (let i = 0; i < this.questions.length; i += 1) {
+          this.questionResults.push([]);
+        }
+      }
+
+      this.createdFinish = true;
     } catch (err) {
       console.log(api.getErrorMsg(err));
       alert('Survey response lookup fail');
@@ -72,6 +82,7 @@ export default {
   data() {
     return {
       title: 'Replies',
+      createdFinish: false,
       surveyInfo: {},
       questions: [],
       replyUsers: [],
@@ -84,7 +95,7 @@ export default {
       return this.replyUsers.length;
     },
     replyUsersStr() {
-      return this.replyUsers.join(', ');
+      return this.replyUsers.length === 0 ? 'No attendees' : this.replyUsers.join(', ');
     },
   },
   methods: {

@@ -3,6 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
+      v-if="createdFinish"
       :header="surveyInfo.title"
       header-tag="h4"
       border-variant="info"
@@ -59,6 +60,8 @@ export default {
     } finally {
       eventBus.$emit('hideSpinner');
     }
+
+    this.createdFinish = true;
   },
   updated() {
     this.checkIdentity();
@@ -66,6 +69,7 @@ export default {
   data() {
     return {
       title: 'Respond to the survey',
+      createdFinish: false,
       surveyInfo: {},
       questions: [],
       existReplyInfo: null,

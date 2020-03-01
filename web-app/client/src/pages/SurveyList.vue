@@ -108,7 +108,7 @@ export default {
   methods: {
     async initSurveyLists() {
       try {
-        this.userData.departments.reduce(async (prevPromise, department) => {
+        await this.userData.departments.reduce(async (prevPromise, department) => {
           await prevPromise;
 
           const apiRes = await surveyService.queryList(department);
@@ -126,7 +126,7 @@ export default {
     },
 
     onClickSurveyInfo(item) {
-      if (this.isStudent) {
+      if (this.isStudent && item.currentState === this.surveyState[1]) {
         this.$router.push(`/Reply${item.path}/${this.userData.id}`);
       } else if (this.isManager) {
         this.$router.push(`/Survey${item.path}`);
@@ -144,10 +144,12 @@ export default {
 
     changeInfosToRows(infos) {
       const rowData = [];
-      const keys = Object.keys(infos[0]);
 
       infos.forEach(info => {
+        const keys = Object.keys(info);
         const row = {};
+        row.path = `/${info.department}/${info.createdAt}`;
+
         keys.forEach(key => {
           if (key === 'currentState') {
             row[key] = this.surveyState[info[key] - 1];

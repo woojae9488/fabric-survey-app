@@ -37,6 +37,11 @@ export default {
       this.isLogined = true;
     }
   },
+  updated() {
+    if (api.getData('accessToken') && api.getData('refreshToken')) {
+      this.isLogined = true;
+    }
+  },
   mounted() {
     eventBus.$on('runSpinner', this.runSpinner);
     eventBus.$on('hideSpinner', this.hideSpinner);
@@ -46,7 +51,7 @@ export default {
   },
   data() {
     return {
-      isLogined: true,
+      isLogined: false,
     };
   },
   methods: {
@@ -58,6 +63,7 @@ export default {
     },
     logout() {
       api.clearData();
+      this.isLogined = false;
       this.$router.push('/');
     },
   },

@@ -1,8 +1,8 @@
 <template>
   <div class="Survey">
-    <h2 class="pb-4">{{title}}</h2>
+    <h2 class="pb-4">{{ title }}</h2>
 
-    <b-container fluid>
+    <b-container v-if="createdFinish" fluid>
       <b-row v-if="isSurveyOwner" class="my-1" align-v="center">
         <b-col sm="3">
           <b-button
@@ -10,7 +10,8 @@
             variant="outline-success"
             size="sm"
             pill
-          >View Replies</b-button>
+            >View Replies</b-button
+          >
         </b-col>
         <b-col sm="1" offset-sm="6">
           <b-button
@@ -19,36 +20,33 @@
             variant="outline-primary"
             size="sm"
             pill
-          >Update</b-button>
+            >Update</b-button
+          >
         </b-col>
         <b-col sm="1">
-          <b-button
-            @click="removeSurvey"
-            class="mx-1"
-            variant="outline-danger"
-            size="sm"
-            pill
-          >Remove</b-button>
+          <b-button @click="removeSurvey" class="mx-1" variant="outline-danger" size="sm" pill
+            >Remove</b-button
+          >
         </b-col>
       </b-row>
 
       <b-row class="my-3" align-v="center">
         <b-col sm="2" offset-sm="1">Survey Title :</b-col>
-        <b-col sm="3">{{surveyInfo.title}}</b-col>
+        <b-col sm="3">{{ surveyInfo.title }}</b-col>
         <b-col sm="2">Department :</b-col>
-        <b-col sm="3">{{surveyInfo.department}}</b-col>
+        <b-col sm="3">{{ surveyInfo.department }}</b-col>
       </b-row>
 
       <b-row class="my-3" align-v="center">
         <b-col sm="2" offset-sm="1">Start Date :</b-col>
-        <b-col sm="3">{{getDateStr(surveyInfo.startDate)}}</b-col>
+        <b-col sm="3">{{ getDateStr(surveyInfo.startDate) }}</b-col>
         <b-col sm="2">Finish Date :</b-col>
-        <b-col sm="3">{{getDateStr(surveyInfo.finishDate)}}</b-col>
+        <b-col sm="3">{{ getDateStr(surveyInfo.finishDate) }}</b-col>
       </b-row>
 
       <b-row v-for="(question, index) in questions" class="my-4" align-h="center" :key="index">
         <b-col sm="8">
-          <!-- <b-survey-content :number="index + 1" :question="question"></b-survey-content> -->
+          <b-survey-content :number="index + 1" :question="question"></b-survey-content>
         </b-col>
       </b-row>
     </b-container>
@@ -56,9 +54,9 @@
 </template>
 
 <script>
-import api from '@/services/api.js';
-import surveyService from '@/services/surveyApi.js';
-import eventBus from '@/utils/eventBus.js';
+import api from '@/services/api';
+import surveyService from '@/services/surveyApi';
+import eventBus from '@/utils/eventBus';
 import BSurveyContent from '@/components/BSurveyContent.vue';
 
 export default {
@@ -68,7 +66,7 @@ export default {
   async created() {
     eventBus.$emit('runSpinner');
 
-    this.userData = api.getDate('user');
+    this.userData = api.getData('user');
     try {
       const apiRes = await surveyService.query(this.department, this.createdAt);
       const apiData = api.getResultData(apiRes);
@@ -80,10 +78,13 @@ export default {
     } finally {
       eventBus.$emit('hideSpinner');
     }
+
+    this.createdFinish = true;
   },
   data() {
     return {
       title: 'Survey',
+      createdFinish: false,
       userData: {},
       surveyInfo: {},
       questions: [],

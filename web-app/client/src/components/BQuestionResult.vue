@@ -4,17 +4,21 @@
       <b-container fluid>
         <b-row class="my-2">{{ number }}. {{ question.title }}</b-row>
 
-        <template v-if="isSubjective">
-          <b-row class="my-1">Answers :</b-row>
-          <b-row v-for="result in results" :key="result.resultNum">{{ result.answers[0] }}</b-row>
+        <template v-if="resultsState">
+          <template v-if="isSubjective">
+            <b-row class="my-1">Answers :</b-row>
+            <b-row v-for="result in results" :key="result.resultNum">{{ result.answers[0] }}</b-row>
+          </template>
+
+          <template v-else>
+            <b-row class="my-1">Answers Count :</b-row>
+            <b-row v-for="content in question.contents" :key="content"
+              >{{ content }} : {{ getAnswerCount(content) }}</b-row
+            >
+          </template>
         </template>
 
-        <template v-else>
-          <b-row class="my-1">Answers Count :</b-row>
-          <b-row v-for="content in question.contents" :key="content"
-            >{{ content }} : {{ getAnswerCount(content) }}</b-row
-          >
-        </template>
+        <b-row v-else class="my-1">No Answers</b-row>
       </b-container>
     </b-card>
   </div>
@@ -50,6 +54,9 @@ export default {
         default:
           return null;
       }
+    },
+    resultsState() {
+      return this.results.length > 0;
     },
   },
   methods: {
