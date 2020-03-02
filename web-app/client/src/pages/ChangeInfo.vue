@@ -85,10 +85,6 @@ import eventBus from '@/utils/eventBus';
 
 export default {
   name: 'ChangeInfo',
-  created() {
-    this.userData = api.getData('user');
-    this.userData.role = api.getData('role');
-  },
   data() {
     return {
       title: 'Change your information',
@@ -112,11 +108,19 @@ export default {
         : !(this.changeData.passwordConfirm.length < 8);
     },
   },
+  created() {
+    this.fillUserData();
+  },
   methods: {
-    async changeInfo() {
-      eventBus.$emit('runSpinner');
+    fillUserData() {
+      this.userData = api.getData('user');
+      this.userData.role = api.getData('role');
+    },
 
+    async changeInfo() {
       try {
+        eventBus.$emit('runSpinner');
+
         if (this.changeData.password !== this.changeData.passwordConfirm) {
           alert('Password confirm mismatch');
           return;
@@ -134,7 +138,7 @@ export default {
         this.$router.push('/Signin');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Change information fail');
+        alert('Fail to change user information');
       } finally {
         eventBus.$emit('hideSpinner');
       }

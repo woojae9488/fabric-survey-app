@@ -3,7 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
-      v-if="createdFinish"
+      v-if="isCreatedFinish"
       :header="surveyInfo.title"
       header-tag="h4"
       border-variant="info"
@@ -39,37 +39,12 @@ import BFormReply from '@/components/BFormReply.vue';
 
 export default {
   name: 'Reply',
-  props: ['department', 'surveyCreatedAt', 'uid'],
   components: { BFormReply },
-  async created() {
-    eventBus.$emit('runSpinner');
-    this.checkIdentity();
-
-    try {
-      const surveyRes = await surveyService.query(this.department, this.surveyCreatedAt);
-      const surveyData = api.getResultData(surveyRes);
-      this.surveyInfo = surveyData.surveyInfo;
-      this.questions = surveyData.questions;
-      this.surveyInfo.surveyKey = surveyData.surveyKey;
-
-      await this.overwriteExistReply();
-    } catch (err) {
-      console.log(api.getErrorMsg(err));
-      alert('Query survey data fail');
-      this.$router.push('/SurveyList');
-    } finally {
-      eventBus.$emit('hideSpinner');
-    }
-
-    this.createdFinish = true;
-  },
-  updated() {
-    this.checkIdentity();
-  },
+  props: ['department', 'surveyCreatedAt', 'uid'],
   data() {
     return {
       title: 'Respond to the survey',
-      createdFinish: false,
+      isCreatedFinish: false,
       surveyInfo: {},
       questions: [],
       existReplyInfo: null,
@@ -84,13 +59,44 @@ export default {
       return this.existReplyInfo ? 'Revise' : 'Respond';
     },
   },
+  async created() {
+    try {
+      eventBus.$emit('runSpinner');
+      if (this.checkIdentity()) {
+        return;
+      }
+
+      await this.fillSurveyData();
+      await this.fillExistReply();
+    } catch (err) {
+      console.log(api.getErrorMsg(err));
+      alert('Fail to lookup survey data');
+      this.$router.push('/SurveyList');
+    } finally {
+      eventBus.$emit('hideSpinner');
+    }
+
+    this.isCreatedFinish = true;
+  },
+  updated() {
+    if (this.checkIdentity()) {
+      this.$router.push('/SurveyList');
+    }
+  },
   methods: {
     checkIdentity() {
-      if (this.uid !== api.getData('user').id) {
-        this.$router.push('/SurveyList');
-      }
+      return this.uid !== api.getData('user').id;
     },
-    async overwriteExistReply() {
+
+    async fillSurveyData() {
+      const surveyRes = await surveyService.query(this.department, this.surveyCreatedAt);
+      const surveyData = api.getResultData(surveyRes);
+      this.surveyInfo = surveyData.surveyInfo;
+      this.questions = surveyData.questions;
+      this.surveyInfo.surveyKey = surveyData.surveyKey;
+    },
+
+    async fillExistReply() {
       try {
         const replyRes = await replyService.query(this.department, this.surveyCreatedAt, this.uid);
         const replyData = api.getResultData(replyRes);
@@ -98,15 +104,13 @@ export default {
         this.results = replyData.results;
       } catch (err) {
         this.existReplyInfo = null;
-
         for (let i = 0; i < this.questions.length; i += 1) {
           this.results.push({ number: i, answers: [] });
         }
       }
     },
-    async replySurvey() {
-      eventBus.$emit('runSpinner');
 
+    async replySurvey() {
       const reply = replyService.makeReply(
         this.surveyInfo.surveyKey,
         this.uid,
@@ -115,6 +119,8 @@ export default {
       );
 
       try {
+        eventBus.$emit('runSpinner');
+
         if (this.isReplyExist) {
           await replyService.revise(reply);
         } else {
@@ -124,7 +130,7 @@ export default {
         this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Respond to the survey fail');
+        alert('Fail to respond to the survey');
       } finally {
         eventBus.$emit('hideSpinner');
       }

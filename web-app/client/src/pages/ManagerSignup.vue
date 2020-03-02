@@ -13,11 +13,11 @@
         <b-form @submit.prevent="signup">
           <b-row class="my-3">
             <b-col sm="2">
-              <label for="manager-id">Id :</label>
+              <label for="user-id">Id :</label>
             </b-col>
             <b-col sm="7">
               <b-form-input
-                id="manager-id"
+                id="user-id"
                 v-model="registerData.id"
                 :state="idState"
                 aria-describedby="input-live-feedback"
@@ -36,11 +36,11 @@
 
           <b-row class="my-3">
             <b-col sm="3">
-              <label for="manager-departments">Departments :</label>
+              <label for="user-departments">Departments :</label>
             </b-col>
             <b-col sm="6">
               <b-form-input
-                id="manager-departments"
+                id="user-departments"
                 v-model="registerData.departments"
                 placeholder="Enter your Departments separated by commas"
                 trim
@@ -51,12 +51,12 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="manager-password">Password :</label>
+              <label for="user-password">Password :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input
                 type="password"
-                id="manager-password"
+                id="user-password"
                 v-model="registerData.password"
                 :state="passwordState"
                 aria-describedby="input-live-feedback"
@@ -72,12 +72,12 @@
 
           <b-row class="my-3" align-v="center">
             <b-col sm="3">
-              <label for="manager-password-confirm">Confirm :</label>
+              <label for="user-password-confirm">Confirm :</label>
             </b-col>
             <b-col sm="9">
               <b-form-input
                 type="password"
-                id="manager-password-confirm"
+                id="user-password-confirm"
                 v-model="registerData.passwordConfirm"
                 :state="passwordConfirmState"
                 placeholder="Enter your Password again"
@@ -142,9 +142,9 @@ export default {
   },
   methods: {
     async checkIdExists() {
-      eventBus.$emit('runSpinner');
-
       try {
+        eventBus.$emit('runSpinner');
+
         const apiRes = await userService.checkExistence('manager', this.registerData.id);
         const apiData = api.getResultData(apiRes);
 
@@ -156,16 +156,16 @@ export default {
         }
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Check id fail');
+        alert('Fail to check id');
       } finally {
         eventBus.$emit('hideSpinner');
       }
     },
 
     async signup() {
-      eventBus.$emit('runSpinner');
-
       try {
+        eventBus.$emit('runSpinner');
+
         if (!this.idChecked) {
           alert('Check your id first');
           return;
@@ -185,10 +185,10 @@ export default {
           departments,
         );
 
-        this.$router.push('/Signin');
+        this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Signup fail');
+        alert('Fail to manager signup');
       } finally {
         eventBus.$emit('hideSpinner');
       }

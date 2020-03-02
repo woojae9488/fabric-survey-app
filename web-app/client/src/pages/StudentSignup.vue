@@ -163,13 +163,13 @@ export default {
   },
   methods: {
     async showImgPreview(event) {
-      eventBus.$emit('runSpinner');
-
       const imgFile = event.target.files[0];
       const reader = new FileReader();
 
       reader.onload = async e => {
         try {
+          eventBus.$emit('runSpinner');
+
           this.studentCardSrc = e.target.result;
           const cardRes = await userService.recognizeCard(this.studentCardSrc);
           const cardData = api.getResultData(cardRes);
@@ -189,9 +189,9 @@ export default {
     },
 
     async signup() {
-      eventBus.$emit('runSpinner');
-
       try {
+        eventBus.$emit('runSpinner');
+
         if (this.registerData.password !== this.registerData.passwordConfirm) {
           alert('Password confirm mismatch');
           return;
@@ -208,7 +208,7 @@ export default {
         this.$router.push('/Signin');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Signup fail');
+        alert('Fail to student signup');
       } finally {
         eventBus.$emit('hideSpinner');
       }

@@ -3,7 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-form @submit.prevent="registerSurvey">
-      <b-container v-if="createdFinish" fluid>
+      <b-container v-if="isCreatedFinish" fluid>
         <b-row class="my-2" align-v="center">
           <b-col sm="auto">
             <label for="survey-title">Survey Title :</label>
@@ -223,30 +223,12 @@ import BSurveyContent from '@/components/BSurveyContent.vue';
 
 export default {
   name: 'MakeSurvey',
-  props: ['department', 'createdAt'],
   components: { BSurveyContent },
-  async created() {
-    if (this.isSurveyExist) {
-      eventBus.$emit('runSpinner');
-      try {
-        const apiRes = await surveyService.query(this.department, this.createdAt);
-        const apiData = api.getResultData(apiRes);
-        this.overwriteExistData(apiData);
-      } catch (err) {
-        console.log(api.getErrorMsg(err));
-        alert('Query exist survey fail');
-      } finally {
-        eventBus.$emit('hideSpinner');
-      }
-    }
-
-    this.userData = api.getData('user');
-    this.createdFinish = true;
-  },
+  props: ['department', 'createdAt'],
   data() {
     return {
       title: 'Make your Survey',
-      createdFinish: false,
+      isCreatedFinish: false,
       isMakerHide: true,
       userData: {},
       surveyInfo: {},
@@ -274,6 +256,22 @@ export default {
       return this.department && this.createdAt ? 'Update' : 'Register';
     },
   },
+  async created() {
+    if (this.isSurveyExist) {
+      try {
+        eventBus.$emit('runSpinner');
+        await this.fillSurveyData();
+      } catch (err) {
+        console.log(api.getErrorMsg(err));
+        alert('Query exist survey fail');
+      } finally {
+        eventBus.$emit('hideSpinner');
+      }
+    }
+
+    this.userData = api.getData('user');
+    this.isCreatedFinish = true;
+  },
   methods: {
     splitDateJSON(dateBase) {
       const timeMS = parseInt(dateBase, 10) + 540 * 60 * 1000;
@@ -296,8 +294,24 @@ export default {
       this.surveyInfo.finishTime = finish.time;
     },
 
+    async fillSurveyData() {
+      const apiRes = await surveyService.query(this.department, this.createdAt);
+      const apiData = api.getResultData(apiRes);
+      this.overwriteExistData(apiData);
+    },
+
     toggleMaker() {
       this.isMakerHide = !this.isMakerHide;
+    },
+
+    addContent() {
+      this.maker.contents.push(this.maker.newContent);
+      this.maker.newContent = '';
+    },
+
+    deleteContent(event) {
+      const index = event.target.name;
+      this.maker.contents.splice(index, 1);
     },
 
     makeQuestion() {
@@ -320,23 +334,13 @@ export default {
       this.questions.splice(index, 1);
     },
 
-    addContent() {
-      this.maker.contents.push(this.maker.newContent);
-      this.maker.newContent = '';
-    },
-
-    deleteContent(event) {
-      const index = event.target.name;
-      this.maker.contents.splice(index, 1);
-    },
-
     moveUpQuestion(event) {
       const index = parseInt(event.target.name, 10);
       if (index === 0) {
         return;
       }
-      const question = this.questions.splice(index, 1)[0];
-      this.questions.splice(index - 1, 0, question);
+      const question = this.questions.splice(index, 1);
+      this.questions.splice(index - 1, 0, ...question);
     },
 
     moveDownQuestion(event) {
@@ -344,13 +348,11 @@ export default {
       if (index === this.questions.length - 1) {
         return;
       }
-      const question = this.questions.splice(index, 1)[0];
-      this.questions.splice(index + 1, 0, question);
+      const question = this.questions.splice(index, 1);
+      this.questions.splice(index + 1, 0, ...question);
     },
 
     async registerSurvey() {
-      eventBus.$emit('runSpinner');
-
       const start = `${this.surveyInfo.startDate} ${this.surveyInfo.startTime}`;
       const finish = `${this.surveyInfo.finishDate} ${this.surveyInfo.finishTime}`;
       this.surveyInfo.start = new Date(start).getTime();
@@ -359,6 +361,8 @@ export default {
       const survey = surveyService.makeSurvey(this.userData.id, this.surveyInfo, this.questions);
 
       try {
+        eventBus.$emit('runSpinner');
+
         if (this.isSurveyExist) {
           await surveyService.update(survey);
         } else {
@@ -368,7 +372,7 @@ export default {
         this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Make survey fail');
+        alert('Fail to make survey');
       } finally {
         eventBus.$emit('hideSpinner');
       }

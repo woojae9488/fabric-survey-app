@@ -17,6 +17,7 @@
                 id="role-radio-group"
                 v-model="loginData.role"
                 :options="roleOptions"
+                button-variant="info"
                 name="role-radios"
                 size="sm"
                 buttons
@@ -79,11 +80,6 @@ import eventBus from '@/utils/eventBus';
 
 export default {
   name: 'Signin',
-  created() {
-    if (api.getData('accessToken') && api.getData('refreshToken')) {
-      this.$router.push('/SurveyList');
-    }
-  },
   data() {
     return {
       title: 'Welcome to JNU Survey App',
@@ -100,11 +96,20 @@ export default {
       return this.loginData.role === 'student';
     },
   },
+  created() {
+    if (this.checkValidity()) {
+      this.$router.push('/SurveyList');
+    }
+  },
   methods: {
-    async signin() {
-      eventBus.$emit('runSpinner');
+    checkValidity() {
+      return Boolean(api.getData('accessToken') && api.getData('refreshToken'));
+    },
 
+    async signin() {
       try {
+        eventBus.$emit('runSpinner');
+
         const apiRes = await userService.signin(
           this.loginData.role,
           this.loginData.id,
@@ -119,7 +124,7 @@ export default {
         this.$router.push('/SurveyList');
       } catch (err) {
         console.log(api.getErrorMsg(err));
-        alert('Signin fail');
+        alert('Fail to signin');
       } finally {
         eventBus.$emit('hideSpinner');
       }

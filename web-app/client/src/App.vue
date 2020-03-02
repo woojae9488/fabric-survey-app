@@ -32,13 +32,17 @@ import VueInstantLoadingSpinner from 'vue-instant-loading-spinner/src/components
 
 export default {
   name: 'app',
+  components: { VueInstantLoadingSpinner },
+  data() {
+    return { isLogined: false };
+  },
   created() {
-    if (api.getData('accessToken') && api.getData('refreshToken')) {
+    if (this.checkValidity()) {
       this.isLogined = true;
     }
   },
   updated() {
-    if (api.getData('accessToken') && api.getData('refreshToken')) {
+    if (this.checkValidity()) {
       this.isLogined = true;
     }
   },
@@ -46,20 +50,15 @@ export default {
     eventBus.$on('runSpinner', this.runSpinner);
     eventBus.$on('hideSpinner', this.hideSpinner);
   },
-  components: {
-    VueInstantLoadingSpinner,
-  },
-  data() {
-    return {
-      isLogined: false,
-    };
-  },
   methods: {
     async runSpinner() {
       await this.$refs.Spinner.show();
     },
     async hideSpinner() {
       await this.$refs.Spinner.hide();
+    },
+    checkValidity() {
+      return Boolean(api.getData('accessToken') && api.getData('refreshToken'));
     },
     logout() {
       api.clearData();

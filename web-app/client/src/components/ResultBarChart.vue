@@ -14,21 +14,6 @@ export default {
       required: true,
     },
   },
-  created() {
-    this.labels.forEach((label, index) => {
-      this.dataCollection.datasets.push({
-        label,
-        data: [this.datas[index]],
-        backgroundColor: this.getRandomColorStr(),
-        barThickness: 30,
-        borderWidth: 2,
-        borderColor: 'white',
-      });
-    });
-  },
-  mounted() {
-    this.renderChart(this.dataCollection, this.options);
-  },
   data() {
     return {
       dataCollection: {
@@ -36,9 +21,7 @@ export default {
         datasets: [],
       },
       options: {
-        layout: {
-          padding: 10,
-        },
+        layout: { padding: 10 },
         tooltips: { mode: 'single' },
         scales: {
           yAxes: [{ stacked: true }],
@@ -56,9 +39,27 @@ export default {
       },
     };
   },
+  created() {
+    this.fillDatasets();
+  },
+  mounted() {
+    this.renderChart(this.dataCollection, this.options);
+  },
   methods: {
     getRandomColorStr() {
       return `#${Math.floor(Math.random() * 0xffffff).toString(16)}`;
+    },
+    fillDatasets() {
+      this.labels.forEach((label, index) => {
+        this.dataCollection.datasets.push({
+          label,
+          data: [this.datas[index]],
+          backgroundColor: this.getRandomColorStr(),
+          barThickness: 30,
+          borderColor: 'white',
+          borderWidth: 2,
+        });
+      });
     },
   },
 };

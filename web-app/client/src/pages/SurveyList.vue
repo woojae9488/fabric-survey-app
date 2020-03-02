@@ -65,15 +65,6 @@ import eventBus from '@/utils/eventBus';
 
 export default {
   name: 'SurveyList',
-  async created() {
-    eventBus.$emit('runSpinner');
-
-    this.userData = api.getData('user');
-    this.userData.role = api.getData('role');
-    await this.initSurveyLists();
-
-    eventBus.$emit('hideSpinner');
-  },
   data() {
     return {
       title: 'Survey List',
@@ -105,41 +96,30 @@ export default {
       return this.userData.role === 'manager';
     },
   },
+  async created() {
+    try {
+      eventBus.$emit('runSpinner');
+      this.fillUserData();
+      await this.fillSurveyLists();
+    } catch (err) {
+      console.log(api.getErrorMsg(err));
+      alert('Fail to lookup survey list');
+    } finally {
+      eventBus.$emit('hideSpinner');
+    }
+  },
   methods: {
-    async initSurveyLists() {
-      try {
-        await this.userData.departments.reduce(async (prevPromise, department) => {
-          await prevPromise;
-
-          const apiRes = await surveyService.queryList(department);
-          const apiData = api.getResultData(apiRes);
-          const rowData = this.changeInfosToRows(apiData);
-          this.surveyInfos.indexs.push(department);
-          this.surveyInfos.lists.push(rowData);
-        }, Promise.resolve());
-
-        this.surveyTable.totalRows = this.surveyInfos.lists[0].length;
-      } catch (err) {
-        console.log(api.getErrorMsg(err));
-        alert('Loading survey list fail');
-      }
+    fillUserData() {
+      this.userData = api.getData('user');
+      this.userData.role = api.getData('role');
     },
 
-    onClickSurveyInfo(item) {
-      if (this.isStudent && item.currentState === this.surveyState[1]) {
-        this.$router.push(`/Reply${item.path}/${this.userData.id}`);
-      } else if (this.isManager) {
-        this.$router.push(`/Survey${item.path}`);
-      }
-    },
+    getFormatedDate(time) {
+      // yy.MM.dd HH:mm
+      const d = new Date(time);
+      const minute = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
 
-    onClickSurveyIndex(event) {
-      const indexName = event.target.innerHTML;
-      const index = this.surveyInfos.indexs.indexOf(indexName);
-      const totalRows = this.surveyInfos.lists[index].length;
-      this.surveyTable.index = index;
-      this.surveyTable.totalRows = totalRows;
-      this.surveyTable.currentPage = 1;
+      return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} ${d.getHours()}:${minute}`;
     },
 
     changeInfosToRows(infos) {
@@ -165,12 +145,35 @@ export default {
       return rowData;
     },
 
-    getFormatedDate(time) {
-      // yy.MM.dd HH:mm
-      const d = new Date(time);
-      const minute = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+    async fillSurveyLists() {
+      await this.userData.departments.reduce(async (prevPromise, department) => {
+        await prevPromise;
 
-      return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} ${d.getHours()}:${minute}`;
+        const apiRes = await surveyService.queryList(department);
+        const apiData = api.getResultData(apiRes);
+        const rowData = this.changeInfosToRows(apiData);
+        this.surveyInfos.indexs.push(department);
+        this.surveyInfos.lists.push(rowData);
+      }, Promise.resolve());
+
+      this.surveyTable.totalRows = this.surveyInfos.lists[0].length;
+    },
+
+    onClickSurveyInfo(item) {
+      if (this.isStudent && item.currentState === this.surveyState[1]) {
+        this.$router.push(`/Reply${item.path}/${this.userData.id}`);
+      } else if (this.isManager) {
+        this.$router.push(`/Survey${item.path}`);
+      }
+    },
+
+    onClickSurveyIndex(event) {
+      const indexName = event.target.innerHTML;
+      const index = this.surveyInfos.indexs.indexOf(indexName);
+      const totalRows = this.surveyInfos.lists[index].length;
+      this.surveyTable.index = index;
+      this.surveyTable.totalRows = totalRows;
+      this.surveyTable.currentPage = 1;
     },
   },
 };

@@ -4,7 +4,7 @@
       <b-container fluid>
         <b-row class="my-2">{{ number }}. {{ question.title }}</b-row>
 
-        <template v-if="resultsState">
+        <template v-if="isResultsExist">
           <template v-if="isSubjective">
             <b-row class="my-1">Answers :</b-row>
             <b-row v-for="result in results" :key="result.resultNum">{{ result.answers[0] }}</b-row>
@@ -31,6 +31,7 @@ import ResultBarChart from '@/components/ResultBarChart';
 
 export default {
   name: 'b-question-result',
+  components: { ResultBarChart },
   props: {
     number: {
       type: Number,
@@ -44,21 +45,6 @@ export default {
       type: Array,
       required: true,
     },
-  },
-  components: { ResultBarChart },
-  created() {
-    if (!this.isSubjective) {
-      for (let i = 0; i < this.question.contents.length; i += 1) {
-        this.answerCnts.push(0);
-      }
-
-      this.results.forEach(result => {
-        result.answers.forEach(answer => {
-          const index = this.question.contents.indexOf(answer);
-          this.answerCnts[index] += 1;
-        });
-      });
-    }
   },
   data() {
     return {
@@ -79,8 +65,27 @@ export default {
           return null;
       }
     },
-    resultsState() {
+    isResultsExist() {
       return this.results.length > 0;
+    },
+  },
+  created() {
+    if (!this.isSubjective) {
+      this.countAnswers();
+    }
+  },
+  methods: {
+    countAnswers() {
+      for (let i = 0; i < this.question.contents.length; i += 1) {
+        this.answerCnts.push(0);
+      }
+
+      this.results.forEach(result => {
+        result.answers.forEach(answer => {
+          const index = this.question.contents.indexOf(answer);
+          this.answerCnts[index] += 1;
+        });
+      });
     },
   },
 };

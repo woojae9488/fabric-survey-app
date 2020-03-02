@@ -142,7 +142,7 @@ router.beforeEach(async (to, _from, next) => {
         }
       }
     } else {
-      alert('Authenticate Fail');
+      alert('Fail to Authentication');
       return next('/Signin');
     }
   }
