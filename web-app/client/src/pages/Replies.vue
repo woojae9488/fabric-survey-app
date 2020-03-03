@@ -85,6 +85,7 @@ export default {
       const surveyRes = await surveyService.query(this.department, this.surveyCreatedAt);
       const surveyData = api.getResultData(surveyRes);
       this.surveyInfo = surveyData.surveyInfo;
+      this.surveyInfo.surveyKey = surveyData.surveyKey;
       this.questions = surveyData.questions;
     },
 

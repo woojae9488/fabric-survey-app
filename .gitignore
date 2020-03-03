@@ -12,7 +12,6 @@
 *.out
 
 # Files created by the installation of npm
-package-lock.json
 node_modules/
 
 # Setup files in vscode

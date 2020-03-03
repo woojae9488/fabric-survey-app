@@ -5,18 +5,19 @@ export VERBOSE=false
 # Print the usage message
 function printHelp() {
     echo "Usage: "
-    echo "  operate.sh <mode>"
-    echo "    <mode> - one of 'up', 'down', 'restart', 'generate'"
-    echo "      - 'up' - bring up the network with docker-compose up"
-    echo "      - 'down' - clear the network with docker-compose down"
-    echo "      - 'restart' - restart the network"
-    echo "      - 'generate' - generate required certificates and genesis block"
+    echo "  operate.sh <mode> [-y]"
+    echo "    <mode> - One of 'up', 'down', 'restart', 'generate'"
+    echo "      - 'up'        - Bring up the network with docker-compose up"
+    echo "      - 'down'      - Clear the network with docker-compose down"
+    echo "      - 'restart'   - Restart the network"
+    echo "      - 'generate'  - Generate required certificates and genesis block"
+    echo "    -y              - Automatic yes to prompts"
     echo "  operate.sh -h (print this message)"
 }
 
 # Ask user for confirmation to proceed
 function askProceed() {
-    read -p "Operate $1 the JNU Survey Network. Continue? [Y/n] " ans
+    read -p "Continue? [Y/n] " ans
     case $ans in
     y | Y | "")
         echo "proceeding ..."
@@ -170,7 +171,7 @@ function generateChannelArtifacts() {
     echo "CONSENSUS_TYPE="$CONSENSUS_TYPE
     set -x
     if [ $CONSENSUS_TYPE == "solo" ]; then
-        configtxgen -profile JNUOrdererGenesis -channelID jnu-sys-channel -outputBlock ./artifacts/network/genesis.block
+        configtxgen -profile JNUOrdererGenesis -channelID $SYS_CHANNEL -outputBlock ./artifacts/network/genesis.block
     else
         set +x
         echo "unrecognized CONSESUS_TYPE='$CONSENSUS_TYPE'. exiting"
@@ -226,40 +227,58 @@ function generateChannelArtifacts() {
 
 # Obtain the OS and Architecture string that will be used to select the correct
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
+SYS_CHANNEL="jnu-sys-channel"
 CHANNEL_NAME="surveynet"
 CC_NAME="surveycc"
 COMPOSE_FILE=./artifacts/docker-compose.yaml
 IMAGETAG="1.4"
 CONSENSUS_TYPE="solo"
+PROCEED_ASK="true"
 # Parse commandline args
 MODE=$1
 shift
 
-if [ $MODE == "help" ]; then
+if [ $MODE == "up" ]; then
+    EXPMODE="Starting"
+elif [ $MODE == "down" ]; then
+    EXPMODE="Stopping"
+elif [ $MODE == "restart" ]; then
+    EXPMODE="Restarting"
+elif [ $MODE == "generate" ]; then
+    EXPMODE="Generating certs and genesis block"
+else
     printHelp
     exit 1
 fi
 
-askProceed $MODE
+while getopts "h?y" opt; do
+    case "$opt" in
+    h | \?)
+        printHelp
+        exit 1
+        ;;
+    y)
+        PROCEED_ASK="false"
+        ;;
+    esac
+done
 
-#Create the network using docker compose
-case $MODE in
-"up")
+if [ $PROCEED_ASK == "true" ]; then
+    echo "${EXPMODE} for channel '${CHANNEL_NAME}'"
+    askProceed
+fi
+
+if [ $MODE == "up" ]; then
     networkUp
-    ;;
-"down")
+elif [ $MODE == "down" ]; then
     networkDown
-    ;;
-"generate")
+elif [ $MODE == "generate" ]; then
     generateCerts
     generateChannelArtifacts
-    ;;
-"restart")
+elif [ $MODE == "restart" ]; then
     networkDown
     networkUp
-    ;;
-*)
+else
     printHelp
     exit 1
-    ;;
-esac
+fi

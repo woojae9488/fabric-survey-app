@@ -2,32 +2,38 @@
 
 ### 네트워크 준비사항
 
-Hyperledger Fabric 관련 SW들 설치
+Test environment SW version list
 
-- python 3.6.0 ~
-- node.js 8.9 ~ 9.0 --> 10.\*
-- NPM 5.6.0 ~ --> 6.\*
-- golang 1.11 ~
-- docker 17.06 CE ~
-- docker-compose 1.14 ~
+- golang 1.11
+- docker 18.09.7
+- docker-compose 1.17.1
+- node.js 8.10.0
+- NPM 6.14.1
+- python 3.6.9
+- pip 20.0.2
 
-Hyperledger Fabric 이미지 파일 설치
+Prepare all prerequisites for Fabric
 
 ```bash
-curl -sSL http://bit.ly/2ysbOFE | bash -s 1.4.0
+sudo ./prepare.sh base
+```
+
+Install only Hyperledger Fabric 1.4.0 image
+
+```bash
+sudo ./prepare.sh fabric
 ```
 
 ### 네트워크 구동
 
 ```bash
-chmod 777 operate.sh
-./operate.sh up
+./operate.sh up -y
 ```
 
 ### 네트워크 종료
 
 ```bash
-./operate.sh down
+./operate.sh down -y
 ```
 
 ### 백엔드 서버 구동
@@ -36,15 +42,6 @@ chmod 777 operate.sh
 cd web-app/server/
 npm install
 npm run start
-```
-
-**fabric-ca-client:1.4.6 이상부터 에러 발생**  
-**fabric-network 모듈 안에 있는 fabric-ca-client 모듈을 npm에서 받은 1.4.5 버전으로 변경**
-
-```bash
-cd node_modules/fabric-network/
-rm -rf node_modules/fabric-ca-client/
-cp -r ../fabric-ca-client/ node_modules/
 ```
 
 ### 카드 인식 서버 구동
@@ -73,4 +70,3 @@ npm run serve
 - [hyperledger/fabric-samples/commercial-paper](https://github.com/hyperledger/fabric-samples/tree/release-1.4/commercial-paper)
 - [IBM/evote](https://github.com/IBM/evote)
 - [IBM/auction-events](https://github.com/IBM/auction-events)
-- [DappCampus/chaincode-tutorial](https://github.com/DappCampus/chaincode-tutorial)

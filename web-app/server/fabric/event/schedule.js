@@ -86,7 +86,9 @@ exports.addSurveySchedule = surveyInfoBuffer => {
 
     const scheduleJob = reserveSurveyDate(surveyInfo);
     scheduleJobs[surveyInfo.key] = scheduleJob;
-    db.get('schedules').push(surveyInfo);
+    db.get('schedules')
+        .push(surveyInfo)
+        .write();
 };
 
 exports.updateSurveySchedule = surveyInfoBuffer => {

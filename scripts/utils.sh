@@ -190,8 +190,7 @@ parsePeerConnectionParameters() {
             TLSINFO=$(eval echo "--tlsRootCertFiles \$PEER$1_${ORG_UPPER}_CA")
             PEER_CONN_PARMS="$PEER_CONN_PARMS $TLSINFO"
         fi
-        shift
-        shift
+        shift 2
     done
     # remove leading space for output
     PEERS="$(echo -e "$PEERS" | sed -e 's/^[[:space:]]*//')"
