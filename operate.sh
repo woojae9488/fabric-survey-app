@@ -88,10 +88,6 @@ function checkPrereqs() {
 
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp() {
-    if [ ! -d "./artifacts/bin" ]; then
-        mkdir ./artifacts/bin
-        cp ../fabric-samples/bin/* ./artifacts/bin/
-    fi
     if [ ! -x "scripts/script.sh" -o ! -x "scripts/utils.sh" ]; then
         chmod 777 scripts/*
     fi

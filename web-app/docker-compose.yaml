@@ -1,0 +1,36 @@
+version: "3"
+
+networks:
+  jnu_hlfn:
+    external:
+      name: artifacts_jnu_hlfn
+
+services:
+  server-app:
+    image: woojae9488/fabric-survey-server:1.2
+    container_name: server-app
+    volumes:
+      - ../artifacts/network/crypto-config/:/usr/src/crypto-config/
+    ports:
+      - 8090:8090
+    networks:
+      - jnu_hlfn
+
+  card-recognize-api-app:
+    image: woojae9488/fabric-survey-card-recognize:1.1
+    container_name: card-recognize-app
+    ports:
+      - 8091:8091
+    networks:
+      - jnu_hlfn
+
+  client-app:
+    image: woojae9488/fabric-survey-client:1.0
+    container_name: client-app
+    ports:
+      - 8080:8080
+    networks:
+      - jnu_hlfn
+    depends_on:
+      - server-app
+      - card-recognize-api-app

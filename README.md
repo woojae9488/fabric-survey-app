@@ -16,24 +16,26 @@ Prepare all prerequisites for Fabric
 
 ```bash
 sudo ./prepare.sh base
+source $HOME/.profile
 ```
 
 Install only Hyperledger Fabric 1.4.0 image
 
 ```bash
 sudo ./prepare.sh fabric
+source $HOME/.profile
 ```
 
 ### 네트워크 구동
 
 ```bash
-./operate.sh up -y
+sudo ./operate.sh up -y
 ```
 
 ### 네트워크 종료
 
 ```bash
-./operate.sh down -y
+sudo ./operate.sh down -y
 ```
 
 ### 백엔드 서버 구동
@@ -58,6 +60,13 @@ python3 app.py
 cd web-app/client/
 npm install
 npm run serve
+```
+
+### docker를 이용한 웹 전체 구동
+
+```bash
+cd web-app/
+sudo docker-compose -f docker-compose.yaml up -d
 ```
 
 ### 참조

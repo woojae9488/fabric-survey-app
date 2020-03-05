@@ -2,13 +2,12 @@
 
 function printHelp() {
     echo "Usage: "
-    echo "  prepare.sh <mode> [-r | -u <user name>] [-S | -s <size>]"
+    echo "  prepare.sh <mode> [-u <user name>] [-S | -s <size>]"
     echo "    <mode> - One of 'base', 'prereqs', 'fabric', 'env'"
     echo "      - 'base'      - Prepare all prerequisites for fabric and install fabric"
     echo "      - 'prereqs'   - Prepare all prerequisites for fabric"
     echo "      - 'fabric'    - Install only fabric"
     echo "      - 'setenv'    - Set Go environments for user"
-    echo "    -r              - Root user mode"
     echo "    -u <user name>  - Owner of the home directory to which the fabric-samples will be installed (defaults to current user)"
     echo "    -S              - Add 2GB swap partition with swapfile"
     echo "    -s <size>       - Add # size swap partition with swapfile"
@@ -70,33 +69,25 @@ function setEnvironments() {
     echo "export GOROOT=/usr/local/go" >>${USER_HOME}/.profile
     echo "export GOPATH=${USER_HOME}/go" >>${USER_HOME}/.profile
     echo "export PATH=${USER_HOME}/go/bin:/usr/local/go/bin:${USER_HOME}/fabric-samples/bin:$PATH" >>${USER_HOME}/.profile
-
-    set -x
-    source ${USER_HOME}/.profile
-    set +x
 }
 
 SWAP_SIZE="2GB"
-USER_NAME=$(whoami)
-USER_HOME=/home/$USER_NAME
+USER_NAME=$USER
+USER_HOME=$HOME
 PROCEED_ASK="true"
 # Parse commandline args
 MODE=$1
 shift
 
-while getopts "h?rs:Su:" opt; do
+while getopts "h?s:Su:" opt; do
     case "$opt" in
     h | \?)
         printHelp
         exit 1
         ;;
-    r)
-        USER_NAME="root"
-        USER_HOME="/root"
-        ;;
     u)
         USER_NAME=$OPTARG
-        USER_HOME=/home/$USER_NAME
+        USER_HOME=/home/$OPTARG
         ;;
     S)
         allocateSwap
