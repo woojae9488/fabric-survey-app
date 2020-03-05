@@ -1,9 +1,10 @@
 import base64
 import cv2
-import matplotlib.pyplot as plt
+import json
+import numpy as np
 import os
 import pyzbar.pyzbar as pyzbar
-from pytesseract import *
+import pytesseract
 import random
 import re
 import requests
@@ -12,86 +13,65 @@ from ApiError import *
 
 
 class StudentCard:
+    W = 1000
+    H = 1600
+
     def __init__(self, imgStr):
-        self.IMG_PATH = 'tmp/sc_' + str(random.randint(0, 100000)) + '.png'
+        imgPath = 'tmp/sc_' + str(random.randint(0, 100000)) + '.png'
         self.studentInfo = {}
-        self.infoROI = {}
 
         metadataLen = imgStr.find(',')
         if not self.__checkImageType(imgStr[:metadataLen]):
             raise ImageTypeUnmatchError
 
-        self.imgData = base64.b64decode(imgStr[metadataLen+1:])
-        with open(self.IMG_PATH, 'wb') as f:
-            f.write(self.imgData)
-        self.img = cv2.imread(self.IMG_PATH)
-        os.remove(self.IMG_PATH)
+        self.imgByte = base64.b64decode(imgStr[metadataLen+1:])
+        with open(imgPath, 'wb') as f:
+            f.write(self.imgByte)
+        imgData = cv2.imread(imgPath, cv2.IMREAD_GRAYSCALE)
+        self.image = cv2.resize(imgData, (self.W, self.H))
 
-    def extractStudentInfo(self):
-        self.loadQRcode()
-        self.loadDataOfImg()
-        return self.studentInfo
-
-    def loadDataOfImg(self):
-        infoImg = self.img[self.infoROI['y1']:self.infoROI['y2'],
-                           self.infoROI['x1']:self.infoROI['x2']]
-        strOfImage = image_to_string(infoImg, lang='kor')
-        datas = strOfImage.strip("'").split('\n')
-
-        results = list(
-            filter(lambda data: True if data != '' else False, datas))
-        self.studentInfo['name'] = results[0]
-        self.studentInfo['department'] = results[1]
-        self.studentInfo['id'] = results[2]
-
-        if not self.__checkStudentInfo():
-            raise StudentCardReadError
+        os.remove(imgPath)
 
     def __checkImageType(self, imgType):
         regex = re.compile(r'^(data:image/\w{3,4};base64)$')
-        if regex.search(imgType):
-            return True
-        else:
-            return False
+        return regex.search(imgType)
 
-    def __checkStudentInfo(self):
-        if self.studentInfo['department'].find(" ") >= 0:
-            return False
-        if self.studentInfo['department'].find("학과") < 0 and self.studentInfo['department'].find("학부") < 0:
-            return False
-        if self.studentInfo['name'].find(" ") >= 0:
-            return False
-        if self.studentInfo['id'].find(" ") >= 0:
-            return False
-        if not self.studentInfo['id'].isdigit():
-            return False
-        if int(self.studentInfo['id']) < 50000:
-            return False
+    def extractStudentInfo(self):
+        self.loadDataOfImg()
+        self.loadQRcode()
+        return self.studentInfo
 
-        return True
+    def loadDataOfImg(self):
+        kernel = np.ones((3, 3), np.uint8)
+        erodedImg = cv2.erode(self.image, kernel, iterations=1)
+        textsOfImg = pytesseract.image_to_string(erodedImg, lang='kor')
+        texts = textsOfImg.split('\n')
+
+        filteredTexts = list(
+            filter(lambda text: True if text.strip() != '' else False, texts))
+        results = self.__filterStudentInfo(filteredTexts)
+
+        if not results or not re.compile(r'(학[과|부])$').search(results[1]):
+            raise StudentCardReadError
+        self.studentInfo['name'] = results[0].rstrip('학생')
+        self.studentInfo['department'] = results[1]
+
+    def __filterStudentInfo(self, texts):
+        regex = re.compile(r'(학생)$')
+
+        for index, text in enumerate(texts):
+            if regex.search(text):
+                return texts[index: index+2]
+        return None
 
     def loadQRcode(self):
-        grayImg = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-        QRcode = pyzbar.decode(grayImg)
-        self.__setInfoROIByQRcode(QRcode)
+        QRcode = pyzbar.decode(self.image)
 
         values = list(map(lambda value: value.data.decode('utf-8'), QRcode))
         response = requests.get(values[0])
-        QRdatas = response.text.split('"')
-        results = list(
-            filter(lambda data: True if data != '' else False, QRdatas))
+        results = json.loads(response.text)
 
-        if results[7] == "FAIL":
+        if results['RESULT'] == 'FAIL':
             raise QRcodeReadError
-        elif results[7] == "SUCCESS":
-            self.studentInfo['role'] = 'student'
-
-    def __setInfoROIByQRcode(self, QRcode):
-        x = QRcode[0].rect[0]
-        y = QRcode[0].rect[1]
-        w = QRcode[0].rect[2]
-        h = QRcode[0].rect[3]
-        self.infoROI['x1'] = x - int(0.75*w)
-        self.infoROI['x2'] = x + int(0.55*w)
-        self.infoROI['y1'] = y + int(1.3*w)
-        self.infoROI['y2'] = y + int(2.25*w)
+        self.studentInfo['role'] = 'student'
+        self.studentInfo['id'] = results['userid']
