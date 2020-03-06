@@ -3,11 +3,13 @@
 function printHelp() {
     echo "Usage: "
     echo "  prepare.sh <mode> [-u <user name>] [-S | -s <size>]"
-    echo "    <mode> - One of 'base', 'prereqs', 'fabric', 'env'"
-    echo "      - 'base'      - Prepare all prerequisites for fabric and install fabric"
-    echo "      - 'prereqs'   - Prepare all prerequisites for fabric"
+    echo "    <mode> - One of 'all', 'light', 'webapp', 'fabric', 'setenv', 'check'"
+    echo "      - 'all'       - Prepare all prerequisites and install fabric"
+    echo "      - 'light'     - Prepare fabric prerequisites and install fabric"
+    echo "      - 'webapp'    - Prepare webapp prerequisites"
     echo "      - 'fabric'    - Install only fabric"
-    echo "      - 'setenv'    - Set Go environments for user"
+    echo "      - 'setenv'    - Set fabric environments for user"
+    echo "      - 'check'     - Check version of prerequisites"
     echo "    -u <user name>  - Owner of the home directory to which the fabric-samples will be installed (defaults to current user)"
     echo "    -S              - Add 2GB swap partition with swapfile"
     echo "    -s <size>       - Add # size swap partition with swapfile"
@@ -25,7 +27,7 @@ function allocateSwap() {
     set +x
 }
 
-function installPrereqs() {
+function installFabricPrereqs() {
     set -x
     apt-get update
     # install golang
@@ -35,6 +37,12 @@ function installPrereqs() {
     rm -rf go1.11.linux-amd64.tar.gz
     # install docker and docker-compose
     apt-get install -y docker.io docker-compose
+    set +x
+}
+
+function installWebAppPrereqs() {
+    set -x
+    apt-get update
     # install node and npm
     apt-get install -y nodejs npm
     npm install -g npm
@@ -66,14 +74,21 @@ function installFabric() {
 }
 
 function setEnvironments() {
-    echo "export GOROOT=/usr/local/go" >>${USER_HOME}/.profile
-    echo "export GOPATH=${USER_HOME}/go" >>${USER_HOME}/.profile
-    echo "export PATH=${USER_HOME}/go/bin:/usr/local/go/bin:${USER_HOME}/fabric-samples/bin:$PATH" >>${USER_HOME}/.profile
+    echo "" >>$ENV_PATH
+    echo "export GOROOT=/usr/local/go" >>$ENV_PATH
+    echo "export GOPATH=${USER_HOME}/go" >>$ENV_PATH
+    TEMP_PATH=${USER_HOME}/go/bin:/usr/local/go/bin:${USER_HOME}/fabric-samples/bin:$PATH
+    echo "export PATH=$TEMP_PATH" >>$ENV_PATH
+
+    echo "" >>$ENV_PATH
+    PUBLIC_IP=$(curl ifconfig.me)
+    echo "export PUBLIC_IP=\"$PUBLIC_IP\"" >>$ENV_PATH
+    echo "alias sudo=\"sudo env PATH=$TEMP_PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_PATH
 }
 
 SWAP_SIZE="2GB"
-USER_NAME=$USER
 USER_HOME=$HOME
+ENV_PATH=/etc/bash.bashrc
 PROCEED_ASK="true"
 # Parse commandline args
 MODE=$1
@@ -86,7 +101,6 @@ while getopts "h?s:Su:" opt; do
         exit 1
         ;;
     u)
-        USER_NAME=$OPTARG
         USER_HOME=/home/$OPTARG
         ;;
     S)
@@ -99,18 +113,26 @@ while getopts "h?s:Su:" opt; do
     esac
 done
 
-if [ $MODE == "base" ]; then
-    installPrereqs
+if [ $MODE == "all" ]; then
+    installFabricPrereqs
+    installWebAppPrereqs
     installFabric
     setEnvironments
     checkPrereqs
-elif [ $MODE == "prereqs" ]; then
-    installPrereqs
+elif [ $MODE == "light" ]; then
+    installFabricPrereqs
+    installFabric
+    setEnvironments
+    checkPrereqs
+elif [ $MODE == "webapp" ]; then
+    installWebAppPrereqs
     checkPrereqs
 elif [ $MODE == "fabric" ]; then
     installFabric
 elif [ $MODE == "setenv" ]; then
     setEnvironments
+elif [ $MODE == "check" ]; then
+    checkPrereqs
 else
     printHelp
     exit 1

@@ -16,7 +16,7 @@ services:
     networks:
       - jnu_hlfn
 
-  card-recognize-api-app:
+  card-recognize-app:
     image: woojae9488/fabric-survey-card-recognize:1.1
     container_name: card-recognize-app
     ports:
@@ -25,12 +25,17 @@ services:
       - jnu_hlfn
 
   client-app:
-    image: woojae9488/fabric-survey-client:1.0
+    image: woojae9488/fabric-survey-client:1.1
     container_name: client-app
+    environment:
+      - FABRIC_NETWORK_IP=${PUBLIC_IP}
+    volumes:
+      - ../chaincode/:/usr/src/app/src/chaincode/
     ports:
       - 8080:8080
     networks:
       - jnu_hlfn
     depends_on:
       - server-app
-      - card-recognize-api-app
+      - card-recognize-app
+    command: ./buildup.sh

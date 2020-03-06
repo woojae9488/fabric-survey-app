@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export PATH=${PWD}/artifacts/bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}/artifacts
 export VERBOSE=false

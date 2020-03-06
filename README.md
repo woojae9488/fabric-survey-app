@@ -12,18 +12,24 @@ Test environment SW version list
 - python 3.6.9
 - pip 20.0.2
 
-Prepare all prerequisites for Fabric
+Prepare prerequisites for Fabric and WebApp
 
 ```bash
-sudo ./prepare.sh base
-source $HOME/.profile
+sudo ./prepare.sh all
+source /etc/bash.bashrc
 ```
 
-Install only Hyperledger Fabric 1.4.0 image
+Prepare prerequisites for Fabric
 
 ```bash
-sudo ./prepare.sh fabric
-source $HOME/.profile
+sudo ./prepare.sh light
+source /etc/bash.bashrc
+```
+
+Prepare prerequisites for WebApp
+
+```bash
+sudo ./prepare.sh webapp
 ```
 
 ### 네트워크 구동
@@ -36,6 +42,13 @@ sudo ./operate.sh up -y
 
 ```bash
 sudo ./operate.sh down -y
+```
+
+### docker를 이용한 웹 전체 구동
+
+```bash
+cd web-app/
+sudo docker-compose -f docker-compose.yaml up -d
 ```
 
 ### 백엔드 서버 구동
@@ -60,13 +73,6 @@ python3 app.py
 cd web-app/client/
 npm install
 npm run serve
-```
-
-### docker를 이용한 웹 전체 구동
-
-```bash
-cd web-app/
-sudo docker-compose -f docker-compose.yaml up -d
 ```
 
 ### 참조
