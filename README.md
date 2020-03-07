@@ -1,6 +1,6 @@
 # Create a JNU survey application with Hyperledger Fabric
 
-**?? Note: I wrote this through a translator ??**
+**:mag: Note: I wrote this through a translator :mag_right:**
 
 **This application allows managers to register surveys and check students' responses**
 
@@ -38,7 +38,7 @@
 
 ## Test Environment Software Versions
 
-**?? Note: You will need Node 8.x to run this pattern! ??**
+**:warning: Note: You will need Node 8.x to run this pattern! :warning:**
 | Program | Version |
 | :---: | :---: |
 | Go | 1.11 |
@@ -58,7 +58,7 @@
 3. [Start the Fabric network By shell script](#step-3-start-the-fabric-network-by-shell-script)
 4. [Run the Dockerize web servers and client](#step-4-run-the-dockerize-web-servers-and-client)
 
-#### Step 1. Clone the Repo
+### Step 1. Clone the Repo
 
 Git clone this repo onto your computer:
 
@@ -67,7 +67,7 @@ ubuntu$ git clone https://github.com/woojae9488/fabric-survey-app
 ubuntu$ cd fabric-survey-app/
 ```
 
-#### Step 2. Prepare prerequisites By shell script
+### Step 2. Prepare prerequisites By shell script
 
 The shell script in the fabric-survey-app folder provides simple preparation:
 
@@ -85,7 +85,7 @@ The source command is to set the necessary environment variables for starting th
 
 For more details, see the contents of the prepare.sh file.
 
-#### Step 3. Start the Fabric network By shell script
+### Step 3. Start the Fabric network By shell script
 
 The shell script in the fabric-survey-app folder provides simple Fabric network startup:
 
@@ -112,7 +112,7 @@ When you run a script in the cli docker container, the following things happen i
 
 For more details, see the contents of the operate.sh file.
 
-#### Step 4. Run the Dockerize web servers and client
+### Step 4. Run the Dockerize web servers and client
 
 Now, finally, using only the docker-compose command will end the whole process.
 
@@ -121,7 +121,7 @@ ubuntu$ cd web-app/
 ubuntu$ sudo docker-compose -f docker-compose.yaml up -d
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :)
+If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :smile:
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
@@ -135,7 +135,7 @@ These steps overlap with the preceding steps(Step 1. and Step 3.). Therefore, I 
 3. [Start the Fabric network By shell script](#step-3-start-the-fabric-network-by-shell-script)
 4. [Run the web servers and client](#step-4-run-the-web-servers-and-client)
 
-#### Step 2. Prepare all prerequisites By shell script
+### Step 2. Prepare all prerequisites By shell script
 
 The shell script in the fabric-survey-app folder provides simple preparation:
 
@@ -153,7 +153,7 @@ The source command is to set the necessary environment variables for starting th
 
 For more details, see the contents of the prepare.sh file.
 
-#### Step 4. Run the web servers and client
+### Step 4. Run the web servers and client
 
 To deploy without a docked web server or client, each server and client must be run directly.
 At this step, you can modify and execute the code as you wish.
@@ -182,7 +182,7 @@ ubuntu$ npm install
 ubuntu$ npm run serve
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :)
+If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile:
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
@@ -204,7 +204,7 @@ ubuntu$ sudo docker-compose -f docker-compose.yaml down -v
 
 ---
 
-# About the surveynet Fabric network
+## About the surveynet Fabric network
 
 This section will show pictures of the network structure or elements of the surveynet.
 
@@ -244,7 +244,7 @@ This section will show pictures of the network structure or elements of the surv
 
 ## References
 
-#### The most helpful references
+### The most helpful references
 
 - [hyperledger-fabricdocs (release-1.4)](https://hyperledger-fabric.readthedocs.io/en/release-1.4/)
 - [Hyperledger Fabric SDK for node.js](https://hyperledger.github.io/fabric-sdk-node/release-1.4/index.html)
@@ -258,7 +258,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Vue Router](https://router.vuejs.org/kr/)
 - [BootstrapVue](https://bootstrap-vue.js.org/)
 
-#### About using Hyperledger Fabric with Node
+### About using Hyperledger Fabric with Node
 
 - [Walkthrough of HLF Node SDK and Client App](https://medium.com/datadriveninvestor/walkthrough-of-hyperledger-fabric-client-application-aae5222bdfd3)
 - [Exploring Fabric-CA: Registration and Enrollment](https://medium.com/@kctheservant/exploring-fabric-ca-registration-and-enrollment-1b9f4a1b3ace)
@@ -267,7 +267,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Connection Profiles](https://hyperledger.github.io/composer/v0.19/reference/connectionprofile)
 - [How to deploy chaincode in Hyperledger Fabric?](https://medium.com/beyondi/how-to-deploy-chaincode-in-hyperledger-fabric-7202204d0238)
 
-#### About using Node for deploy the server
+### About using Node for deploy the server
 
 - [MartinYounghoonKim/nodejs-authenticate-jwt-vuejs](https://github.com/MartinYounghoonKim/nodejs-authenticate-jwt-vuejs)
 - [자바스크립트 async와 await](https://joshua1988.github.io/web-development/javascript/js-async-await/)
@@ -279,7 +279,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Nodejs lowdb 사용하기](https://m.blog.naver.com/PostView.nhn?blogId=pjok1122&logNo=221569697267&proxyReferer=https%3A%2F%2Fwww.google.com%2F)
 - [Node.js 가 로컬, 글로벌 모듈을 탐색하는 순서를 확인해보자](https://ondemand.tistory.com/240)
 
-#### About using Vue for deploy the client
+### About using Vue for deploy the client
 
 - [Vue 컴포넌트 데이터 주고 받기](https://cchoimin.tistory.com/entry/%EC%9E%91%EC%84%B1%EC%A4%91-Vuejs-vue-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%86%B5%EC%8B%A0)
 - [Vue에서 중첩 데이터를 감시하는 법](https://ui.toast.com/weekly-pick/ko_20190307/)
@@ -293,7 +293,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Vue.js와 Chart.js를 이용하여 아름다운 차트 만들기](https://chuckolet.tistory.com/8)
 - [Vue cli 4 환경 변수 설정하기](https://blog.eunsatio.io/develop/Vue-cli-4-%ED%99%98%EA%B2%BD-%EB%B3%80%EC%88%98-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
 
-#### About using Flask and Tesseract for deploy the card recognize api
+### About using Flask and Tesseract for deploy the card recognize api
 
 - [파이썬 Flask를 이용하여 REST API 만들기](https://rekt77.tistory.com/103)
 - [Axios, POST request to Flask](https://stackoverflow.com/questions/45373124/axios-post-request-to-flask)
@@ -305,7 +305,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Python에서 Open API 호출하기](https://bcho.tistory.com/822)
 - [How to convert base64 string to image?](https://stackoverflow.com/questions/16214190/how-to-convert-base64-string-to-image/16214280)
 
-#### The others
+### The others
 
 - [도커 이미지 빌드 원리와 OverlayFS](https://www.44bits.io/ko/post/how-docker-image-work)
 - [초보를 위한 도커 안내서 - 이미지 만들고 배포하기](https://subicura.com/2017/02/10/docker-guide-for-beginners-create-image-and-deploy.html)

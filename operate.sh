@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+# Modified by Kim Woo Jae
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 export PATH=${PWD}/artifacts/bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}/artifacts
 export VERBOSE=false

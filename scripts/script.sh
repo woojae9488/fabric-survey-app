@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+# Modified by Kim Woo Jae
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 echo
 echo " ____    _____      _      ____    _____ "
 echo "/ ___|  |_   _|    / \    |  _ \  |_   _|"

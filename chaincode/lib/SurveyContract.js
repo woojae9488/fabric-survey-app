@@ -1,7 +1,7 @@
 // Fabric smart contract classes
 const { Contract, Context } = require('fabric-contract-api');
 
-// surveyNet specifc state classes
+// SurveyNet specifc state classes
 const Survey = require('./Survey.js');
 const SurveyInfo = require('./SurveyInfo.js');
 const SurveyList = require('./SurveyList.js');
@@ -9,7 +9,7 @@ const Reply = require('./Reply.js');
 const ReplyInfo = require('./ReplyInfo.js');
 const ReplyList = require('./ReplyList.js');
 
-// surveyNet specifc private data classes
+// SurveyNet specifc private data classes
 const User = require('./User.js');
 const UserList = require('./UserList.js');
 

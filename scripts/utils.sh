@@ -1,3 +1,11 @@
+# Copyright IBM Corp. All Rights Reserved.
+# Modified by Kim Woo Jae
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This is a collection of bash functions used by different scripts
+
 ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem
 PEER0_MANAGER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/ca.crt
 PEER1_MANAGER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/tls/ca.crt
