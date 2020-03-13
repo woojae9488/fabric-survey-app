@@ -102,7 +102,7 @@ exports.updateSurveySchedule = surveyInfoBuffer => {
     scheduleJobs[surveyInfo.key] = newScheduleJob;
     db.get('schedules')
         .find({ key: surveyInfo.key })
-        .assign({ surveyInfo })
+        .assign(surveyInfo)
         .write();
 };
 

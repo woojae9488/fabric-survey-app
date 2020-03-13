@@ -156,7 +156,7 @@ chaincodeQuery() {
 
     case $FUNC in
     "manager")
-        ARGS='{"Args":["queryManager","manager"]}'
+        ARGS='{"Args":["queryManager","admin"]}'
         ;;
     "info")
         ARGS='{"Args":["querySurveyInfos","jnu"]}'

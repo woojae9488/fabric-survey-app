@@ -121,7 +121,7 @@ ubuntu$ cd web-app/
 ubuntu$ sudo docker-compose -f docker-compose.yaml up -d
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :smile:
+If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :smile:  
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
@@ -182,7 +182,7 @@ ubuntu$ npm install
 ubuntu$ npm run serve
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile:
+If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile:  
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---

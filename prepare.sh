@@ -74,22 +74,23 @@ function installFabric() {
 }
 
 function setEnvironments() {
-    echo "" >>$ENV_PATH
-    echo "export GOROOT=/usr/local/go" >>$ENV_PATH
-    echo "export GOPATH=${USER_HOME}/go" >>$ENV_PATH
-    TEMP_PATH=${USER_HOME}/go/bin:/usr/local/go/bin:${USER_HOME}/fabric-samples/bin:$PATH
-    echo "export PATH=$TEMP_PATH" >>$ENV_PATH
+    export GOROOT=/usr/local/go
+    export GOPATH=$USER_HOME/go
+    export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$USER_HOME/fabric-samples/bin:$PATH
+    export PUBLIC_IP=$(curl ifconfig.me)
 
     echo "" >>$ENV_PATH
-    PUBLIC_IP=$(curl ifconfig.me)
-    echo "export PUBLIC_IP=\"$PUBLIC_IP\"" >>$ENV_PATH
-    echo "alias sudo=\"sudo env PATH=$TEMP_PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_PATH
+    echo "export GOROOT=$GOROOT" >>$ENV_PATH
+    echo "export GOPATH=$GOPATH" >>$ENV_PATH
+    echo "export PATH=$PATH" >>$ENV_PATH
+    echo "" >>$ENV_PATH
+    echo "export PUBLIC_IP=$PUBLIC_IP" >>$ENV_PATH
+    echo "alias sudo=\"sudo env PATH=$PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_PATH
 }
 
 SWAP_SIZE="2GB"
 USER_HOME=$HOME
 ENV_PATH=/etc/bash.bashrc
-PROCEED_ASK="true"
 # Parse commandline args
 MODE=$1
 shift

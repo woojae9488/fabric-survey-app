@@ -7,7 +7,7 @@ networks:
 
 services:
   server-app:
-    image: woojae9488/fabric-survey-server:1.2
+    image: woojae9488/fabric-survey-server:1.0
     container_name: server-app
     volumes:
       - ../artifacts/network/crypto-config/:/usr/src/crypto-config/
@@ -17,7 +17,7 @@ services:
       - jnu_hlfn
 
   card-recognize-app:
-    image: woojae9488/fabric-survey-card-recognize:1.1
+    image: woojae9488/fabric-survey-card-recognize:1.0
     container_name: card-recognize-app
     ports:
       - 8091:8091
@@ -25,7 +25,7 @@ services:
       - jnu_hlfn
 
   client-app:
-    image: woojae9488/fabric-survey-client:1.1
+    image: woojae9488/fabric-survey-client:1.0
     container_name: client-app
     environment:
       - FABRIC_NETWORK_IP=${PUBLIC_IP}

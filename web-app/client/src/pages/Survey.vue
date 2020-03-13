@@ -109,11 +109,14 @@ export default {
       const check = confirm('Are you sure you want to remove survey?');
       if (check) {
         try {
+          eventBus.$emit('runSpinner');
           await surveyService.remove(this.department, this.createdAt);
           this.$router.push('/SurveyList');
         } catch (err) {
           console.log(api.getErrorMsg(err));
           alert('Remove survey fail');
+        } finally {
+          eventBus.$emit('hideSpinner');
         }
       }
     },

@@ -7,16 +7,11 @@
     <b-container fluid>
       <b-row align-v="center">
         <b-col sm="1">
-          <img src="./assets/logo.png" width="40px" class="mb-4" />
+          <img src="./assets/logo.png" @click="clickLogoImg" width="40px" class="mb-4" />
         </b-col>
-        <template v-if="isLogined">
-          <b-col sm="1" offset-sm="8">
-            <b-button to="/SurveyList" variant="outline-primary" size="sm" pill>Home</b-button>
-          </b-col>
-          <b-col sm="1">
-            <b-button @click="logout" variant="outline-danger" size="sm" pill>Logout</b-button>
-          </b-col>
-        </template>
+        <b-col v-if="isLogined" sm="1" offset-sm="9">
+          <b-button @click="logout" variant="outline-danger" size="sm" pill>Logout</b-button>
+        </b-col>
       </b-row>
     </b-container>
 
@@ -59,6 +54,13 @@ export default {
     },
     checkValidity() {
       return Boolean(api.getData('accessToken') && api.getData('refreshToken'));
+    },
+    clickLogoImg() {
+      if (this.isLogined) {
+        this.$router.push('/SurveyList');
+      } else {
+        this.$router.push('/Signin');
+      }
     },
     logout() {
       api.clearData();
