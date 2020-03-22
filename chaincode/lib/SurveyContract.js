@@ -1,7 +1,10 @@
-// Fabric smart contract classes
+const fs = require('fs');
+const path = require('path');
 const { Contract, Context } = require('fabric-contract-api');
 
 // SurveyNet specifc state classes
+const Department = require('./Department.js');
+const DepartmentList = require('./DepartmentList.js');
 const Survey = require('./Survey.js');
 const SurveyInfo = require('./SurveyInfo.js');
 const SurveyList = require('./SurveyList.js');
@@ -19,6 +22,8 @@ const UserList = require('./UserList.js');
 class SurveyContext extends Context {
     constructor() {
         super();
+        this.organization = '전남대학교';
+        this.departmentList = new DepartmentList(this);
         this.surveyList = new SurveyList(this);
         this.replyList = new ReplyList(this);
         this.studentList = new UserList(this, 'studentCollection');
@@ -50,7 +55,18 @@ class SurveyContract extends Contract {
         throw new Error('Unknown transaction function');
     }
 
-    async instantiate() {
+    async instantiate(ctx) {
+        // SurveyNet initialize data file
+        const initDataPath = path.join(process.cwd(), 'initData.json');
+        const initDataJSON = fs.readFileSync(initDataPath, 'utf8');
+        const initData = JSON.parse(initDataJSON);
+
+        const promises = initData.departments.map(async department => {
+            const departmentState = Department.createInstance(ctx.organization, department.name, department.parent);
+            await ctx.departmentList.addDepartment(departmentState);
+        });
+        await Promise.all(promises);
+
         console.log('Instantiate the survey contract');
     }
 
@@ -68,10 +84,10 @@ class SurveyContract extends Contract {
         return survey;
     }
 
-    async update(ctx, surveyStr) {
+    async update(ctx, department, createdAt, surveyStr) {
+        const surveyInfoKey = SurveyInfo.makeKey([department, createdAt]);
         const newSurvey = Survey.fromString(surveyStr);
         const newSurveyInfo = newSurvey.getSurveyInfo();
-        const surveyInfoKey = newSurveyInfo.getKey();
 
         const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
@@ -136,12 +152,12 @@ class SurveyContract extends Contract {
         return reply;
     }
 
-    async revise(ctx, replyStr) {
+    async revise(ctx, department, surveyCreatedAt, studentID, replyStr) {
+        const surveyInfoKey = SurveyInfo.makeKey([department, surveyCreatedAt]);
+        const surveyKey = Survey.makeSurveyKeyByInfoKey(surveyInfoKey);
+        const replyInfoKey = ReplyInfo.makeKey([surveyKey, studentID]);
         const newReply = Reply.fromString(replyStr);
         const newReplyInfo = newReply.getReplyInfo();
-        const replyInfoKey = newReplyInfo.getKey();
-        const surveyKey = newReplyInfo.getSurveyKey();
-        const surveyInfoKey = Survey.makeInfoKeyBySurveyKey(surveyKey);
 
         const surveyInfo = await ctx.surveyList.getSurveyInfo(surveyInfoKey);
         if (!surveyInfo) {
@@ -298,18 +314,63 @@ class SurveyContract extends Contract {
         );
     }
 
+    /** ******************* Survey Department Change Method (User) ******************** */
+
+    async addDepartment(ctx, name, parent) {
+        const parentKey = Department.makeKey([ctx.organization, parent]);
+        const parentExists = await ctx.departmentList.getDepartment(parentKey);
+        if (!parentExists) {
+            throw new Error(`Can not found Parent Department = ${parentKey}`);
+        }
+
+        const department = Department.createInstance(ctx.organization, name, parent);
+        await ctx.departmentList.addDepartment(department);
+        return department;
+    }
+
+    async deleteDepartment(ctx, name) {
+        const departmentKey = Department.makeKey([ctx.organization, name]);
+        const department = await ctx.departmentList.getDepartment(departmentKey);
+        if (!department) {
+            throw new Error(`Can not found Department = ${departmentKey}`);
+        }
+
+        await ctx.departmentList.deleteDepartment(departmentKey);
+        return department;
+    }
+
+    /** ******************* Survey Department Query Method ******************** */
+
+    async queryDepartment(ctx, name) {
+        const departmentKey = Department.makeKey([ctx.organization, name]);
+        const department = await ctx.departmentList.getDepartment(departmentKey);
+        if (!department) {
+            throw new Error(`Can not found Department = ${departmentKey}`);
+        }
+
+        return department;
+    }
+
+    async queryDepartments(ctx) {
+        return await ctx.departmentList.getDepartmentsByOrganization(ctx.organization);
+    }
+
     /** ******************* Survey User Method (User) ******************** */
 
-    async registerStudent(ctx, id, password, name, departmentsStr) {
+    async registerStudent(ctx, id, password, name, department) {
         const userKey = User.makeKey([id]);
         const userExists = await ctx.studentList.getUser(userKey);
         if (userExists) {
             throw new Error(`User ${userKey} already exists`);
         }
 
+        const departments = ctx.departmentList.getDepartmentDependency(ctx.organization, department);
+        if (!departments) {
+            throw new Error(`Can not search dependency of Department = ${department}`);
+        }
+
         const salt = User.makeSalt();
         const hashedPw = User.encryptPassword(password, salt);
-        const departments = JSON.parse(departmentsStr);
         const user = User.createInstance(id, hashedPw, name, departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
@@ -324,9 +385,14 @@ class SurveyContract extends Contract {
             throw new Error(`User ${userKey} already exists`);
         }
 
+        const departments = JSON.parse(departmentsStr);
+        const departmentsExist = await ctx.departmentList.checkDepartmentsExist(ctx.organization, departments);
+        if (!departmentsExist) {
+            throw new Error(`Can not found Departments = ${departments}`);
+        }
+
         const salt = User.makeSalt();
         const hashedPw = User.encryptPassword(password, salt);
-        const departments = JSON.parse(departmentsStr);
         const user = User.createInstance(id, hashedPw, 'manager', departments, salt, Date.now());
         user.setUpdatedAt(user.getCreatedAt());
 
@@ -334,16 +400,20 @@ class SurveyContract extends Contract {
         return user;
     }
 
-    async updateStudent(ctx, id, password, name, departmentsStr) {
+    async updateStudent(ctx, id, password, name, department) {
         const userKey = User.makeKey([id]);
         const user = await ctx.studentList.getUser(userKey);
         if (!user) {
             throw new Error(`Can not found User = ${userKey}`);
         }
 
+        const departments = ctx.departmentList.getDepartmentDependency(ctx.organization, department);
+        if (!departments) {
+            throw new Error(`Can not search dependency of Department = ${department}`);
+        }
+
         const salt = user.getSalt();
         const hashedPw = User.encryptPassword(password, salt);
-        const departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setName(name);
         user.setDepartments(departments);
@@ -360,9 +430,14 @@ class SurveyContract extends Contract {
             throw new Error(`Can not found User = ${userKey}`);
         }
 
+        const departments = JSON.parse(departmentsStr);
+        const departmentsExist = await ctx.departmentList.checkDepartmentsExist(ctx.organization, departments);
+        if (!departmentsExist) {
+            throw new Error(`Can not found Departments = ${departments}`);
+        }
+
         const salt = user.getSalt();
         const hashedPw = User.encryptPassword(password, salt);
-        const departments = JSON.parse(departmentsStr);
         user.setHashedPw(hashedPw);
         user.setDepartments(departments);
         user.setUpdatedAt(Date.now());
