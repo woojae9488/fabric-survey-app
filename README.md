@@ -74,7 +74,7 @@ The shell script in the fabric-survey-app folder provides simple preparation:
 ```bash
 ubuntu$ chmod +x prepare.sh
 ubuntu$ sudo ./prepare.sh light
-ubuntu$ source /etc/bash.bashrc
+ubuntu$ source ./environment
 ```
 
 If your computer has less than 1.5GB of memory, you need to add an -S option or an -s \<size> Option to create a swapfile.
@@ -142,7 +142,7 @@ The shell script in the fabric-survey-app folder provides simple preparation:
 ```bash
 ubuntu$ chmod +x prepare.sh
 ubuntu$ sudo ./prepare.sh all
-ubuntu$ source /etc/bash.bashrc
+ubuntu$ source ./environment
 ```
 
 If your computer has less than 1.5GB of memory, you need to add an -S option or an -s \<size> Option to create a swapfile.

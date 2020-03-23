@@ -4,7 +4,7 @@ export default {
   instance(url = 'http://localhost:8090') {
     return axios.create({
       baseURL: url,
-      timeout: 7000,
+      timeout: 10000,
       headers: { 'Content-Type': 'application/json' },
     });
   },

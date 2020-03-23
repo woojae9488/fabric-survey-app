@@ -158,7 +158,7 @@ chaincodeQuery() {
         ARGS='{"Args":["queryManager","admin"]}'
         ;;
     "info")
-        ARGS='{"Args":["querySurveyInfos","jnu"]}'
+        ARGS='{"Args":["querySurveyInfos","전남대학교"]}'
         ;;
     esac
 
@@ -213,13 +213,13 @@ chaincodeInvoke() {
 
     case $FUNC in
     "manager")
-        ARGS='{"Args":["registerManager","admin","adminpw","[\"jnu\"]"]}'
+        ARGS='{"Args":["registerManager","admin","adminpw","[\"전남대학교\"]"]}'
         ;;
     "register")
-        ARGS='{"Args":["register","{\"surveyKey\":\"jnu_0\",\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:jnu:0\",\"currentState\":null,\"department\":\"jnu\",\"createdAt\":0,\"managerID\":\"admin\",\"title\":\"test\",\"startDate\":0,\"finishDate\":0},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:jnu_0:0\",\"surveyKey\":\"jnu_0\",\"questionNum\":0,\"title\":\"test\",\"type\":\"text\",\"contents\":[]}]}"]}'
+        ARGS='{"Args":["register","{\"surveyKey\":\"전남대학교_0\",\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:전남대학교:0\",\"currentState\":null,\"department\":\"전남대학교\",\"createdAt\":0,\"managerID\":\"admin\",\"title\":\"test\",\"startDate\":0,\"finishDate\":0},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:전남대학교_0:0\",\"surveyKey\":\"전남대학교_0\",\"questionNum\":0,\"title\":\"test\",\"type\":\"text\",\"contents\":[]}]}"]}'
         ;;
     "remove")
-        ARGS='{"Args":["remove","jnu","0","admin"]}'
+        ARGS='{"Args":["remove","전남대학교","0","admin"]}'
         ;;
     esac
 
