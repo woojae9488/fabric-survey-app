@@ -24,6 +24,10 @@ class Department extends State {
         return this.parent;
     }
 
+    setParent(parent) {
+        this.parent = parent;
+    }
+
     static makeKey(keyParts) {
         keyParts.unshift(Department.getClass());
         return State.makeKey(keyParts);

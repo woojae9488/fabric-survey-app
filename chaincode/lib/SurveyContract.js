@@ -328,6 +328,24 @@ class SurveyContract extends Contract {
         return department;
     }
 
+    async updateDepartment(ctx, name, parent) {
+        const departmentKey = Department.makeKey([ctx.organization, name]);
+        const department = await ctx.departmentList.getDepartment(departmentKey);
+        if (!department) {
+            throw new Error(`Can not found Department = ${departmentKey}`);
+        }
+
+        const parentKey = Department.makeKey([ctx.organization, parent]);
+        const parentExists = await ctx.departmentList.getDepartment(parentKey);
+        if (!parentExists) {
+            throw new Error(`Can not found Parent Department = ${parentKey}`);
+        }
+
+        department.setParent(parent);
+        await ctx.departmentList.updateDepartment(department);
+        return department;
+    }
+
     async deleteDepartment(ctx, name) {
         const departmentKey = Department.makeKey([ctx.organization, name]);
         const department = await ctx.departmentList.getDepartment(departmentKey);
