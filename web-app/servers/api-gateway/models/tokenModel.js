@@ -3,7 +3,7 @@ const authenticateUtil = require('../utils/authenticate.js');
 
 exports.generateTokens = async (apiAddr, id, password) => {
     try {
-        const apiResult = await api.instance(apiAddr).get('/user/certify', { id, password });
+        const apiResult = await api.instance(apiAddr).get(`/users/${id}/certify`, { data: { password } });
 
         const { hashedPw, name, departments } = apiResult.data;
         const accessToken = authenticateUtil.generateAccessToken({ id, name, departments });
@@ -35,7 +35,7 @@ exports.reissueAccessToken = async (apiAddr, refreshToken) => {
         const { id } = decodedToken;
 
         try {
-            const apiResult = await api.instance(apiAddr).get('/user/query', { id });
+            const apiResult = await api.instance(apiAddr).get(`/users/${id}/query`);
 
             const { hashedPw, name, departments } = apiResult.data;
             await authenticateUtil.certifyRefreshToken(refreshToken, hashedPw);

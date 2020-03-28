@@ -17,7 +17,7 @@ router.get('/departments/:dName/surveys/:sCreatedAt', controller.querySurvey);
 router.put('/departments/:dName/surveys/:sCreatedAt', controller.updateSurvey);
 router.delete('/departments/:dName/surveys/:sCreatedAt', controller.removeSurvey);
 
-router.post('/departments/:dName/surveys/:sCreatedAt/replies', controller.responseReply);
+router.post('/departments/:dName/surveys/:sCreatedAt/replies', controller.respondReply);
 router.get('/departments/:dName/surveys/:sCreatedAt/replies', controller.queryReplies);
 router.get('/departments/:dName/surveys/:sCreatedAt/replies/:rStudentId', controller.queryReply);
 router.put('/departments/:dName/surveys/:sCreatedAt/replies/:rStudentId', controller.reviseReply);

@@ -13,7 +13,7 @@ exports.signup = async (req, res) => {
     }
 
     try {
-        const apiResult = await api.instance(req.apiAddr).post('/user/register', req.body);
+        const apiResult = await api.instance(req.apiAddr).post('/users', req.body);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -23,12 +23,8 @@ exports.signup = async (req, res) => {
 exports.checkExistence = async (req, res) => {
     const { uid } = req.params;
 
-    if (!uid) {
-        return api.badRequest(res);
-    }
-
     try {
-        const apiResult = await api.instance(req.apiAddr).get('/user/checkExistence', { uid });
+        const apiResult = await api.instance(req.apiAddr).get(`/users/${uid}/check`);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -36,12 +32,10 @@ exports.checkExistence = async (req, res) => {
 };
 
 exports.changeInfo = async (req, res) => {
-    if (req.params.uid !== req.body.id) {
-        return api.badRequest(res);
-    }
+    const { uid } = req.params;
 
     try {
-        const apiResult = await api.instance(req.apiAddr).put('/user/update', req.body);
+        const apiResult = await api.instance(req.apiAddr).put(`/users/${uid}`, req.body);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -49,12 +43,10 @@ exports.changeInfo = async (req, res) => {
 };
 
 exports.signout = async (req, res) => {
-    if (req.params.uid !== req.body.id) {
-        return api.badRequest(res);
-    }
+    const { uid } = req.params;
 
     try {
-        const apiResult = await api.instance(req.apiAddr).delete('/user/delete', req.body);
+        const apiResult = await api.instance(req.apiAddr).delete(`/users/${uid}`, { data: req.body });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -79,12 +71,8 @@ exports.certifyUser = async (req, res) => {
         return api.badRequest(res);
     }
 
-    try {
-        const apiResult = await api.instance(req.apiAddr).get('/user/certify', req.body);
-        return api.send(res, apiResult);
-    } catch (err) {
-        return api.error(res, err);
-    }
+    const modelRes = await tokenModel.certifyToken(token);
+    return api.sendModelRes(res, modelRes);
 };
 
 exports.reissueAccessToken = async (req, res) => {
