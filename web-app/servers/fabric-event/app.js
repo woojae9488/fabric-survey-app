@@ -11,7 +11,10 @@ const router = require('./routes/index.js');
 
 async function main() {
     await network.enrollAdmin();
-    await network.registerEventAdmin();
+
+    network.handlingPastEvents();
+    await network.activateContractEvent();
+    // await network.activateBlockEvent();
 
     const app = express();
     app.use(morgan('combined'));

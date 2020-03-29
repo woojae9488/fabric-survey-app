@@ -141,43 +141,6 @@ exports.registerUser = async userID => {
     }
 };
 
-exports.registerEventAdmin = async () => {
-    const gateway = new Gateway();
-
-    try {
-        const adminExists = await wallet.exists(process.env.ADMIN);
-        if (!adminExists) {
-            console.error(`An identity for the admin user ${process.env.ADMIN} does not exist in the wallet`);
-            console.error('Enroll the admin before trying');
-            process.exit(1);
-        }
-
-        await gateway.connect(ccp, {
-            wallet,
-            identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: Boolean(process.env.AS_LOCALHOST) },
-        });
-        const ca = gateway.getClient().getCertificateAuthority();
-        const adminIdentity = gateway.getCurrentIdentity();
-
-        await ca.register(
-            {
-                affiliation: 'org1',
-                enrollmentID: process.env.EVENT_ADMIN,
-                enrollmentSecret: process.env.EVENT_ADMIN_SECRET,
-                role: 'client',
-            },
-            adminIdentity,
-        );
-        console.log('Successfully registered event admin user.');
-    } catch (err) {
-        console.error(`Failed to register event admin user: ${err}`);
-        process.exit(1);
-    } finally {
-        await gateway.disconnect();
-    }
-};
-
 exports.checkUserExists = async userID => {
     try {
         const userExists = await wallet.exists(userID);
