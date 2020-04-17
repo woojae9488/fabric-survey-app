@@ -117,14 +117,15 @@ export default {
         this.existReplyInfo,
         this.results,
       );
+      const { department, createdAt } = this.surveyInfo;
 
       try {
         eventBus.$emit('runSpinner');
 
         if (this.isReplyExist) {
-          await replyService.revise(reply);
+          await replyService.revise(department, createdAt, reply);
         } else {
-          await replyService.respond(reply);
+          await replyService.respond(department, createdAt, reply);
         }
 
         this.$router.push('/SurveyList');

@@ -2,13 +2,13 @@ const userModel = require('../models/user.js');
 const apiResponse = require('../utils/apiResponse.js');
 
 exports.registerUser = async (req, res) => {
-    const { id, password, departments } = req.body;
+    const { id, password, name, department } = req.body;
 
-    if (!id || !password || !departments) {
+    if (!id || !password || !name || !department) {
         return apiResponse.badRequest(res);
     }
 
-    const modelRes = await userModel.registerUser({ id, password, departments });
+    const modelRes = await userModel.registerUser({ id, password, name, department });
     return apiResponse.send(res, modelRes);
 };
 
@@ -39,19 +39,19 @@ exports.certifyUser = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-    const { id, newPassword, newDepartments } = req.body;
+    const { id, newPassword, newName, newDepartment } = req.body;
     const { uid } = req.params;
 
-    if (!newPassword || !newDepartments || id !== uid) {
+    if (!newPassword || !newName || !newDepartment || id !== uid) {
         return apiResponse.badRequest(res);
     }
 
-    const modelRes = await userModel.updateUser({ id, newPassword, newDepartments });
+    const modelRes = await userModel.updateUser({ id, newPassword, newName, newDepartment });
     return apiResponse.send(res, modelRes);
 };
 
 exports.deleteUser = async (req, res) => {
-    const { id, password } = req.body;
+    const { id, password } = req.query;
     const { uid } = req.params;
 
     if (!password || id !== uid) {

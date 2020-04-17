@@ -74,6 +74,7 @@
                 :id="`answer${number}`"
                 v-model="result.answers[0]"
                 :options="question.contents"
+                :select-size="5"
                 required
               ></b-form-select>
             </b-col>

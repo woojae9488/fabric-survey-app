@@ -1,9 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 
 const wallet = new FileSystemWallet('./identity/wallet');
-const ccpFile = fs.readFileSync('./connection-profile.json', 'utf8');
+const ccpPath = path.join(__dirname, './connection-profile.json');
+const ccpFile = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpFile);
 
 exports.connect = async userID => {
@@ -107,13 +109,6 @@ exports.registerUser = async userID => {
             return { status: 400, error: 'User identity already exists in the wallet.' };
         }
 
-        const adminExists = await wallet.exists(process.env.ADMIN);
-        if (!adminExists) {
-            console.error(`An identity for the admin user ${process.env.ADMIN} does not exist in the wallet`);
-            console.error('Enroll the admin before trying');
-            return { status: 500, error: 'Admin user identity does not exist in the wallet.' };
-        }
-
         await gateway.connect(ccp, {
             wallet,
             identity: process.env.ADMIN,
@@ -145,13 +140,6 @@ exports.registerEventAdmin = async () => {
     const gateway = new Gateway();
 
     try {
-        const adminExists = await wallet.exists(process.env.ADMIN);
-        if (!adminExists) {
-            console.error(`An identity for the admin user ${process.env.ADMIN} does not exist in the wallet`);
-            console.error('Enroll the admin before trying');
-            process.exit(1);
-        }
-
         await gateway.connect(ccp, {
             wallet,
             identity: process.env.ADMIN,
@@ -166,13 +154,13 @@ exports.registerEventAdmin = async () => {
                 enrollmentID: process.env.EVENT_ADMIN,
                 enrollmentSecret: process.env.EVENT_ADMIN_SECRET,
                 role: 'client',
+                maxEnrollments: -1,
             },
             adminIdentity,
         );
         console.log('Successfully registered event admin user.');
     } catch (err) {
         console.error(`Failed to register event admin user: ${err}`);
-        process.exit(1);
     } finally {
         await gateway.disconnect();
     }

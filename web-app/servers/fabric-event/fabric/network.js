@@ -1,10 +1,12 @@
 const fs = require('fs');
+const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 const schedule = require('./schedule.js');
 
 const wallet = new FileSystemWallet('./identity/wallet');
-const ccpFile = fs.readFileSync('./connection-profile.json', 'utf8');
+const ccpPath = path.join(__dirname, './connection-profile.json');
+const ccpFile = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpFile);
 const ccpOptions = {
     wallet,

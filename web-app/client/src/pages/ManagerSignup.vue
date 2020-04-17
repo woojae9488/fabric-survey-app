@@ -3,6 +3,7 @@
     <h2 class="pb-4">{{ title }}</h2>
 
     <b-card
+      v-if="isCreatedFinish"
       header="Manager Signup"
       header-tag="h5"
       border-variant="success"
@@ -39,13 +40,14 @@
               <label for="user-departments">Departments :</label>
             </b-col>
             <b-col sm="6">
-              <b-form-input
+              <b-form-select
                 id="user-departments"
                 v-model="registerData.departments"
-                placeholder="Enter your Departments separated by commas"
-                trim
+                :options="departmentList"
+                select-size="5"
+                multiple
                 required
-              ></b-form-input>
+              ></b-form-select>
             </b-col>
           </b-row>
 
@@ -106,7 +108,8 @@
 
 <script>
 import api from '@/services/api';
-import userService from '@/services/userApi';
+import authService from '@/services/authApi';
+import departmentService from '@/services/departmentApi';
 import eventBus from '@/utils/eventBus';
 
 export default {
@@ -114,10 +117,12 @@ export default {
   data() {
     return {
       title: 'Register JNU survey manager',
+      isCreatedFinish: false,
       idChecked: false,
+      departmentList: [],
       registerData: {
         id: '',
-        departments: '',
+        departments: [],
         password: '',
         passwordConfirm: '',
       },
@@ -140,12 +145,33 @@ export default {
         : !(this.registerData.passwordConfirm.length < 8);
     },
   },
+  async created() {
+    try {
+      eventBus.$emit('runSpinner');
+      await this.fillDepartmentList();
+    } catch (err) {
+      console.log(api.getErrorMsg(err));
+      alert('Fail to lookup department List');
+    } finally {
+      eventBus.$emit('hideSpinner');
+    }
+
+    this.isCreatedFinish = true;
+  },
   methods: {
+    async fillDepartmentList() {
+      const departmentsRes = await departmentService.queryAll();
+      const departmentsData = api.getResultData(departmentsRes);
+      departmentsData.forEach(department => {
+        this.departmentList.push(department.name);
+      });
+    },
+
     async checkIdExists() {
       try {
         eventBus.$emit('runSpinner');
 
-        const apiRes = await userService.checkExistence('manager', this.registerData.id);
+        const apiRes = await authService.checkExistence(this.registerData.id);
         const apiData = api.getResultData(apiRes);
 
         if (apiData.userExists) {
@@ -175,14 +201,11 @@ export default {
           return;
         }
 
-        let departments = this.registerData.departments.split(',');
-        departments = departments.map(department => department.trim());
-        await userService.signup(
-          'manager',
+        await authService.signup(
           this.registerData.id,
           this.registerData.password,
           'manager',
-          departments,
+          this.registerData.departments,
         );
 
         this.$router.push('/SurveyList');

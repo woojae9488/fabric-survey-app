@@ -118,7 +118,7 @@
 
 <script>
 import api from '@/services/api';
-import userService from '@/services/userApi';
+import authService from '@/services/authApi';
 import eventBus from '@/utils/eventBus';
 
 export default {
@@ -171,7 +171,7 @@ export default {
           eventBus.$emit('runSpinner');
 
           this.studentCardSrc = e.target.result;
-          const cardRes = await userService.recognizeCard(this.studentCardSrc);
+          const cardRes = await authService.recognizeCard(this.studentCardSrc);
           const cardData = api.getResultData(cardRes);
 
           this.registerData.role = cardData.role;
@@ -197,12 +197,12 @@ export default {
           return;
         }
 
-        await userService.signup(
-          this.registerData.role,
+        api.setData('role', this.registerData.role);
+        await authService.signup(
           this.registerData.id,
           this.registerData.password,
           this.registerData.name,
-          ['jnu', this.registerData.department],
+          this.registerData.department,
         );
 
         this.$router.push('/Signin');

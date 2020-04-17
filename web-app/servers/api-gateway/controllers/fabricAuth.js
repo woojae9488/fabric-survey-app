@@ -44,9 +44,10 @@ exports.changeInfo = async (req, res) => {
 
 exports.signout = async (req, res) => {
     const { uid } = req.params;
+    req.query.id = req.body.id;
 
     try {
-        const apiResult = await api.instance(req.apiAddr).delete(`/users/${uid}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).delete(`/users/${uid}`, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);

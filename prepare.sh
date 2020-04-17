@@ -43,7 +43,8 @@ function installFabricPrereqs() {
 function installWebAppPrereqs() {
     set -x
     apt-get update
-    # install node and npm
+    # install node v10 and npm
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
     apt-get install -y nodejs npm
     npm install -g npm
     # install python and pip
@@ -74,12 +75,10 @@ function installFabric() {
 }
 
 function makeEnvironment() {
-    set -x
     export GOROOT=/usr/local/go
     export GOPATH=$USER_HOME/go
     export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$USER_HOME/fabric-samples/bin:$PATH
     export PUBLIC_IP=$(curl ifconfig.me)
-    set +x
 
     touch $ENV_FILE
     echo "export GOROOT=$GOROOT" >>$ENV_FILE

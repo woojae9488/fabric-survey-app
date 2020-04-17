@@ -80,7 +80,7 @@
 
 <script>
 import api from '@/services/api';
-import userService from '@/services/userApi';
+import authService from '@/services/authApi';
 import eventBus from '@/utils/eventBus';
 
 export default {
@@ -126,8 +126,7 @@ export default {
           return;
         }
 
-        await userService.changeInfo(
-          this.userData.role,
+        await authService.changeInfo(
           this.userData.id,
           this.changeData.password,
           this.userData.name,

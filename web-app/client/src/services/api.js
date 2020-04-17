@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 export default {
-  instance(url = 'http://localhost:8090') {
+  instance() {
     return axios.create({
-      baseURL: url,
+      baseURL: 'http://localhost:8090',
       timeout: 10000,
       headers: { 'Content-Type': 'application/json' },
     });

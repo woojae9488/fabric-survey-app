@@ -75,7 +75,7 @@
 
 <script>
 import api from '@/services/api';
-import userService from '@/services/userApi';
+import authService from '@/services/authApi';
 import eventBus from '@/utils/eventBus';
 
 export default {
@@ -110,14 +110,9 @@ export default {
       try {
         eventBus.$emit('runSpinner');
 
-        const apiRes = await userService.signin(
-          this.loginData.role,
-          this.loginData.id,
-          this.loginData.password,
-        );
-
-        const apiData = api.getResultData(apiRes);
         api.setData('role', this.loginData.role);
+        const apiRes = await authService.signin(this.loginData.id, this.loginData.password);
+        const apiData = api.getResultData(apiRes);
         api.setData('accessToken', apiData.accessToken);
         api.setData('refreshToken', apiData.refreshToken);
 

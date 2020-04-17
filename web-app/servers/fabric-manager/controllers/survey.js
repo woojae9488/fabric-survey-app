@@ -13,9 +13,8 @@ exports.register = async (req, res) => {
 };
 
 exports.queryList = async (req, res) => {
-    const { id } = req.body;
     const { dName } = req.params;
-    const { startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt } = req.query;
+    const { id, startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt } = req.query;
 
     let modelRes;
     if (startCreatedAt && endCreatedAt) {
@@ -41,7 +40,7 @@ exports.queryList = async (req, res) => {
 };
 
 exports.query = async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.query;
     const { dName, sCreatedAt } = req.params;
 
     const modelRes = await surveyModel.query({ id, dName, sCreatedAt });
@@ -61,7 +60,7 @@ exports.update = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.query;
     const { dName, sCreatedAt } = req.params;
 
     const modelRes = await surveyModel.remove({ id, dName, sCreatedAt });

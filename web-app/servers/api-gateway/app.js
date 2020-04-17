@@ -11,7 +11,7 @@ const api = require('./utils/api.js');
 function main() {
     const app = express();
     app.use(morgan('combined'));
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({ limit: '10mb' }));
     app.use(cors());
 
     app.use('/v1', router);

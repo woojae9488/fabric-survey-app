@@ -57,11 +57,11 @@ class SurveyContract extends Contract {
 
     async instantiate(ctx) {
         // SurveyNet initialize data file
-        const initDataPath = path.join(process.cwd(), 'initData.json');
+        const initDataPath = path.join(__dirname, 'initData.json');
         const initDataJSON = fs.readFileSync(initDataPath, 'utf8');
         const initData = JSON.parse(initDataJSON);
 
-        const promises = initData.departments.map(async department => {
+        const promises = initData.departments.map(async (department) => {
             const departmentState = Department.createInstance(ctx.organization, department.name, department.parent);
             await ctx.departmentList.addDepartment(departmentState);
         });

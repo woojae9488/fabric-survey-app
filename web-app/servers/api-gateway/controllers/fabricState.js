@@ -10,8 +10,10 @@ exports.addDepartment = async (req, res) => {
 };
 
 exports.queryDepartments = async (req, res) => {
+    req.query.id = req.body.id;
+
     try {
-        const apiResult = await api.instance(req.apiAddr).get('/departments', { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).get('/departments', { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -20,9 +22,11 @@ exports.queryDepartments = async (req, res) => {
 
 exports.queryDepartment = async (req, res) => {
     const { dName } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/departments/${dName}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).get(`/departments/${dName}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).get(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -31,9 +35,10 @@ exports.queryDepartment = async (req, res) => {
 
 exports.updateDepartment = async (req, res) => {
     const { dName } = req.params;
+    const encodedURL = encodeURI(`/departments/${dName}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).put(`/departments/${dName}`, req.body);
+        const apiResult = await api.instance(req.apiAddr).put(encodedURL, req.body);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -42,9 +47,11 @@ exports.updateDepartment = async (req, res) => {
 
 exports.deleteDepartment = async (req, res) => {
     const { dName } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/departments/${dName}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).delete(`/departments/${dName}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).delete(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -62,11 +69,11 @@ exports.registerSurvey = async (req, res) => {
 
 exports.querySurveys = async (req, res) => {
     const { dName } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/surveys/${dName}`);
 
     try {
-        const apiResult = await api
-            .instance(req.apiAddr)
-            .get(`/surveys/${dName}`, { data: req.body, params: req.query });
+        const apiResult = await api.instance(req.apiAddr).get(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -75,9 +82,11 @@ exports.querySurveys = async (req, res) => {
 
 exports.querySurvey = async (req, res) => {
     const { dName, sCreatedAt } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/surveys/${dName}/${sCreatedAt}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).get(`/surveys/${dName}/${sCreatedAt}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).get(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -86,9 +95,10 @@ exports.querySurvey = async (req, res) => {
 
 exports.updateSurvey = async (req, res) => {
     const { dName, sCreatedAt } = req.params;
+    const encodedURL = encodeURI(`/surveys/${dName}/${sCreatedAt}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).put(`/surveys/${dName}/${sCreatedAt}`, req.body);
+        const apiResult = await api.instance(req.apiAddr).put(encodedURL, req.body);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -97,9 +107,11 @@ exports.updateSurvey = async (req, res) => {
 
 exports.removeSurvey = async (req, res) => {
     const { dName, sCreatedAt } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/surveys/${dName}/${sCreatedAt}`);
 
     try {
-        const apiResult = await api.instance(req.apiAddr).delete(`/surveys/${dName}/${sCreatedAt}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).delete(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -117,11 +129,11 @@ exports.respondReply = async (req, res) => {
 
 exports.queryReplies = async (req, res) => {
     const { dName, sCreatedAt } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/replies/${dName}/${sCreatedAt}`);
 
     try {
-        const apiResult = await api
-            .instance(req.apiAddr)
-            .get(`/replies/${dName}/${sCreatedAt}`, { data: req.body, params: req.query });
+        const apiResult = await api.instance(req.apiAddr).get(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -130,11 +142,11 @@ exports.queryReplies = async (req, res) => {
 
 exports.queryReply = async (req, res) => {
     const { dName, sCreatedAt, rStudentId } = req.params;
+    req.query.id = req.body.id;
+    const encodedURL = encodeURI(`/replies/${dName}/${sCreatedAt}/${rStudentId}`);
 
     try {
-        const apiResult = await api
-            .instance(req.apiAddr)
-            .get(`/replies/${dName}/${sCreatedAt}/${rStudentId}`, { data: req.body });
+        const apiResult = await api.instance(req.apiAddr).get(encodedURL, { params: req.query });
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);
@@ -143,11 +155,10 @@ exports.queryReply = async (req, res) => {
 
 exports.reviseReply = async (req, res) => {
     const { dName, sCreatedAt, rStudentId } = req.params;
+    const encodedURL = encodeURI(`/replies/${dName}/${sCreatedAt}/${rStudentId}`);
 
     try {
-        const apiResult = await api
-            .instance(req.apiAddr)
-            .put(`/replies/${dName}/${sCreatedAt}/${rStudentId}`, req.body);
+        const apiResult = await api.instance(req.apiAddr).put(encodedURL, req.body);
         return api.send(res, apiResult);
     } catch (err) {
         return api.error(res, err);

@@ -2,11 +2,11 @@ const network = require('../fabric/network.js');
 const apiResponse = require('../utils/apiResponse.js');
 
 exports.registerUser = async information => {
-    const { id, password, departments } = information;
+    const { id, password, department } = information;
 
     const walletRes = await network.registerUser(id);
     const networkObj = await network.connect(id);
-    const contractRes = await network.invoke(networkObj, 'registerManager', id, password, departments);
+    const contractRes = await network.invoke(networkObj, 'registerManager', id, password, department);
 
     const error = walletRes.error || networkObj.error || contractRes.error;
     if (error) {
@@ -60,10 +60,10 @@ exports.certifyUser = async information => {
 };
 
 exports.updateUser = async information => {
-    const { id, newPassword, newDepartments } = information;
+    const { id, newPassword, newDepartment } = information;
 
     const networkObj = await network.connect(id);
-    const contractRes = await network.invoke(networkObj, 'updateManager', id, newPassword, newDepartments);
+    const contractRes = await network.invoke(networkObj, 'updateManager', id, newPassword, newDepartment);
 
     const error = networkObj.error || contractRes.error;
     if (error) {

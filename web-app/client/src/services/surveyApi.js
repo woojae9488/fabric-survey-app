@@ -20,25 +20,50 @@ export default {
   },
 
   async register(survey) {
+    const { department } = survey.surveyInfo;
     const surveyJSON = JSON.stringify(survey);
-    return await api.instance().post('/surveys', { survey: surveyJSON });
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .post(
+        `/v1/fabric/state/departments/${department}/surveys`,
+        { survey: surveyJSON },
+        { params },
+      );
   },
 
   async update(survey) {
+    const { department, createdAt } = survey.surveyInfo;
     const surveyJSON = JSON.stringify(survey);
-    return await api.instance().put('/surveys', { survey: surveyJSON });
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .put(
+        `/v1/fabric/state/departments/${department}/surveys/${createdAt}`,
+        { survey: surveyJSON },
+        { params },
+      );
   },
 
   async remove(department, createdAt) {
-    return await api.instance().delete(`/surveys/${department}/${createdAt}`);
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .delete(`/v1/fabric/state/departments/${department}/surveys/${createdAt}`, { params });
   },
 
   async query(department, createdAt) {
-    return await api.instance().get(`/surveys/${department}/${createdAt}`);
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .get(`/v1/fabric/state/departments/${department}/surveys/${createdAt}`, { params });
   },
 
   // params: {startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt}
   async queryList(department, params = {}) {
-    return await api.instance().get(`/surveys/${department}`, { params });
+    params.role = api.getData('role');
+    return await api
+      .instance()
+      .get(`/v1/fabric/state/departments/${department}/surveys`, { params });
   },
 };

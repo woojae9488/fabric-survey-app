@@ -44,7 +44,7 @@
 | Go | 1.11 |
 | docker | 18.09.7 |
 | docker-compose | 1.17.1 |
-| node | 8.10.0 |
+| node | 10.19.0 |
 | NPM | 6.14.1 |
 | python | 3.6.9 |
 | pip | 20.0.2 |

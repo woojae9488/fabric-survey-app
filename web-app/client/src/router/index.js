@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import api from '@/services/api';
-import userService from '@/services/userApi';
+import authService from '@/services/authApi';
 
 import ChangeInfo from '@/pages/ChangeInfo';
 import ManagerSignup from '@/pages/ManagerSignup';
@@ -95,10 +95,10 @@ const router = new Router({
   ],
 });
 
-const reissueToken = async (error, role) => {
+const reissueToken = async error => {
   try {
     if (error.response && error.response.status === 401) {
-      const tokenRes = await userService.reissueAccessToken(role);
+      const tokenRes = await authService.reissueAccessToken();
       const tokenData = api.getResultData(tokenRes);
       api.setData('accessToken', tokenData.accessToken);
       return true;
@@ -110,17 +110,16 @@ const reissueToken = async (error, role) => {
 };
 
 const certifyUser = async () => {
-  const role = api.getData('role');
   api.setHeader('x-access-token', api.getData('accessToken'));
   api.setHeader('x-refresh-token', api.getData('refreshToken'));
 
   let apiRes;
   try {
-    apiRes = await userService.certifyUser(role);
+    apiRes = await authService.certifyUser();
   } catch (err) {
-    if (await reissueToken(err, role)) {
+    if (await reissueToken(err)) {
       api.setHeader('x-access-token', api.getData('accessToken'));
-      apiRes = await userService.certifyUser(role);
+      apiRes = await authService.certifyUser();
     } else {
       console.log(api.getErrorMsg(err));
       return false;

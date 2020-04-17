@@ -12,22 +12,47 @@ export default {
     return reply;
   },
 
-  async respond(reply) {
+  async respond(department, surveyCreatedAt, reply) {
     const replyJSON = JSON.stringify(reply);
-    return await api.instance().post('/replies', { reply: replyJSON });
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .post(
+        `/v1/fabric/state/departments/${department}/surveys/${surveyCreatedAt}/replies`,
+        { reply: replyJSON },
+        { params },
+      );
   },
 
-  async revise(reply) {
+  async revise(department, surveyCreatedAt, reply) {
+    const { studentID } = reply.replyInfo;
     const replyJSON = JSON.stringify(reply);
-    return await api.instance().put('/replies', { reply: replyJSON });
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .put(
+        `/v1/fabric/state/departments/${department}/surveys/${surveyCreatedAt}/replies/${studentID}`,
+        { reply: replyJSON },
+        { params },
+      );
   },
 
   async query(department, surveyCreatedAt, id) {
-    return await api.instance().get(`/replies/${department}/${surveyCreatedAt}/${id}`);
+    const params = { role: api.getData('role') };
+    return await api
+      .instance()
+      .get(`/v1/fabric/state/departments/${department}/surveys/${surveyCreatedAt}/replies/${id}`, {
+        params,
+      });
   },
 
   // params: {startStudentID, endStudentID, pageSize, bookmarkStudentId}
   async queryAll(department, surveyCreatedAt, params = {}) {
-    return await api.instance().get(`/replies/${department}/${surveyCreatedAt}`, { params });
+    params.role = api.getData('role');
+    return await api
+      .instance()
+      .get(`/v1/fabric/state/departments/${department}/surveys/${surveyCreatedAt}/replies`, {
+        params,
+      });
   },
 };

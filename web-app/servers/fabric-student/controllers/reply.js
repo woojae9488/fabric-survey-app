@@ -13,9 +13,8 @@ exports.respond = async (req, res) => {
 };
 
 exports.queryAll = async (req, res) => {
-    const { id } = req.body;
     const { dName, sCreatedAt } = req.params;
-    const { startStudentID, endStudentID, pageSize, bookmarkStudentId } = req.query;
+    const { id, startStudentID, endStudentID, pageSize, bookmarkStudentId } = req.query;
 
     let modelRes;
     if (startStudentID && endStudentID) {
@@ -40,7 +39,7 @@ exports.queryAll = async (req, res) => {
 };
 
 exports.query = async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.query;
     const { dName, sCreatedAt, rStudentId } = req.params;
 
     const modelRes = await replyModel.query({ id, dName, sCreatedAt, rStudentId });
