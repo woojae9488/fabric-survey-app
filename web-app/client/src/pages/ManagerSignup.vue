@@ -44,7 +44,6 @@
                 id="user-departments"
                 v-model="registerData.departments"
                 :options="departmentList"
-                select-size="5"
                 multiple
                 required
               ></b-form-select>

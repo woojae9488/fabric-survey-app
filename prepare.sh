@@ -8,7 +8,7 @@ function printHelp() {
     echo "      - 'light'     - Prepare fabric prerequisites and install fabric"
     echo "      - 'webapp'    - Prepare webapp prerequisites"
     echo "      - 'fabric'    - Install only fabric"
-    echo "      - 'envfile'      - Make fabric environment file for user"
+    echo "      - 'envfile'   - Make fabric environment file for user"
     echo "      - 'check'     - Check version of prerequisites"
     echo "    -u <user name>  - Owner of the home directory to which the fabric-samples will be installed (defaults to current user)"
     echo "    -S              - Add 2GB swap partition with swapfile"

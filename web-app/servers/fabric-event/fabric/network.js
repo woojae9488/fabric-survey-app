@@ -74,34 +74,52 @@ exports.activateContractEvent = async () => {
         const network = await gateway.getNetwork(process.env.CHANNEL);
         const contract = await network.getContract(process.env.CONTRACT);
 
-        const logContractEvent = (err, event, blockNumber, transactionID, status) => {
-            if (err) {
-                console.error(`Failed to listen contract event: ${err}`);
-                return;
-            }
-            console.log(`Block Number: ${blockNumber}`);
-            console.log(`Transaction ID: ${transactionID}`);
-            console.log(`Status: ${status}`);
-
-            schedule.addSurveySchedule(event.payload);
-        };
-
         const registerListener = await contract.addContractListener(
             'registerEventListener',
             'surveyRegisterEvent',
-            logContractEvent,
+            (err, event, blockNumber, transactionID, status) => {
+                if (err) {
+                    console.error(`Failed to listen contract event: ${err}`);
+                    return;
+                }
+                console.log(`Block Number: ${blockNumber}`);
+                console.log(`Transaction ID: ${transactionID}`);
+                console.log(`Status: ${status}`);
+
+                schedule.addSurveySchedule(event.payload);
+            },
         );
 
         const updateListener = await contract.addContractListener(
             'updateEventListener',
             'surveyUpdateEvent',
-            logContractEvent,
+            (err, event, blockNumber, transactionID, status) => {
+                if (err) {
+                    console.error(`Failed to listen contract event: ${err}`);
+                    return;
+                }
+                console.log(`Block Number: ${blockNumber}`);
+                console.log(`Transaction ID: ${transactionID}`);
+                console.log(`Status: ${status}`);
+
+                schedule.updateSurveySchedule(event.payload);
+            },
         );
 
         const removeListener = await contract.addContractListener(
             'removeEventListener',
             'surveyRemoveEvent',
-            logContractEvent,
+            (err, event, blockNumber, transactionID, status) => {
+                if (err) {
+                    console.error(`Failed to listen contract event: ${err}`);
+                    return;
+                }
+                console.log(`Block Number: ${blockNumber}`);
+                console.log(`Transaction ID: ${transactionID}`);
+                console.log(`Status: ${status}`);
+
+                schedule.removeSurveySchedule(event.payload);
+            },
         );
 
         console.log('Activated contract event listener successly.');

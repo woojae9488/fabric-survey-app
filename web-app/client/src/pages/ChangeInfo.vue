@@ -20,7 +20,7 @@
 
           <b-row class="mt-2 mb-4">
             <b-col sm="3">Departments :</b-col>
-            <b-col sm="4">{{ departmentsStr }}</b-col>
+            <b-col sm="9">{{ departmentsStr }}</b-col>
           </b-row>
 
           <b-row class="my-3" align-v="center">

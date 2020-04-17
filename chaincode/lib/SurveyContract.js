@@ -61,7 +61,7 @@ class SurveyContract extends Contract {
         const initDataJSON = fs.readFileSync(initDataPath, 'utf8');
         const initData = JSON.parse(initDataJSON);
 
-        const promises = initData.departments.map(async (department) => {
+        const promises = initData.departments.map(async department => {
             const departmentState = Department.createInstance(ctx.organization, department.name, department.parent);
             await ctx.departmentList.addDepartment(departmentState);
         });
@@ -382,7 +382,7 @@ class SurveyContract extends Contract {
             throw new Error(`User ${userKey} already exists`);
         }
 
-        const departments = ctx.departmentList.getDepartmentDependency(ctx.organization, department);
+        const departments = await ctx.departmentList.getDepartmentDependency(ctx.organization, department);
         if (!departments) {
             throw new Error(`Can not search dependency of Department = ${department}`);
         }
@@ -425,7 +425,7 @@ class SurveyContract extends Contract {
             throw new Error(`Can not found User = ${userKey}`);
         }
 
-        const departments = ctx.departmentList.getDepartmentDependency(ctx.organization, department);
+        const departments = await ctx.departmentList.getDepartmentDependency(ctx.organization, department);
         if (!departments) {
             throw new Error(`Can not search dependency of Department = ${department}`);
         }

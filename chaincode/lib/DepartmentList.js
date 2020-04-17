@@ -53,7 +53,7 @@ class DepartmentList extends StateList {
 
         const promises = names.map(async name => {
             const departmentKey = Department.makeKey([organization, name]);
-            const department = await this.getDepartment(departmentKey);
+            const department = await this.getState(departmentKey);
             departments.push(department);
         });
         await Promise.all(promises);
