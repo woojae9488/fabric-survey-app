@@ -1,5 +1,6 @@
 import api from '@/services/api';
-import Survey from '../../../../chaincode/lib/Survey';
+// eslint-disable-next-line import/extensions
+import Survey from '%/lib/Survey';
 
 export default {
   makeSurvey(id, surveyInfo, questions) {
@@ -59,9 +60,10 @@ export default {
       .get(`/v1/fabric/state/departments/${department}/surveys/${createdAt}`, { params });
   },
 
-  // params: {startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt}
-  async queryList(department, params = {}) {
-    params.role = api.getData('role');
+  // query: {startCreatedAt, endCreatedAt, pageSize, bookmarkCreatedAt}
+  async queryList(department, query = {}) {
+    const params = { role: api.getData('role') };
+    Object.assign(params, query);
     return await api
       .instance()
       .get(`/v1/fabric/state/departments/${department}/surveys`, { params });

@@ -38,7 +38,7 @@
 
 ## Test Environment Software Versions
 
-**:warning: Note: You will need Node 8.x to run this pattern! :warning:**
+**:warning: Note: You will need Node >=10.15.3 to run this pattern! :warning:**
 | Program | Version |
 | :---: | :---: |
 | Go | 1.11 |

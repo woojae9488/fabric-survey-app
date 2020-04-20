@@ -7,6 +7,7 @@
     "lint": "eslint .",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "start": "vue-cli-service build && http-server dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

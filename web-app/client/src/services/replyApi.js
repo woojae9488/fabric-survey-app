@@ -1,5 +1,6 @@
 import api from '@/services/api';
-import Reply from '../../../../chaincode/lib/Reply';
+// eslint-disable-next-line import/extensions
+import Reply from '%/lib/Reply';
 
 export default {
   makeReply(surveyKey, id, existReplyInfo, results) {
@@ -46,9 +47,10 @@ export default {
       });
   },
 
-  // params: {startStudentID, endStudentID, pageSize, bookmarkStudentId}
-  async queryAll(department, surveyCreatedAt, params = {}) {
-    params.role = api.getData('role');
+  // query: {startStudentID, endStudentID, pageSize, bookmarkStudentId}
+  async queryAll(department, surveyCreatedAt, query = {}) {
+    const params = { role: api.getData('role') };
+    Object.assign(params, query);
     return await api
       .instance()
       .get(`/v1/fabric/state/departments/${department}/surveys/${surveyCreatedAt}/replies`, {

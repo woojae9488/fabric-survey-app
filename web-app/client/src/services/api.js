@@ -3,7 +3,7 @@ import axios from 'axios';
 export default {
   instance() {
     return axios.create({
-      baseURL: 'http://localhost:8090',
+      baseURL: process.env.VUE_APP_API_ADDR || 'http://localhost:8090',
       timeout: 10000,
       headers: { 'Content-Type': 'application/json' },
     });
