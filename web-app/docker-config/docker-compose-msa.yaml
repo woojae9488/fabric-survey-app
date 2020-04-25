@@ -1,0 +1,91 @@
+version: "3"
+
+networks:
+  jnu_hlfn:
+    external:
+      name: artifacts_jnu_hlfn
+
+services:
+  client-app:
+    image: woojae9488/jnu-web-client:1.0
+    container_name: client-app
+    environment:
+      - VUE_APP_API_ADDR=http://${PUBLIC_IP}:8090
+      - CC_PATH=/usr/src/app/src/chaincode
+    volumes:
+      - ../../chaincode:/usr/src/app/src/chaincode
+    ports:
+      - 8080:8080
+    networks:
+      - jnu_hlfn
+    depends_on:
+      - api-gateway-app
+      - fabric-manager-app
+      - fabric-student-app
+      - fabric-event-app
+      - card-recognize-app
+
+  api-gateway-app:
+    image: woojae9488/jnu-api-gateway:1.0
+    container_name: api-gateway-app
+    volumes:
+      - ./msa/.env.api-gateway:/usr/src/app/.env
+    ports:
+      - 8090:8090
+    networks:
+      - jnu_hlfn
+    depends_on:
+      - fabric-manager-app
+      - fabric-student-app
+      - fabric-event-app
+      - card-recognize-app
+
+  fabric-manager-app:
+    image: woojae9488/jnu-fabric-manager:1.0
+    container_name: fabric-manager-app
+    volumes:
+      - ./msa/.env.fabric-manager:/usr/src/app/.env
+      - ./msa/manager-connection.json:/usr/src/app/fabric/connection-profile.json
+      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+    ports:
+      - 8092:8092
+    networks:
+      - jnu_hlfn
+
+  fabric-student-app:
+    image: woojae9488/jnu-fabric-student:1.0
+    container_name: fabric-student-app
+    volumes:
+      - ./msa/.env.fabric-student:/usr/src/app/.env
+      - ./msa/student-connection.json:/usr/src/app/fabric/connection-profile.json
+      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+    ports:
+      - 8093:8093
+    networks:
+      - jnu_hlfn
+
+  fabric-event-app:
+    image: woojae9488/jnu-fabric-event:1.0
+    container_name: fabric-event-app
+    volumes:
+      - ./msa/.env.fabric-event:/usr/src/app/.env
+      - ./msa/manager-connection.json:/usr/src/app/fabric/connection-profile.json
+      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+    ports:
+      - 8091:8091
+    networks:
+      - jnu_hlfn
+    depends_on:
+      - fabric-manager-app
+      - fabric-student-app
+      - card-recognize-app
+
+  card-recognize-app:
+    image: woojae9488/jnu-card-recognize:1.0
+    container_name: card-recognize-app
+    volumes:
+      - ./msa/card-recognize-config.py:/usr/src/app/config.py
+    ports:
+      - 8099:8099
+    networks:
+      - jnu_hlfn

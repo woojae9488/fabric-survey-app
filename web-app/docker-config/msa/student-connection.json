@@ -1,0 +1,87 @@
+{
+  "name": "surveynet",
+  "description": "Connection Profile for Survey Network on JNU",
+  "version": "1.0.0",
+  "client": {
+    "organization": "StudentOrg",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300",
+          "eventHub": "300",
+          "eventReg": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "surveynet": {
+      "orderers": ["orderer.jnu.com"],
+      "peers": {
+        "peer0.student.jnu.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        },
+        "peer1.student.jnu.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        }
+      }
+    }
+  },
+  "organizations": {
+    "StudentOrg": {
+      "mspid": "StudentMSP",
+      "peers": ["peer0.student.jnu.com", "peer1.student.jnu.com"],
+      "certificateAuthorities": ["ca.student.jnu.com"]
+    }
+  },
+  "orderers": {
+    "orderer.jnu.com": {
+      "url": "grpcs://orderer.jnu.com:7050",
+      "grpcOptions": {
+        "ssl-target-name-override": "orderer.jnu.com"
+      },
+      "tlsCACerts": {
+        "path": "/usr/src/crypto/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.student.jnu.com": {
+      "url": "grpcs://peer0.student.jnu.com:9051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.student.jnu.com"
+      },
+      "tlsCACerts": {
+        "path": "/usr/src/crypto/peerOrganizations/student.jnu.com/peers/peer0.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
+      }
+    },
+    "peer1.student.jnu.com": {
+      "url": "grpcs://peer1.student.jnu.com:10051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer1.student.jnu.com"
+      },
+      "tlsCACerts": {
+        "path": "/usr/src/crypto/peerOrganizations/student.jnu.com/peers/peer1.student.jnu.com/msp/tlscacerts/tlsca.student.jnu.com-cert.pem"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "ca.student.jnu.com": {
+      "url": "https://ca.student.jnu.com:8054",
+      "caName": "ca.student.jnu.com",
+      "httpOptions": {
+        "verify": false
+      },
+      "tlsCACerts": {
+        "path": "/usr/src/crypto/peerOrganizations/student.jnu.com/ca/ca.student.jnu.com-cert.pem"
+      }
+    }
+  }
+}
