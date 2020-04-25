@@ -1,0 +1,58 @@
+{
+  "name": "surveynet",
+  "version": "1.0.0",
+  "client": {
+    "tlsEnable": true,
+    "adminUser": "admin",
+    "adminPassword": "adminpw",
+    "enableAuthentication": false,
+    "organization": "ManagerMSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "surveynet": {
+      "peers": {
+        "peer0.manager.jnu.com": {}
+      },
+      "connection": {
+        "timeout": {
+          "peer": {
+            "endorser": "6000",
+            "eventHub": "6000",
+            "eventReg": "6000"
+          }
+        }
+      }
+    }
+  },
+  "organizations": {
+    "ManagerMSP": {
+      "mspid": "ManagerMSP",
+      "fullpath": true,
+      "adminPrivateKey": {
+        "path": ""
+      },
+      "signedCert": {
+        "path": "/tmp/crypto/peerOrganizations/manager.jnu.com/users/Admin@manager.jnu.com/msp/signcerts/Admin@manager.jnu.com-cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.manager.jnu.com": {
+      "tlsCACerts": {
+        "path": "/tmp/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/tls/ca.crt"
+      },
+      "url": "grpcs://peer0.manager.jnu.com:7051",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.manager.jnu.com"
+      }
+    }
+  }
+}

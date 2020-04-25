@@ -46,7 +46,7 @@ services:
     volumes:
       - ./msa/.env.fabric-manager:/usr/src/app/.env
       - ./msa/manager-connection.json:/usr/src/app/fabric/connection-profile.json
-      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+      - ../../artifacts/network/crypto-config/:/tmp/crypto/
     ports:
       - 8092:8092
     networks:
@@ -58,7 +58,7 @@ services:
     volumes:
       - ./msa/.env.fabric-student:/usr/src/app/.env
       - ./msa/student-connection.json:/usr/src/app/fabric/connection-profile.json
-      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+      - ../../artifacts/network/crypto-config/:/tmp/crypto/
     ports:
       - 8093:8093
     networks:
@@ -70,15 +70,13 @@ services:
     volumes:
       - ./msa/.env.fabric-event:/usr/src/app/.env
       - ./msa/manager-connection.json:/usr/src/app/fabric/connection-profile.json
-      - ../../artifacts/network/crypto-config/:/usr/src/crypto/
+      - ../../artifacts/network/crypto-config/:/tmp/crypto/
     ports:
       - 8091:8091
     networks:
       - jnu_hlfn
     depends_on:
       - fabric-manager-app
-      - fabric-student-app
-      - card-recognize-app
 
   card-recognize-app:
     image: woojae9488/jnu-card-recognize:1.0

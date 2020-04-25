@@ -48,7 +48,7 @@
         "ssl-target-name-override": "orderer.jnu.com"
       },
       "tlsCACerts": {
-        "path": "/usr/src/crypto/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
+        "path": "/tmp/crypto/ordererOrganizations/jnu.com/orderers/orderer.jnu.com/msp/tlscacerts/tlsca.jnu.com-cert.pem"
       }
     }
   },
@@ -59,7 +59,7 @@
         "ssl-target-name-override": "peer0.manager.jnu.com"
       },
       "tlsCACerts": {
-        "path": "/usr/src/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
+        "path": "/tmp/crypto/peerOrganizations/manager.jnu.com/peers/peer0.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
       }
     },
     "peer1.manager.jnu.com": {
@@ -68,7 +68,7 @@
         "ssl-target-name-override": "peer1.manager.jnu.com"
       },
       "tlsCACerts": {
-        "path": "/usr/src/crypto/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
+        "path": "/tmp/crypto/peerOrganizations/manager.jnu.com/peers/peer1.manager.jnu.com/msp/tlscacerts/tlsca.manager.jnu.com-cert.pem"
       }
     }
   },
@@ -80,7 +80,7 @@
         "verify": false
       },
       "tlsCACerts": {
-        "path": "/usr/src/crypto/peerOrganizations/manager.jnu.com/ca/ca.manager.jnu.com-cert.pem"
+        "path": "/tmp/crypto/peerOrganizations/manager.jnu.com/ca/ca.manager.jnu.com-cert.pem"
       }
     }
   }

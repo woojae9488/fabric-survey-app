@@ -1,0 +1,9 @@
+{
+  "network-configs": {
+    "surveynet": {
+      "name": "surveynet",
+      "profile": "./connection-profile.json",
+      "enableAuthentication": false
+    }
+  }
+}

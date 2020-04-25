@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+version: "2.1"
+
+volumes:
+  pgdata:
+  walletstore:
+
+networks:
+  jnu_hlfn:
+    external:
+      name: artifacts_jnu_hlfn
+
+services:
+  explorerdb.jnu.com:
+    image: hyperledger/explorer-db:V1.0.0
+    container_name: explorerdb.jnu.com
+    hostname: explorerdb.jnu.com
+    environment:
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    volumes:
+      - ./explorer/createdb.sh:/docker-entrypoint-initdb.d/createdb.sh
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - jnu_hlfn
+
+  explorer.jnu.com:
+    image: hyperledger/explorer:V1.0.0
+    container_name: explorer.jnu.com
+    hostname: explorer.jnu.com
+    environment:
+      - DATABASE_HOST=explorerdb.jnu.com
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - DISCOVERY_AS_LOCALHOST=false
+    volumes:
+      - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./explorer/connection-profile.json:/opt/explorer/app/platform/fabric/connection-profile.json
+      - ../../artifacts/network/crypto-config/:/tmp/crypto/
+      - walletstore:/opt/wallet
+    command: sh -c "sleep 7 && node /opt/explorer/main.js && tail -f /dev/null"
+    depends_on:
+      - explorerdb.jnu.com
+    ports:
+      - 8888:8080
+    networks:
+      - jnu_hlfn

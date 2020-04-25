@@ -30,6 +30,10 @@ function allocateSwap() {
 function installFabricPrereqs() {
     set -x
     apt-get update
+    # install node v10 and npm
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    apt-get install -y nodejs node-gyp
+    npm install -g npm
     # install golang
     wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
     tar -xvf go1.11.linux-amd64.tar.gz
@@ -43,10 +47,6 @@ function installFabricPrereqs() {
 function installWebAppPrereqs() {
     set -x
     apt-get update
-    # install node v10 and npm
-    curl -sL https://deb.nodesource.com/setup_10.x | bash -
-    apt-get install -y nodejs node-gyp
-    npm install -g npm
     # install python and pip
     apt-get install -y python3 python3-pip
     pip3 install --upgrade pip
@@ -78,14 +78,12 @@ function makeEnvironment() {
     export GOROOT=/usr/local/go
     export GOPATH=$USER_HOME/go
     export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$USER_HOME/fabric-samples/bin:$PATH
-    export PUBLIC_IP=$(curl ifconfig.me)
 
     touch $ENV_FILE
     echo "export GOROOT=$GOROOT" >>$ENV_FILE
     echo "export GOPATH=$GOPATH" >>$ENV_FILE
     echo "export PATH=$PATH" >>$ENV_FILE
-    echo "export PUBLIC_IP=$PUBLIC_IP" >>$ENV_FILE
-    echo "alias sudo=\"sudo env PATH=$PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_FILE
+    echo "alias sudo=\"sudo env PATH=$PATH\"" >>$ENV_FILE
 }
 
 SWAP_SIZE="2GB"

@@ -5,4 +5,4 @@ COPY package*.json ./
 RUN npx npm-force-resolutions && npm install
 COPY . ./
 EXPOSE 8091
-CMD [ "npm", "start" ]
+CMD sleep 5 && npm start
