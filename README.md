@@ -23,14 +23,18 @@
 </p>
 <br>
 
-1. The blockchain operator sets up the Hyperledger Fabric network and the operator installs and instantiates the smart contract on the fabric network.
-2. The Express.js application server uses the fabric-sdk-node to interact with the deployed fabric network and creates APIs for a web client.
-3. The Vue.js client uses the Express.js application API to interact with the fabric network and uses the Flask.py application API to recognize card information.
-4. The user interacts with the Vue.js web interface to register their survey and response.
+1. The blockchain operator sets up the Hyperledger Fabric network and the operator installs and instantiates the smart contract on the Fabric network.
+2. The User interacts with the Vue.js Web interface to register surveys and responses, or with the Explorer to identify blocks in the Fabric network.
+3. The Vue.js client uses the API gateway to interact with the overall servers.
+4. The API gateway uses the Express.js applications API to interact with the fabric network and uses the Flask.py application API to recognize card information.
+5. The Express.js application servers use the fabric-sdk-node to interact with the deployed fabric network and creates APIs for a web client.
+6. The Fabric network notifies the event processing Express.js application when an event occurs during an interaction.
+7. The Explorer identifies blocks by interacting with the fabric network through the postgresql DB.
 
 ## Featured technologies
 
 - [Hyperledger Fabric v1.4](https://hyperledger-fabric.readthedocs.io/en/release-1.4/) is a platform for distributed ledger solutions, underpinned by a modular architecture that delivers high degrees of confidentiality, resiliency, flexibility, and scalability.
+- [Hyperledger Explorer](https://blockchain-explorer.readthedocs.io/en/master/index.html) is a user-friendly Web application tool used to view, invoke, deploy or query blocks, transactions and associated data, network information, chain codes and transaction families, as well as any other relevant information stored in the ledger.
 - [Node.js](https://nodejs.org) is an open source, cross-platform JavaScript run-time environment that executes server-side JavaScript code.
 - [Vue.js](https://vuejs.org) is an open-source JavaScript framework for building user interfaces and single-page applications.
 - [Flask.py](https://flask.palletsprojects.com/en/1.1.x/) is a lightweight WSGI web application framework. It is designed to make getting started quick and easy, with the ability to scale up to complex applications.
@@ -39,15 +43,13 @@
 ## Test Environment Software Versions
 
 **:warning: Note: You will need Node >=10.15.3 to run this pattern! :warning:**
-| Program | Version |
-| :---: | :---: |
+| Program | Version | Program | Version |
+| :---: | :---: | :---: | :---: |
+| Hyperledger Fabric | 1.4.0 | Hyperledger Explorer | 1.0.0 |
+| docker | 18.09.7 | docker-compose | 1.17.1 |
+| node | 10.20.1 | NPM | 6.14.4 |
+| python | 3.6.9 | pip | 20.0.2 |
 | Go | 1.11 |
-| docker | 18.09.7 |
-| docker-compose | 1.17.1 |
-| node | 10.19.0 |
-| NPM | 6.14.1 |
-| python | 3.6.9 |
-| pip | 20.0.2 |
 
 ---
 
@@ -56,7 +58,7 @@
 1. [Clone the Repo](#step-1-clone-the-repo)
 2. [Prepare prerequisites By shell script](#step-2-prepare-prerequisites-by-shell-script)
 3. [Start the Fabric network By shell script](#step-3-start-the-fabric-network-by-shell-script)
-4. [Run the Dockerize web servers and client](#step-4-run-the-dockerize-web-servers-and-client)
+4. [Run the Dockerize web apps By shell script](#step-4-run-the-dockerize-web-apps-by-shell-script)
 
 ### Step 1. Clone the Repo
 
@@ -79,7 +81,7 @@ ubuntu$ source ./environment
 
 If your computer has less than 1.5GB of memory, you need to add an -S option or an -s \<size> Option to create a swapfile.
 
-After all the scripts are run, the version will be checked at the end. Just check the go, docker, and docker-compose version.
+After all the scripts are run, the version will be checked at the end. Check the versions of the other programs except python and pip.
 
 The source command is to set the necessary environment variables for starting the fabric network.
 
@@ -112,21 +114,34 @@ When you run a script in the cli docker container, the following things happen i
 
 For more details, see the contents of the operate.sh file.
 
-### Step 4. Run the Dockerize web servers and client
+### Step 4. Run the Dockerize web apps By shell script
 
-Now, finally, using only the docker-compose command will end the whole process.
+Now, finally, run only the deploy.sh shell script will end the whole process.
 
 ```bash
 ubuntu$ cd web-app/
-ubuntu$ sudo docker-compose -f docker-compose.yaml up -d
+ubuntu$ chmod +x deploy.sh
+ubuntu$ sudo ./deploy.sh start all
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :smile:  
+If everything is done well, we are ready to access our fabric network.
+Go to http://[HOST-IP]:8080/ to view the client app, or http://[HOST-IP]:8888/ to view the Explorer app. :smile: <br>
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
+
+If you want to run applications separately from the Explorer or just the Explorer, you can run them through the following commands:
+
+```bash
+ubuntu$ sudo ./deploy.sh start msa       # Exclude the Explorer
+ubuntu$ sudo ./deploy.sh start explorer  # Just the Explorer
+```
+
+For more information, see the contents of the deploy.sh file and the resources in the docker-config directory.
 
 ---
 
 ## Steps (Local Deployment without dockerize web app)
+
+It is not possible to run the Explorer when running web applications in a local deployment because only dockerized Explorer is available in this code pattern.
 
 These steps overlap with the preceding steps(Step 1. and Step 3.). Therefore, I will explain the other parts only.
 
@@ -155,34 +170,48 @@ For more details, see the contents of the prepare.sh file.
 
 ### Step 4. Run the web servers and client
 
-To deploy without a docked web server or client, each server and client must be run directly.
+To deploy without a dockerize web servers or client, each servers and client must be run directly.
 At this step, you can modify and execute the code as you wish.
 
-First, let's run a backend server that connects to the fabric network.
+First, let's run a fabric-manager server, a fabric-student server, and a fabric-event server that connects to the fabric network.
 
 ```bash
-ubuntu$ cd web-app/server/
+ubuntu$ cd web-app/servers/fabric-manager/
+ubuntu$ npm install
+ubuntu$ npm start
+ubuntu$ cd ../fabric-student/
+ubuntu$ npm install
+ubuntu$ npm start
+ubuntu$ cd ../fabric-event/
 ubuntu$ npm install
 ubuntu$ npm start
 ```
 
-Then, run the card recognition server.
+Here, the fabric-student server does not matter, but the fabric-event server must run later than the fabric-manager server.
+(This is because the fabric-manager server registers the certificate of the fabric-event server.)
+
+Then, run the card-recognize server and the API gateway.
 
 ```bash
-ubuntu$ cd ../card-recognize-api/
+ubuntu$ cd ../card-recognize/
 ubuntu$ pip3 install -r ./requirements.txt
 ubuntu$ python3 app.py
+ubuntu$ cd ../api-gateway/
+ubuntu$ npm install
+ubuntu$ npm start
 ```
+
+If you don't want to use Chonnam National University's student card recognition, you don't have to run the card-recognize server and you have to change the client's student signup process.
 
 Finally, run the client.
 
 ```bash
-ubuntu$ cd ../client/
+ubuntu$ cd ../../client/
 ubuntu$ npm install
 ubuntu$ npm run serve
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile:  
+If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile: <br>
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
@@ -195,11 +224,11 @@ After testing network, or if an error occurs and the network must be stopped, go
 ubuntu$ sudo ./operate.sh down
 ```
 
-If you also want to shut down dockerize web servers and client:
+If you also want to shut down dockerize web apps:
 
 ```bash
 ubuntu$ cd web-app/
-ubuntu$ sudo docker-compose -f docker-compose.yaml down -v
+ubuntu$ sudo ./deploy.sh stop all  # Or msa or explorer
 ```
 
 ---
@@ -252,6 +281,7 @@ This section will show pictures of the network structure or elements of the surv
 - [hyperledger/fabric-samples/first-network](https://github.com/hyperledger/fabric-samples/tree/release-1.4/first-network)
 - [hyperledger/fabric-samples/balance-transfer](https://github.com/hyperledger/fabric-samples/tree/release-1.4/balance-transfer)
 - [hyperledger/fabric-samples/commercial-paper](https://github.com/hyperledger/fabric-samples/tree/release-1.4/commercial-paper)
+- [hyperledger/blockchain-explorer](https://github.com/hyperledger/blockchain-explorer)
 - [IBM/evote](https://github.com/IBM/evote)
 - [IBM/auction-events](https://github.com/IBM/auction-events)
 - [Vue.js](https://kr.vuejs.org/v2/guide/index.html)
@@ -267,7 +297,7 @@ This section will show pictures of the network structure or elements of the surv
 - [Connection Profiles](https://hyperledger.github.io/composer/v0.19/reference/connectionprofile)
 - [How to deploy chaincode in Hyperledger Fabric?](https://medium.com/beyondi/how-to-deploy-chaincode-in-hyperledger-fabric-7202204d0238)
 
-### About using Node for deploy the server
+### About using Node for deploy the servers
 
 - [MartinYounghoonKim/nodejs-authenticate-jwt-vuejs](https://github.com/MartinYounghoonKim/nodejs-authenticate-jwt-vuejs)
 - [자바스크립트 async와 await](https://joshua1988.github.io/web-development/javascript/js-async-await/)
@@ -278,6 +308,9 @@ This section will show pictures of the network structure or elements of the surv
 - [특정 시간에 이벤트 발생시키기](https://yonghyunlee.gitlab.io/node/node-schedule/)
 - [Nodejs lowdb 사용하기](https://m.blog.naver.com/PostView.nhn?blogId=pjok1122&logNo=221569697267&proxyReferer=https%3A%2F%2Fwww.google.com%2F)
 - [Node.js 가 로컬, 글로벌 모듈을 탐색하는 순서를 확인해보자](https://ondemand.tistory.com/240)
+- [MSA 제대로 이해하기 - MSA의 기본 개념](https://velog.io/@tedigom/MSA-%EC%A0%9C%EB%8C%80%EB%A1%9C-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-1-MSA%EC%9D%98-%EA%B8%B0%EB%B3%B8-%EA%B0%9C%EB%85%90-3sk28yrv0e)
+- [API Gateway 구현](https://m.blog.naver.com/1ilsang/221575505442)
+- [ecojuntak/api-gateway](https://github.com/ecojuntak/api-gateway)
 
 ### About using Vue for deploy the client
 
@@ -313,3 +346,4 @@ This section will show pictures of the network structure or elements of the surv
 - [마크다운 사용법](https://gist.github.com/ihoneymon/652be052a0727ad59601)
 - [ParkSB/javascript-style-guide](https://github.com/ParkSB/javascript-style-guide#%EB%B3%80%EC%88%98-variables)
 - [Apache License 2.0 사용법](https://linuxism.ustd.ip.or.kr/1143)
+- [Fixing security vulnerabilities in npm dependencies](https://itnext.io/fixing-security-vulnerabilities-in-npm-dependencies-in-less-than-3-mins-a53af735261d)
