@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 export default {
-  instance(url = 'http://localhost:8090') {
+  instance() {
     return axios.create({
-      baseURL: url,
-      timeout: 7000,
+      baseURL: process.env.VUE_APP_API_ADDR || 'http://localhost:8090',
+      timeout: 10000,
       headers: { 'Content-Type': 'application/json' },
     });
   },

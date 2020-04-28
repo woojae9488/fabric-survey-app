@@ -82,7 +82,7 @@ export default {
   name: 'Signin',
   data() {
     return {
-      title: 'Welcome to JNU Survey App',
+      title: 'Welcome to Blockchain Survey App',
       roleOptions: ['student', 'manager'],
       loginData: {
         role: 'student',

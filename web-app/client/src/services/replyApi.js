@@ -1,5 +1,6 @@
 import api from '@/services/api';
-import Reply from '../../../../chaincode/lib/Reply';
+// eslint-disable-next-line import/extensions
+import Reply from '%/lib/Reply';
 
 export default {
   makeReply(surveyKey, id, existReplyInfo, results) {

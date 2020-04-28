@@ -6,29 +6,12 @@ networks:
       name: artifacts_jnu_hlfn
 
 services:
-  server-app:
-    image: woojae9488/fabric-survey-server:1.0
-    container_name: server-app
-    volumes:
-      - ../artifacts/network/crypto-config/:/usr/src/crypto-config/
-    ports:
-      - 8090:8090
-    networks:
-      - jnu_hlfn
-
-  card-recognize-app:
-    image: woojae9488/fabric-survey-card-recognize:1.0
-    container_name: card-recognize-app
-    ports:
-      - 8091:8091
-    networks:
-      - jnu_hlfn
-
   client-app:
-    image: woojae9488/fabric-survey-client:1.0
+    image: woojae9488/fabric-survey-client:1.1
     container_name: client-app
     environment:
-      - FABRIC_NETWORK_IP=${PUBLIC_IP}
+      - VUE_APP_API_ADDR=http://${PUBLIC_IP}:8090
+      - CC_PATH=/usr/src/app/src/chaincode
     volumes:
       - ../chaincode/:/usr/src/app/src/chaincode/
     ports:
@@ -37,5 +20,16 @@ services:
       - jnu_hlfn
     depends_on:
       - server-app
-      - card-recognize-app
-    command: ./buildup.sh
+
+  server-app:
+    image: woojae9488/fabric-survey-server:1.1
+    container_name: server-app
+    volumes:
+      - ./docker-config/.env.server:/usr/src/app/.env
+      - ./docker-config/manager-connection.json:/usr/src/app/fabric/manager-connection.json
+      - ./docker-config/student-connection.json:/usr/src/app/fabric/student-connection.json
+      - ../artifacts/network/crypto-config/:/tmp/crypto/
+    ports:
+      - 8090:8090
+    networks:
+      - jnu_hlfn

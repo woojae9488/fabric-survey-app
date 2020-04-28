@@ -12,52 +12,55 @@
       <b-container fluid>
         <b-form @submit.prevent="signup">
           <b-row class="my-3">
-            <b-col sm="3">
-              <label for="student-card">Student Card :</label>
+            <b-col sm="2">
+              <label for="user-id">Id :</label>
             </b-col>
-            <b-col sm="12">
-              <b-form-file
-                id="student-card"
-                v-model="studentCardFile"
-                :state="studentCardSrcState"
-                accept="image/*"
-                placeholder="Choose a Student card file or drop it here..."
-                drop-placeholder="Drop Student card file here..."
-                @change="showImgPreview"
+            <b-col sm="7">
+              <b-form-input
+                id="user-id"
+                v-model="registerData.id"
+                :state="idState"
+                aria-describedby="input-live-feedback"
+                placeholder="Enter your Id"
+                trim
                 required
-              ></b-form-file>
+              ></b-form-input>
+              <b-form-invalid-feedback id="id-live-feedback"
+                >Enter at least 6 letters and Check Id</b-form-invalid-feedback
+              >
+            </b-col>
+            <b-col sm="3">
+              <b-button @click="checkIdExists" variant="primary">Check Id</b-button>
             </b-col>
           </b-row>
 
-          <b-row class="my-4" align-v="center">
-            <b-col sm="5">
-              <b-img
-                v-if="studentCardSrcState"
-                :src="studentCardSrc"
-                width="300"
-                thumbnail
-                fulid
-              ></b-img>
+          <b-row class="my-3">
+            <b-col sm="3">
+              <label for="user-departments">Departments :</label>
             </b-col>
-            <b-col sm="7">
-              <b-table-simple v-if="checkCardData">
-                <b-tr>
-                  <b-th>role</b-th>
-                  <b-td>{{ registerData.role }}</b-td>
-                </b-tr>
-                <b-tr>
-                  <b-th>id</b-th>
-                  <b-td>{{ registerData.id }}</b-td>
-                </b-tr>
-                <b-tr>
-                  <b-th>name</b-th>
-                  <b-td>{{ registerData.name }}</b-td>
-                </b-tr>
-                <b-tr>
-                  <b-th>department</b-th>
-                  <b-td>{{ registerData.department }}</b-td>
-                </b-tr>
-              </b-table-simple>
+            <b-col sm="6">
+              <b-form-input
+                id="user-departments"
+                v-model="registerData.departments"
+                placeholder="Enter your Departments separated by commas"
+                trim
+                required
+              ></b-form-input>
+            </b-col>
+          </b-row>
+
+          <b-row class="my-3">
+            <b-col sm="3">
+              <label for="user-name">Name :</label>
+            </b-col>
+            <b-col sm="6">
+              <b-form-input
+                id="user-name"
+                v-model="registerData.name"
+                placeholder="Enter your Name"
+                trim
+                required
+              ></b-form-input>
             </b-col>
           </b-row>
 
@@ -125,22 +128,22 @@ export default {
   name: 'StudentSignup',
   data() {
     return {
-      title: 'Register your JNU identity',
-      studentCardFile: null,
-      studentCardSrc: '',
+      title: 'Register your identity',
+      idChecked: false,
       registerData: {
-        role: '',
         id: '',
         name: '',
-        department: '',
+        departments: '',
         password: '',
         passwordConfirm: '',
       },
     };
   },
   computed: {
-    studentCardSrcState() {
-      return this.studentCardSrc.length === 0 ? null : true;
+    idState() {
+      return this.registerData.id.length === 0
+        ? null
+        : !(this.registerData.id.length < 6 || !this.idChecked);
     },
     passwordState() {
       return this.registerData.password.length === 0
@@ -152,42 +155,28 @@ export default {
         ? null
         : !(this.registerData.passwordConfirm.length < 8);
     },
-    checkCardData() {
-      return Boolean(
-        this.registerData.role &&
-          this.registerData.id &&
-          this.registerData.name &&
-          this.registerData.department,
-      );
-    },
   },
   methods: {
-    async showImgPreview(event) {
-      const imgFile = event.target.files[0];
-      const reader = new FileReader();
+    async checkIdExists() {
+      try {
+        eventBus.$emit('runSpinner');
 
-      reader.onload = async e => {
-        try {
-          eventBus.$emit('runSpinner');
+        const apiRes = await userService.checkExistence('student', this.registerData.id);
+        const apiData = api.getResultData(apiRes);
 
-          this.studentCardSrc = e.target.result;
-          const cardRes = await userService.recognizeCard(this.studentCardSrc);
-          const cardData = api.getResultData(cardRes);
-
-          this.registerData.role = cardData.role;
-          this.registerData.id = cardData.id;
-          this.registerData.name = cardData.name;
-          this.registerData.department = cardData.department;
-        } catch (err) {
-          console.log(api.getErrorMsg(err));
-          alert('Recongnize card data fail');
-        } finally {
-          eventBus.$emit('hideSpinner');
+        if (apiData.userExists) {
+          alert('Id already exists');
+          this.idChecked = false;
+        } else {
+          this.idChecked = true;
         }
-      };
-      reader.readAsDataURL(imgFile);
+      } catch (err) {
+        console.log(api.getErrorMsg(err));
+        alert('Fail to check id');
+      } finally {
+        eventBus.$emit('hideSpinner');
+      }
     },
-
     async signup() {
       try {
         eventBus.$emit('runSpinner');
@@ -197,12 +186,15 @@ export default {
           return;
         }
 
+        let departments = this.registerData.departments.split(',');
+        departments = departments.map(department => department.trim());
+        departments.unshift('overall');
         await userService.signup(
-          this.registerData.role,
+          'student',
           this.registerData.id,
           this.registerData.password,
           this.registerData.name,
-          ['jnu', this.registerData.department],
+          departments,
         );
 
         this.$router.push('/Signin');

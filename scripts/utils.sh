@@ -1,5 +1,4 @@
 # Copyright IBM Corp. All Rights Reserved.
-# Modified by Kim Woo Jae
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -159,7 +158,7 @@ chaincodeQuery() {
         ARGS='{"Args":["queryManager","admin"]}'
         ;;
     "info")
-        ARGS='{"Args":["querySurveyInfos","jnu"]}'
+        ARGS='{"Args":["querySurveyInfos","overall"]}'
         ;;
     esac
 
@@ -214,13 +213,13 @@ chaincodeInvoke() {
 
     case $FUNC in
     "manager")
-        ARGS='{"Args":["registerManager","admin","adminpw","[\"jnu\"]"]}'
+        ARGS='{"Args":["registerManager","admin","adminpw","[\"overall\"]"]}'
         ;;
     "register")
-        ARGS='{"Args":["register","{\"surveyKey\":\"jnu_0\",\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:jnu:0\",\"currentState\":null,\"department\":\"jnu\",\"createdAt\":0,\"managerID\":\"admin\",\"title\":\"test\",\"startDate\":0,\"finishDate\":0},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:jnu_0:0\",\"surveyKey\":\"jnu_0\",\"questionNum\":0,\"title\":\"test\",\"type\":\"text\",\"contents\":[]}]}"]}'
+        ARGS='{"Args":["register","{\"surveyKey\":\"overall_0\",\"surveyInfo\":{\"class\":\"org.jnu.surveyinfo\",\"key\":\"org.jnu.surveyinfo:overall:0\",\"currentState\":null,\"department\":\"overall\",\"createdAt\":0,\"managerID\":\"admin\",\"title\":\"test\",\"startDate\":0,\"finishDate\":0},\"questions\":[{\"class\":\"org.jnu.surveyquestion\",\"key\":\"org.jnu.surveyquestion:overall_0:0\",\"surveyKey\":\"overall_0\",\"questionNum\":0,\"title\":\"test\",\"type\":\"text\",\"contents\":[]}]}"]}'
         ;;
     "remove")
-        ARGS='{"Args":["remove","jnu","0","admin"]}'
+        ARGS='{"Args":["remove","overall","0","admin"]}'
         ;;
     esac
 

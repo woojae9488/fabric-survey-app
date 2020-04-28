@@ -9,7 +9,10 @@
         <b-col sm="1">
           <img src="./assets/logo.png" @click="clickLogoImg" width="40px" class="mb-4" />
         </b-col>
-        <b-col v-if="isLogined" sm="1" offset-sm="9">
+        <b-col v-if="isLogined" sm="2" offset-sm="7">
+          <b-button to="/ChangeInfo" variant="outline-primary" size="sm" pill>ChangeInfo</b-button>
+        </b-col>
+        <b-col v-if="isLogined" sm="1">
           <b-button @click="logout" variant="outline-danger" size="sm" pill>Logout</b-button>
         </b-col>
       </b-row>

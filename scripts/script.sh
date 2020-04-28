@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Copyright IBM Corp. All Rights Reserved.
-# Modified by Kim Woo Jae
 #
 # SPDX-License-Identifier: Apache-2.0
 #

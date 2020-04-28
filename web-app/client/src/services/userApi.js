@@ -5,10 +5,6 @@ export default {
     return await api.instance().get(`/auth/users/${role}/${id}`);
   },
 
-  async recognizeCard(imgData) {
-    return await api.instance('http://localhost:8091').post('/studentcard', { imgData });
-  },
-
   async signup(role, id, password, name, departments) {
     const departmentsJSON = JSON.stringify(departments);
     return await api.instance().post(`/auth/users/${role}`, {

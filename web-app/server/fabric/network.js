@@ -3,25 +3,25 @@ const path = require('path');
 const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 
-const studentConnPath = path.join(process.cwd(), process.env.STUDENT_CONN);
-const studentConnJSON = fs.readFileSync(studentConnPath, 'utf8');
-const studentConnection = JSON.parse(studentConnJSON);
+const studentCcpPath = path.join(process.cwd(), process.env.STUDENT_CONN);
+const studentCcpFile = fs.readFileSync(studentCcpPath, 'utf8');
+const studentCcp = JSON.parse(studentCcpFile);
 
-const managerConnPath = path.join(process.cwd(), process.env.MANAGER_CONN);
-const managerConnJSON = fs.readFileSync(managerConnPath, 'utf8');
-const managerConnection = JSON.parse(managerConnJSON);
+const managerCcpPath = path.join(process.cwd(), process.env.MANAGER_CONN);
+const managerCcpFile = fs.readFileSync(managerCcpPath, 'utf8');
+const managerCcp = JSON.parse(managerCcpFile);
 
 function getConnectionMaterial(isManager) {
     const connectionMaterial = {};
 
     if (isManager) {
         connectionMaterial.walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
-        connectionMaterial.connection = managerConnection;
+        connectionMaterial.connection = managerCcp;
         connectionMaterial.orgMSPID = process.env.MANAGER_MSP;
         connectionMaterial.caURL = process.env.MANAGER_CA_ADDR;
     } else {
         connectionMaterial.walletPath = path.join(process.cwd(), process.env.STUDENT_WALLET);
-        connectionMaterial.connection = studentConnection;
+        connectionMaterial.connection = studentCcp;
         connectionMaterial.orgMSPID = process.env.STUDENT_MSP;
         connectionMaterial.caURL = process.env.STUDENT_CA_ADDR;
     }
@@ -45,7 +45,7 @@ exports.connect = async (isManager, userID) => {
         await gateway.connect(connection, {
             wallet,
             identity: userID,
-            discovery: { enabled: true, asLocalhost: true },
+            discovery: { enabled: true, asLocalhost: Boolean(process.env.AS_LOCALHOST) },
         });
         const network = await gateway.getNetwork(process.env.CHANNEL);
         const contract = await network.getContract(process.env.CONTRACT);
@@ -135,17 +135,10 @@ exports.registerUser = async (isManager, userID) => {
             return { status: 400, error: 'User identity already exists in the wallet.' };
         }
 
-        const adminExists = await wallet.exists(process.env.ADMIN);
-        if (!adminExists) {
-            console.error(`An identity for the admin user ${process.env.ADMIN} does not exist in the wallet`);
-            console.error('Enroll the admin before trying');
-            return { status: 500, error: 'Admin user identity does not exist in the wallet.' };
-        }
-
         await gateway.connect(connection, {
             wallet,
             identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: true },
+            discovery: { enabled: true, asLocalhost: Boolean(process.env.AS_LOCALHOST) },
         });
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();

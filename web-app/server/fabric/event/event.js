@@ -3,9 +3,14 @@ const path = require('path');
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const schedule = require('./schedule.js');
 
-const connectionPath = path.join(process.cwd(), process.env.MANAGER_CONN);
-const connectionJSON = fs.readFileSync(connectionPath, 'utf8');
-const connection = JSON.parse(connectionJSON);
+const ccpPath = path.join(process.cwd(), process.env.MANAGER_CONN);
+const ccpFile = fs.readFileSync(ccpPath, 'utf8');
+const ccp = JSON.parse(ccpFile);
+const ccpOptions = {
+    wallet,
+    identity: process.env.ADMIN,
+    discovery: { enabled: true, asLocalhost: Boolean(process.env.AS_LOCALHOST) },
+};
 
 const walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
 const wallet = new FileSystemWallet(walletPath);
@@ -17,17 +22,13 @@ exports.handlingPastEvents = () => {
 exports.activateContractEvent = async () => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, {
-            wallet,
-            identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: true },
-        });
+        await gateway.connect(ccp, ccpOptions);
         const network = await gateway.getNetwork(process.env.CHANNEL);
         const contract = await network.getContract(process.env.CONTRACT);
 
         const registerListener = await contract.addContractListener(
-            process.env.L_REGISTER,
-            process.env.E_REGISTER,
+            'registerEventListener',
+            'surveyRegisterEvent',
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen register event: ${err}`);
@@ -42,8 +43,8 @@ exports.activateContractEvent = async () => {
         );
 
         const updateListener = await contract.addContractListener(
-            process.env.L_UPDATE,
-            process.env.E_UPDATE,
+            'updateEventListener',
+            'surveyUpdateEvent',
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen update event: ${err}`);
@@ -58,8 +59,8 @@ exports.activateContractEvent = async () => {
         );
 
         const removeListener = await contract.addContractListener(
-            process.env.L_REMOVE,
-            process.env.E_REMOVE,
+            'removeEventListener',
+            'surveyRemoveEvent',
             (err, event, blockNumber, transactionID, status) => {
                 if (err) {
                     console.error(`Failed to listen remove event: ${err}`);
@@ -84,14 +85,10 @@ exports.activateContractEvent = async () => {
 exports.activateBlockEvent = async () => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, {
-            wallet,
-            identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: true },
-        });
+        await gateway.connect(ccp, ccpOptions);
         const network = await gateway.getNetwork(process.env.CHANNEL);
 
-        const listener = await network.addBlockListener(process.env.L_BLOCK, (err, block) => {
+        const listener = await network.addBlockListener('surveynetBlockListener', (err, block) => {
             if (err) {
                 console.error(`Failed to listen block event: ${err}`);
                 return;
@@ -110,11 +107,7 @@ exports.activateBlockEvent = async () => {
 exports.activateCommitEvent = async transactionName => {
     try {
         const gateway = new Gateway();
-        await gateway.connect(connection, {
-            wallet,
-            identity: process.env.ADMIN,
-            discovery: { enabled: true, asLocalhost: true },
-        });
+        await gateway.connect(ccp, ccpOptions);
         const network = await gateway.getNetwork(process.env.CHANNEL);
         const contract = await network.getContract(process.env.CONTRACT);
 

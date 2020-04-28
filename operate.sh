@@ -1,12 +1,10 @@
 #!/bin/bash
 
 # Copyright IBM Corp. All Rights Reserved.
-# Modified by Kim Woo Jae
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
-export PATH=${PWD}/artifacts/bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}/artifacts
 export VERBOSE=false
 
@@ -97,7 +95,7 @@ function checkPrereqs() {
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp() {
     if [ ! -x "scripts/script.sh" -o ! -x "scripts/utils.sh" ]; then
-        chmod 777 scripts/*
+        chmod +x scripts/*
     fi
 
     checkPrereqs
@@ -219,7 +217,7 @@ function generateChannelArtifacts() {
     echo "######################################################################"
     set -x
     configtxgen -profile JNUChannel -outputAnchorPeersUpdate \
-        ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
+    ./artifacts/network/StudentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg StudentMSP
     res=$?
     set +x
     if [ $res -ne 0 ]; then
@@ -276,13 +274,10 @@ if [ $MODE == "up" ]; then
     networkUp
 elif [ $MODE == "down" ]; then
     networkDown
-elif [ $MODE == "generate" ]; then
-    generateCerts
-    generateChannelArtifacts
 elif [ $MODE == "restart" ]; then
     networkDown
     networkUp
-else
-    printHelp
-    exit 1
+elif [ $MODE == "generate" ]; then
+    generateCerts
+    generateChannelArtifacts
 fi

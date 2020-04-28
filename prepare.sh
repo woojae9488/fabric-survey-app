@@ -8,7 +8,7 @@ function printHelp() {
     echo "      - 'light'     - Prepare fabric prerequisites and install fabric"
     echo "      - 'webapp'    - Prepare webapp prerequisites"
     echo "      - 'fabric'    - Install only fabric"
-    echo "      - 'setenv'    - Set fabric environments for user"
+    echo "      - 'envfile'   - Make fabric environment file for user"
     echo "      - 'check'     - Check version of prerequisites"
     echo "    -u <user name>  - Owner of the home directory to which the fabric-samples will be installed (defaults to current user)"
     echo "    -S              - Add 2GB swap partition with swapfile"
@@ -43,8 +43,9 @@ function installFabricPrereqs() {
 function installWebAppPrereqs() {
     set -x
     apt-get update
-    # install node and npm
-    apt-get install -y nodejs npm
+    # install node v10 and npm
+    curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    apt-get install -y nodejs node-gyp
     npm install -g npm
     # install python and pip
     apt-get install -y python3 python3-pip
@@ -73,16 +74,16 @@ function installFabric() {
     mv fabric-samples/ $USER_HOME
 }
 
-function setEnvironments() {
+function makeEnvironment() {
     export GOROOT=/usr/local/go
     export GOPATH=$USER_HOME/go
     export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$USER_HOME/fabric-samples/bin:$PATH
     export PUBLIC_IP=$(curl ifconfig.me)
 
-    echo "" >>$ENV_PATH
-    echo "export GOROOT=$GOROOT" >>$ENV_PATH
-    echo "export GOPATH=$GOPATH" >>$ENV_PATH
-    echo "export PATH=$PATH" >>$ENV_PATH
+    touch $ENV_FILE
+    echo "export GOROOT=$GOROOT" >>$ENV_FILE
+    echo "export GOPATH=$GOPATH" >>$ENV_FILE
+    echo "export PATH=$PATH" >>$ENV_FILE
     echo "" >>$ENV_PATH
     echo "export PUBLIC_IP=$PUBLIC_IP" >>$ENV_PATH
     echo "alias sudo=\"sudo env PATH=$PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_PATH
@@ -90,7 +91,7 @@ function setEnvironments() {
 
 SWAP_SIZE="2GB"
 USER_HOME=$HOME
-ENV_PATH=/etc/bash.bashrc
+ENV_FILE="environment"
 # Parse commandline args
 MODE=$1
 shift
@@ -118,20 +119,20 @@ if [ $MODE == "all" ]; then
     installFabricPrereqs
     installWebAppPrereqs
     installFabric
-    setEnvironments
+    makeEnvironment
     checkPrereqs
 elif [ $MODE == "light" ]; then
     installFabricPrereqs
     installFabric
-    setEnvironments
+    makeEnvironment
     checkPrereqs
 elif [ $MODE == "webapp" ]; then
     installWebAppPrereqs
     checkPrereqs
 elif [ $MODE == "fabric" ]; then
     installFabric
-elif [ $MODE == "setenv" ]; then
-    setEnvironments
+elif [ $MODE == "envfile" ]; then
+    makeEnvironment
 elif [ $MODE == "check" ]; then
     checkPrereqs
 else

@@ -113,7 +113,7 @@ export default {
   name: 'ManagerSignup',
   data() {
     return {
-      title: 'Register JNU survey manager',
+      title: 'Register survey manager',
       idChecked: false,
       registerData: {
         id: '',

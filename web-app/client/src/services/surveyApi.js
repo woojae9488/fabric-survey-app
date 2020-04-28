@@ -1,5 +1,6 @@
 import api from '@/services/api';
-import Survey from '../../../../chaincode/lib/Survey';
+// eslint-disable-next-line import/extensions
+import Survey from '%/lib/Survey';
 
 export default {
   makeSurvey(id, surveyInfo, questions) {
