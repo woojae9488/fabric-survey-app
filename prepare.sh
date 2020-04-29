@@ -84,9 +84,9 @@ function makeEnvironment() {
     echo "export GOROOT=$GOROOT" >>$ENV_FILE
     echo "export GOPATH=$GOPATH" >>$ENV_FILE
     echo "export PATH=$PATH" >>$ENV_FILE
-    echo "" >>$ENV_PATH
-    echo "export PUBLIC_IP=$PUBLIC_IP" >>$ENV_PATH
-    echo "alias sudo=\"sudo env PATH=$PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_PATH
+    echo "" >>$ENV_FILE
+    echo "export PUBLIC_IP=$PUBLIC_IP" >>$ENV_FILE
+    echo "alias sudo=\"sudo env PATH=$PATH PUBLIC_IP=$PUBLIC_IP\"" >>$ENV_FILE
 }
 
 SWAP_SIZE="2GB"

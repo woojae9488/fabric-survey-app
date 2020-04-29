@@ -38,7 +38,7 @@
             <b-col sm="3">
               <label for="user-departments">Departments :</label>
             </b-col>
-            <b-col sm="6">
+            <b-col sm="9">
               <b-form-input
                 id="user-departments"
                 v-model="registerData.departments"

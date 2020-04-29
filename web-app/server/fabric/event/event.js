@@ -6,14 +6,14 @@ const schedule = require('./schedule.js');
 const ccpPath = path.join(process.cwd(), process.env.MANAGER_CONN);
 const ccpFile = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpFile);
+
+const walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
+const wallet = new FileSystemWallet(walletPath);
 const ccpOptions = {
     wallet,
     identity: process.env.ADMIN,
     discovery: { enabled: true, asLocalhost: Boolean(process.env.AS_LOCALHOST) },
 };
-
-const walletPath = path.join(process.cwd(), process.env.MANAGER_WALLET);
-const wallet = new FileSystemWallet(walletPath);
 
 exports.handlingPastEvents = () => {
     schedule.initSurveySchedule();

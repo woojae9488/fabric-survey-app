@@ -36,13 +36,13 @@
 
           <b-row class="my-3">
             <b-col sm="3">
-              <label for="user-departments">Departments :</label>
+              <label for="user-name">Name :</label>
             </b-col>
             <b-col sm="6">
               <b-form-input
-                id="user-departments"
-                v-model="registerData.departments"
-                placeholder="Enter your Departments separated by commas"
+                id="user-name"
+                v-model="registerData.name"
+                placeholder="Enter your Name"
                 trim
                 required
               ></b-form-input>
@@ -51,13 +51,13 @@
 
           <b-row class="my-3">
             <b-col sm="3">
-              <label for="user-name">Name :</label>
+              <label for="user-departments">Departments :</label>
             </b-col>
-            <b-col sm="6">
+            <b-col sm="9">
               <b-form-input
-                id="user-name"
-                v-model="registerData.name"
-                placeholder="Enter your Name"
+                id="user-departments"
+                v-model="registerData.departments"
+                placeholder="Enter your Departments separated by commas"
                 trim
                 required
               ></b-form-input>

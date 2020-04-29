@@ -1,4 +1,4 @@
-# Create a JNU survey application with Hyperledger Fabric
+# Create a survey application with Hyperledger Fabric
 
 **:mag: Note: I wrote this through a translator :mag_right:**
 
@@ -23,10 +23,10 @@
 </p>
 <br>
 
-1. The blockchain operator sets up the Hyperledger Fabric network and the operator installs and instantiates the smart contract on the fabric network.
-2. The Express.js application server uses the fabric-sdk-node to interact with the deployed fabric network and creates APIs for a web client.
-3. The Vue.js client uses the Express.js application API to interact with the fabric network and uses the Flask.py application API to recognize card information.
-4. The user interacts with the Vue.js web interface to register their survey and response.
+1. The blockchain operator sets up the Hyperledger Fabric network and the operator installs and instantiates the smart contract on the Fabric network.
+2. The User interacts with the Vue.js Web interface to register surveys and responses.
+3. The Vue.js client uses the Express.js application API to interact with the fabric network.
+4. The Express.js server uses the fabric-sdk-node to interact with the deployed fabric network and creates APIs for a web client.
 
 ## Featured technologies
 
@@ -38,16 +38,13 @@
 
 ## Test Environment Software Versions
 
-**:warning: Note: You will need Node 8.x to run this pattern! :warning:**
-| Program | Version |
-| :---: | :---: |
-| Go | 1.11 |
-| docker | 18.09.7 |
-| docker-compose | 1.17.1 |
-| node | 8.10.0 |
-| NPM | 6.14.1 |
-| python | 3.6.9 |
-| pip | 20.0.2 |
+**:warning: Note: You will need Node >=10.15.3 to run this pattern! :warning:**
+| Program | Version | Program | Version |
+| :---: | :---: | :---: | :---: |
+| Hyperledger Fabric | 1.4.0 | Go | 1.11 |
+| docker | 18.09.7 | docker-compose | 1.17.1 |
+| node | 10.20.1 | NPM | 6.14.4 |
+| python | 3.6.9 | pip | 20.0.2 |
 
 ---
 
@@ -63,7 +60,7 @@
 Git clone this repo onto your computer:
 
 ```bash
-ubuntu$ git clone https://github.com/woojae9488/fabric-survey-app
+ubuntu$ git clone https://github.com/woojae9488/fabric-survey-app -b for_common_use
 ubuntu$ cd fabric-survey-app/
 ```
 
@@ -74,7 +71,7 @@ The shell script in the fabric-survey-app folder provides simple preparation:
 ```bash
 ubuntu$ chmod +x prepare.sh
 ubuntu$ sudo ./prepare.sh light
-ubuntu$ source /etc/bash.bashrc
+ubuntu$ source environment
 ```
 
 If your computer has less than 1.5GB of memory, you need to add an -S option or an -s \<size> Option to create a swapfile.
@@ -121,7 +118,7 @@ ubuntu$ cd web-app/
 ubuntu$ sudo docker-compose -f docker-compose.yaml up -d
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://HOST-IP:8080/ to see your app. :smile:  
+If everything is done well, we are ready to access our fabric network. Go to http://[HOST-IP]:8080/ to see your app. :smile: <br>
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
@@ -142,7 +139,7 @@ The shell script in the fabric-survey-app folder provides simple preparation:
 ```bash
 ubuntu$ chmod +x prepare.sh
 ubuntu$ sudo ./prepare.sh all
-ubuntu$ source /etc/bash.bashrc
+ubuntu$ source environment
 ```
 
 If your computer has less than 1.5GB of memory, you need to add an -S option or an -s \<size> Option to create a swapfile.
@@ -166,15 +163,7 @@ ubuntu$ npm install
 ubuntu$ npm start
 ```
 
-Then, run the card recognition server.
-
-```bash
-ubuntu$ cd ../card-recognize-api/
-ubuntu$ pip3 install -r ./requirements.txt
-ubuntu$ python3 app.py
-```
-
-Finally, run the client.
+And then, run the client.
 
 ```bash
 ubuntu$ cd ../client/
@@ -182,7 +171,7 @@ ubuntu$ npm install
 ubuntu$ npm run serve
 ```
 
-If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile:  
+If everything is done well, we are ready to access our fabric network. Go to http://localhost:8080/ to see your app. :smile: <br>
 Now test the web you created. The id and password of the existing manager are admin, adminpw.
 
 ---
